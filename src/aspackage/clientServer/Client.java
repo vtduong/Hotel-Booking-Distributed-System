@@ -456,7 +456,7 @@ public class Client {
 	}
 	
 	private void logStatus(String requestType,String clientID,Map<String, String> requestParameters, String serverResonse) {
-			 String filePath= "src/logFiles/"+clientID;
+			 String filePath= "src/aspackage/logFiles/"+clientID;
 		     FileLogger log = new FileLogger(filePath,requestType,clientID,requestParameters, serverResonse);
 		     log.writeFilesForClient();
 	}

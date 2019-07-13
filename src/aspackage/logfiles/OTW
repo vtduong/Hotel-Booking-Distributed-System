@@ -1,0 +1,16 @@
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=OTWM100100, eventType=Trade Show, bookingCapacity=1}
+Request time:2019-07-13T18:38:27.148
+======================================
+
+=============New Session==============
+Request Type:UDP Call: getBookingSchedule
+Request Status:Sucess
+Server Resposnse:You have no event in Ottawa
+requestParameters:{customerId=MTLC1234}
+Request time:2019-07-13T18:41:04.851
+======================================
