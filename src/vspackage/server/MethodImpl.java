@@ -938,9 +938,10 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					int availability = (Integer)((HashMap) eventMap.get(newEventType)).get(newEventID);
 					if(availability > 0) {
 						//check and cancel old event remotely
-						SendMessage sender = new SendMessage(new Header(Protocol.CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
-								oldEventType, -1));
-						cancelResult = sender.send();
+//						SendMessage sender = new SendMessage(new Header(Protocol.CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
+//								oldEventType, -1));
+//						cancelResult = sender.send();
+						cancelResult = this.bookEvent(customerID, newEventID, newEventType);
 					}
 					if(cancelResult.contains("successfully")) {
 						//book local event
@@ -966,7 +967,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				}
 			}
 			
-		} catch (java.lang.ClassNotFoundException | SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException e) {
+		} catch (java.lang.ClassNotFoundException | SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
