@@ -1,8 +1,6 @@
 # DistributedSystemProject
 <h2>Software Failure Tolerant and/or Highly Available Distributed Event Management System</h2>
-<div>
 
-  <div>
   <h3>Overall Architecture</h3>
     <h4>Client</h4>
       <p>
@@ -19,5 +17,3 @@
     <p>
     Sequencer acts as a middleware between front-end and replica managers of all the replicas and communicates via UDP protocol. It’s primary job is to generate sequence number based on a chronological order and assign it  to client’s request.The sequencer then multicast those requests to all RMs. It also forwards responses from RMs back to FE.</br>
     </p>
-  </div>
-</div>
