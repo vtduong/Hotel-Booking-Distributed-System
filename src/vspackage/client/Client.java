@@ -84,17 +84,18 @@ public class Client {
 			if(cityCode.equalsIgnoreCase("TOR")) {
 
 				hostname = "TOR";
-				connectServer(hostname, args, option, id);
-				
+//				connectServer(hostname, args, option, id);
+				connectServer(hostname, option, id);
 			} else if(cityCode.equalsIgnoreCase("MTL")) {
 
 				hostname = "MTL";
-				connectServer(hostname, args, option, id);
-				
+//				connectServer(hostname, args, option, id);
+				connectServer(hostname, option, id);
 			} else if(cityCode.equalsIgnoreCase("OTW")) {
 
 				hostname = "OTW";
-				connectServer(hostname, args, option, id);
+//				connectServer(hostname, args, option, id);
+				connectServer(hostname, option, id);
 			}
 		}
 		
@@ -131,11 +132,11 @@ public class Client {
 	 * @param option type of operation
 	 * @param cusID the customer ID
 	 */
-	private static void connectServer(String hostName, String[] args, int option, String cusID) {
+	private static void connectServer(String hostName, int option, String cusID) {
 		//create a logger for this client
 		Logger logger = new Logger(cusID, true);
 		try {
-			ORB orb = ORB.init(args, null);
+			ORB orb = ORB.init(new String[] {null}, null);
 			//-ORBInitialPort 1050 -ORBInitialHost localhost
 			org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
 			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
