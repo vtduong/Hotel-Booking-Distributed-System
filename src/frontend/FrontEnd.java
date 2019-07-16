@@ -1,6 +1,16 @@
 package frontend;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.concurrent.SynchronousQueue;
+
+import org.json.simple.JSONObject;
+
+import ipconfig.IPConfig;
+import vspackage.bean.Header;
+import vspackage.config.Config;
 
 public class FrontEnd {
 	
@@ -76,15 +86,58 @@ class ReceiveFromHost implements Runnable {
 
 
 class SendToSequencer {
-
-	public SendToSequencer() {
-		//TODO 
+	
+	private DatagramSocket socket = null;
+	private int port;
+	private Header header = null;
+	
+	public SendToSequencer(Header header) {
+		
+		try {
+			this.header = header;
+			this.port = Integer.parseInt(IPConfig.getProperty("sequencer_receive_port"));
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		} 
 	}
 
-	public String send() {
+	public String send() throws IOException {
 
 		//TODO
-		//return ack
-		return null;
+		String sequencerAddr = IPConfig.getProperty("sequencer_addr");
+		
+		InetAddress addr = InetAddress.getByName(sequencerAddr);
+		JSONObject jsonData = new JSONObject();
+		
+		jsonData.put("protocol_type", header.getProtocol());
+		jsonData.put("userID", header.getUserID());
+		jsonData.put("fromServer", header.getFromServer());
+		jsonData.put("toServer", header.getToServer());
+		jsonData.put("eventID", header.getEventID());
+		jsonData.put("eventType", header.getEventType());
+		jsonData.put("newEventID", header.getNewEventID());
+		jsonData.put("newEventType", header.getNewEventType());
+		jsonData.put("capacity", header.getCapacity());
+		
+		String json = jsonData.toJSONString();
+		
+		byte[] data = json.getBytes();
+		DatagramPacket packet = new DatagramPacket(data, data.length, addr, port);
+		
+		byte[] statusCode = new byte[10000];
+		
+		DatagramPacket ack = new DatagramPacket(statusCode, statusCode.length);
+		socket.receive(ack);
+		
+		
+		socket.disconnect();
+		socket.close();
+		
+//		logger.log(2, "SendMessage(" + protocol + "," + userID + 
+//				") : returned : " + new String(statusCode));
+		
+		return new String(statusCode);
+
 	}
 }
