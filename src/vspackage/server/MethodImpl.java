@@ -20,6 +20,7 @@ import org.json.simple.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import extension.AdditionalFunctions;
 import vspackage.RemoteMethodApp.RemoteMethodPOA;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.ClassNotFoundException;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.IllegalArgumentException;
@@ -33,7 +34,7 @@ import vspackage.tools.ExtractDate;
 import vspackage.tools.JSONParser;
 import vspackage.tools.Logger;
 
-public class MethodImpl extends RemoteMethodPOA implements Serializable{
+public class MethodImpl extends AdditionalFunctions implements Serializable{
 	
 	private String serverName = null;
 	private Logger logger = null;
@@ -46,6 +47,7 @@ public class MethodImpl extends RemoteMethodPOA implements Serializable{
 //	 * a mapping of event and list of customers, used to keep track events a customer reserves
 //	 */
 //	private volatile Map<String,HashMap<String, List<String>>> eventCus = null;
+	
 	
 	protected MethodImpl(String name, String fullName) throws IOException, SecurityException, NoSuchFieldException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException{
 		super();
