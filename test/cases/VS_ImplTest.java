@@ -53,9 +53,7 @@ public class VS_ImplTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		otw = startORB("OTW");
-		mtl = startORB("MTL");
-		tor = startORB("TOR");
+
 	}
 
 	private void clearClassData(String name) throws NoSuchFieldException, SecurityException, java.lang.ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
