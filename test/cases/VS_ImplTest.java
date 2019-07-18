@@ -48,7 +48,7 @@ public class VS_ImplTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		h.removeEvent(eventID, eventType)
+		//h.removeEvent(eventID, eventType)
 	}
 	
 	private vspackage.RemoteMethodApp.RemoteMethod startORB(String hostName) throws InvalidName, NotFound, CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
