@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.SynchronousQueue;
 
 import org.json.simple.JSONObject;
@@ -17,11 +19,12 @@ import org.omg.PortableServer.POAHelper;
 
 import FEApp.FEMethodHelper;
 import FEApp.FEMethodPOA;
+import extension.Clock;
 import ipconfig.IPConfig;
 import vspackage.bean.Header;
 
-public class FrontEnd extends FEMethodPOA implements Serializable {
-	
+public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
+	Map<String, Integer> clock = new HashMap<String, Integer>();
 	
 	public String addEvent (String eventID, String eventType, int bookingCapacity) {
 		SynchronousQueue queue = new SynchronousQueue();
@@ -120,6 +123,34 @@ public class FrontEnd extends FEMethodPOA implements Serializable {
 		}
 
 
+	}
+
+
+	@Override
+	public int getLocalTime(String name) {
+		// TODO Auto-generated method stub
+		return this.clock.get(name);
+	}
+
+
+	@Override
+	public void incrementLocalTime(String name) {
+		this.clock.put(name, this.clock.get(name) + 1);
+		
+	}
+
+
+	@Override
+	public Map<String, Integer> updateLocalClock(String name, Map<String, Integer> messageClock) {
+		int newTime = 0;
+		//compare local clock with message clock and update local clock accordingly
+		for(Map.Entry<String, Integer> entry : messageClock.entrySet()) {
+//			int localTime = this.clock.get(entry.getKey());
+			newTime = Math.max(this.clock.get(entry.getKey()), messageClock.get(entry.getKey()));
+			this.clock.put(name, newTime);
+		}
+		
+		return this.clock;
 	}
 	
 }
