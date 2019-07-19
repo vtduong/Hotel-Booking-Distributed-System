@@ -12,7 +12,7 @@ import java.util.Map;
  * @author vanduong
  *
  */
-public abstract class AdditionalFunctions {
+public abstract class AdditionalFunctions implements Clock{
 
 	//each component of the system (except client) must use this clock
 	protected volatile Map<String, Integer> clock; 
@@ -42,7 +42,7 @@ public abstract class AdditionalFunctions {
 	 * @param name the name
 	 * @return the time
 	 */
-	public int getTime(String name) {
+	public int getLocalTime(String name) {
 		return clock.get(name);
 	}
 	
@@ -51,8 +51,27 @@ public abstract class AdditionalFunctions {
 	 *
 	 * @param name the new time
 	 */
-	public synchronized void incrementTime(String name) {
+	public synchronized void incrementLocalTime(String name) {
 		clock.put(name, clock.get(name) + 1);
+	}
+	
+	/**
+	 * Update local time of a component given its name and the clock in the received message
+	 *
+	 * @param name the name
+	 * @param messageTime the message time
+	 * @return the updated local clock
+	 */
+	public synchronized Map<String, Integer> updateLocalClock(String name, Map<String, Integer> messageClock) {
+		int newTime = 0;
+		//compare local clock with message clock and update local clock accordingly
+		for(Map.Entry<String, Integer> entry : messageClock.entrySet()) {
+//			int localTime = this.clock.get(entry.getKey());
+			newTime = Math.max(this.clock.get(entry.getKey()), messageClock.get(entry.getKey()));
+			this.clock.put(name, newTime);
+		}
+		
+		return this.clock;
 	}
 
 
