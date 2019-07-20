@@ -692,7 +692,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			sender = new SendMessage(head);
 			result += "\n" + sender.send();
 			//send request to Ottawa
-			head = new Header(prototype, clientID, this.serverName, "OTW", null, null, 0);
+			head = new Header(prototype, clientID, this.serverName, "MTL", null, null, 0);
 			sender = new SendMessage(head);
 			result += "\n" + sender.send();
 		} 
@@ -916,9 +916,10 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						String bookResult = "";
 						if(hasCustomer == true) {
 							//check and book remote event
-							SendMessage sender = new SendMessage(new Header(Protocol.BOOK_EVENT, customerID, oldCityCode, newCityCode, newEventID,
-									newEventType, -1));
-							bookResult = sender.send();
+//							SendMessage sender = new SendMessage(new Header(Protocol.BOOK_EVENT, customerID, oldCityCode, newCityCode, newEventID,
+//									newEventType, -1));
+//							bookResult = sender.send();
+							bookResult = this.bookEvent(customerID, newEventID, newEventType);
 						}
 						if(bookResult.contains("successfully")) {//cancel old event
 							cancelResult = this.cancelEventUDP(customerID, oldEventID, oldEventType);
@@ -940,10 +941,10 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					int availability = (Integer)((HashMap) eventMap.get(newEventType)).get(newEventID);
 					if(availability > 0) {
 						//check and cancel old event remotely
-//						SendMessage sender = new SendMessage(new Header(Protocol.CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
-//								oldEventType, -1));
-//						cancelResult = sender.send();
-						cancelResult = this.bookEvent(customerID, newEventID, newEventType);
+						SendMessage sender = new SendMessage(new Header(Protocol.CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
+								oldEventType, -1));
+						cancelResult = sender.send();
+//						cancelResult = this.bookEvent(customerID, newEventID, newEventType);
 					}
 					if(cancelResult.contains("successfully")) {
 						//book local event
