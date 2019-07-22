@@ -10,6 +10,7 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 
+import FEApp.FEMethodHelper;
 import vspackage.RemoteMethodApp.RemoteMethodHelper;
 import vspackage.bean.Protocol;
 import vspackage.tools.Logger;
@@ -81,21 +82,37 @@ public class Client {
 			
 			//create a skeleton of the client to register on server side
 			
-			if(cityCode.equalsIgnoreCase("TOR")) {
-
+//			if(cityCode.equalsIgnoreCase("TOR")) {
+//
+//				hostname = "TOR";
+////				connectServer(hostname, args, option, id);
+//				connectServer(hostname, option, id);
+//			} else if(cityCode.equalsIgnoreCase("MTL")) {
+//
+//				hostname = "MTL";
+////				connectServer(hostname, args, option, id);
+//				connectServer(hostname, option, id);
+//			} else if(cityCode.equalsIgnoreCase("OTW")) {
+//
+//				hostname = "OTW";
+////				connectServer(hostname, args, option, id);
+//				connectServer(hostname, option, id);
+//			}
+			
+			if(cityCode.equalsIgnoreCase(" ")) {
+				
 				hostname = "TOR";
-				connectServer(hostname, args, option, id);
 				
 			} else if(cityCode.equalsIgnoreCase("MTL")) {
-
+				
 				hostname = "MTL";
-				connectServer(hostname, args, option, id);
 				
 			} else if(cityCode.equalsIgnoreCase("OTW")) {
-
+				
 				hostname = "OTW";
-				connectServer(hostname, args, option, id);
 			}
+			
+			connectFEServer(option, id);
 		}
 		
 	}
@@ -122,6 +139,98 @@ public class Client {
 		
 	}
 
+	/**
+	 * Connect FE server CORBA.
+	 *
+	 * @param hostName the host name (default is localhost)
+	 * @param port the server port
+	 * @param option type of operation
+	 * @param cusID the customer ID
+	 */
+	private static void connectFEServer(int option, String cusID) {
+		//create a logger for this client
+		Logger logger = new Logger(cusID, true);
+		try {
+			ORB orb = ORB.init(new String[] {null}, null);
+			//-ORBInitialPort 1050 -ORBInitialHost localhost
+			org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
+			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+			FEApp.FEMethod h = (FEApp.FEMethod) FEMethodHelper.narrow(ncRef.resolve_str("FE"));
+	         logger.log(2, "Lookup completed");
+	         System.out.println("Lookup completed " );
+	         
+	         Scanner scan = new Scanner(System.in);
+	         // invoke the remote method
+	         if(option == Protocol.BOOK_EVENT) { //book an event
+	        	String eventType = inputEventType();
+	     		String eventID = inputEventID();
+	     		logger.log(2, "booking an event for " + eventType + eventID);
+	        	String status = h.bookEvent(cusID, eventID, eventType);
+	        	System.out.println(status);
+	        	logger.log(2, status);
+	         } else if(option == Protocol.GET_SCHEDULE_EVENT) { //get booking event
+	        	 String eventList = h.getBookingSchedule(cusID);
+	        	 System.out.println("\n" +eventList);
+	        	 logger.log(2, "getting booked event");
+	        	 
+	        	 logger.log(2, eventList);
+	        	 
+	         
+	         } else if(option == Protocol.CANCEL_EVENT) { //cancel event
+	        	 String eventID = inputEventID();
+	        	 String eventType = inputEventType();
+	        	 String status = h.cancelEvent(cusID, eventID, eventType);
+	        	 logger.log(2, "canceling event " + eventID);
+	        	 System.out.println(status);
+	        	 logger.log(2, status);
+	         
+	         } else if(option == Protocol.ADD_EVENT) { //add new event
+	        	 logger.log(2, "adding an event");
+	        	 Object[] results = createEvent();
+	        	 String status = h.addEvent((String)results[1], (String)results[0], (Integer)results[2]);
+	        	 System.out.println(status);
+	        	 logger.log(2, status);
+	         
+	         } else if(option == Protocol.REMOVE_EVENT) { //remove an event
+	        	 String eventID = inputEventID();
+	        	 String eventType = inputEventType();
+	        	 String status = h.removeEvent(eventID, eventType);
+	        	 logger.log(2, "removing an event " + eventType + " " + eventID);
+	        	 System.out.println(status);
+	        	 logger.log(2, status);
+	        	 
+	         } else if(option == Protocol.EVENT_AVAILABLITY) { //list event availability
+	        	 logger.log(2, "listing event availability");
+	        	 String eventType = inputEventType();
+        	 	String result = h.listEventAvailability(eventType);
+        	 	System.out.println("\n"+result);
+        	 	logger.log(2, result);
+	         } else if(option == Protocol.SWAP_EVENT) {//swap event
+	        	 String oldEventType = inputOldEventType();
+	        	 String oldEventID = inputOldEventID();
+	        	 String newEventType = inputNewEventType();
+	        	 String newEventID = inputNewEventID();
+	        	 String status = h.swapEvent(cusID, newEventID, newEventType, oldEventID, oldEventType);
+	        	 logger.log(2, "swapping events ");
+	        	 System.out.println(status);
+	        	 logger.log(2, status);
+	         }
+	         
+	         
+	      }
+	      catch (Exception e) {
+	         System.out.println("Exception in Client: " + e);
+	         e.printStackTrace();
+	         
+	         try {
+				logger.log(0, "Exception in Client: " + e.getMessage());
+			} catch (IOException e1) {
+				System.out.println("Error while trying to log in Client");
+				e1.printStackTrace();
+			}
+	      } 
+		
+	}
 		
 	/**
 	 * Connect server CORBA.
@@ -131,11 +240,11 @@ public class Client {
 	 * @param option type of operation
 	 * @param cusID the customer ID
 	 */
-	private static void connectServer(String hostName, String[] args, int option, String cusID) {
+	private static void connectServer(String hostName, int option, String cusID) {
 		//create a logger for this client
 		Logger logger = new Logger(cusID, true);
 		try {
-			ORB orb = ORB.init(args, null);
+			ORB orb = ORB.init(new String[] {null}, null);
 			//-ORBInitialPort 1050 -ORBInitialHost localhost
 			org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
 			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);

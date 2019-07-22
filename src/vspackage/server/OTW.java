@@ -20,11 +20,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
 import vspackage.RemoteMethodApp.RemoteMethodHelper;
+import vspackage.RemoteMethodApp.RemoteMethodPackage.ClassNotFoundException;
+import vspackage.RemoteMethodApp.RemoteMethodPackage.IllegalArgumentException;
+import vspackage.RemoteMethodApp.RemoteMethodPackage.NoSuchFieldException;
+import vspackage.RemoteMethodApp.RemoteMethodPackage.SecurityException;
 import vspackage.config.Config;
 
 import vspackage.tools.Logger;
 
-public class OTW {
+public class OTW extends MethodImpl {
 	
 	// volatile because of thread safe
 	protected static volatile Map<String, HashMap<String, Integer>> eventMap = null;
@@ -34,50 +38,17 @@ public class OTW {
 	 */
 	protected static volatile Map<String,HashMap<String, List<String>>> eventCus = null;
 	
+	OTW() throws RemoteException, SecurityException, NoSuchFieldException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, IOException{
+		super(OTW.class.getSimpleName(), OTW.class.getName());
+	}
+	
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		Logger logger = new Logger("OTW");
-		
+		OTW instance = null;
 	    
 	      try {
-				// create and initialize the ORB //
-				ORB orb = ORB.init(args, null);
-				
-				// get reference to rootpoa &amp; activate
-				POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-				rootpoa.the_POAManager().activate();
-
-				// create servant and register it with the ORB
-				MethodImpl methodObj = new MethodImpl(OTW.class.getSimpleName(), OTW.class.getName());
-				
-
-				// get object reference from the servant
-				org.omg.CORBA.Object ref = rootpoa.servant_to_reference(methodObj);
-				
-				
-				// and cast the reference to a CORBA reference
-				vspackage.RemoteMethodApp.RemoteMethod href = RemoteMethodHelper.narrow(ref);
-
-				// get the root naming context
-				// NameService invokes the transient name service
-				org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
-				
-				// Use NamingContextExt, which is part of the
-				// Interoperable Naming Service (INS) specification.
-				NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-
-				// bind the Object Reference in Naming
-				NameComponent path[] = ncRef.to_name("OTW");
-				ncRef.rebind(path, href);
-
-				System.out.println("Ottawa Server ready and waiting ...");
-				logger.log(2, "server started registry");
-				// wait for invocations from clients
-				for (;;) {
-					orb.run();
-				}
-			}
-
-			catch (Exception e) {
+	    	  instance = new OTW();
+	      }catch (Exception e) {
 				System.err.println("ERROR: " + e);
 				e.printStackTrace(System.out);
 				

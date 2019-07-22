@@ -117,6 +117,7 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+
 #ignore logs & target
 **/logs/
 **/target/
