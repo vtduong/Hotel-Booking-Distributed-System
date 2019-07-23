@@ -231,9 +231,9 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 //				 eventMap.get(eventType).put(eventID, bookingCapacity);
 				
 				logger.log(2, "addEventUDP(" + eventID + "," + eventType + "," + bookingCapacity +
-						") : returned : " + "Event already exists, capacity is updated");
+						") : returned : " + "Event already exists, capacity is updated successfully");
 				
-				return "Event already exists, capacity is updated";
+				return "Event already exists, capacity is updated successfully";
 			}
 			Map newEventMap = new HashMap<>(eventMap);
 			((HashMap) newEventMap.get(eventType)).put(eventID, bookingCapacity);
