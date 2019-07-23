@@ -31,6 +31,17 @@ public class MTL extends MethodImpl{
 	 */
 	protected static volatile Map<String,HashMap<String, List<String>>> eventCus = null;
 	
+	
+	/**
+	 * Constructor
+	 * @throws RemoteException
+	 * @throws SecurityException
+	 * @throws NoSuchFieldException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
 	MTL() throws RemoteException, SecurityException, NoSuchFieldException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, IOException{
 		super(MTL.class.getSimpleName(), MTL.class.getName());
 	}
