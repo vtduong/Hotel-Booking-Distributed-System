@@ -21,6 +21,7 @@ import org.json.simple.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import extension.AdditionalFunctions;
+//import server.MethodImpl.SendMessage;
 import vspackage.RemoteMethodApp.RemoteMethodPOA;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.ClassNotFoundException;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.IllegalArgumentException;
@@ -230,9 +231,9 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 //				 eventMap.get(eventType).put(eventID, bookingCapacity);
 				
 				logger.log(2, "addEventUDP(" + eventID + "," + eventType + "," + bookingCapacity +
-						") : returned : " + "Event already exists, capacity is updated");
+						") : returned : " + "Event already exists, capacity is updated successfully");
 				
-				return "Event already exists, capacity is updated";
+				return "Event already exists, capacity is updated successfully";
 			}
 			Map newEventMap = new HashMap<>(eventMap);
 			((HashMap) newEventMap.get(eventType)).put(eventID, bookingCapacity);
@@ -692,7 +693,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			sender = new SendMessage(head);
 			result += "\n" + sender.send();
 			//send request to Ottawa
-			head = new Header(prototype, clientID, this.serverName, "OTW", null, null, 0);
+			head = new Header(prototype, clientID, this.serverName, "MTL", null, null, 0);
 			sender = new SendMessage(head);
 			result += "\n" + sender.send();
 		} 
@@ -881,7 +882,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						String result2 = "";
 						String result1 = "";
 						Map eventMap = this.getStaticValue("eventMap");
-						if((Integer)((HashMap) eventMap.get(newEventType)).get(newEventID) > 0) {
+						if(eventMap.get(newEventType) != null && (Integer)((HashMap) eventMap.get(newEventType)).getOrDefault(newEventID, 0) > 0) {
 							isAvailable = true;
 						}
 						if(hasCustomer == true) {
@@ -903,7 +904,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
 					oldEventID + oldEventType +
 							") : returned : " + result.toString());
-					return result;
+					return result.trim().replaceAll("[\\000]*", "");
 				
 			} else {//one of the event is not local
 				//old event is local, new event is remote
@@ -916,9 +917,10 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						String bookResult = "";
 						if(hasCustomer == true) {
 							//check and book remote event
-							SendMessage sender = new SendMessage(new Header(Protocol.BOOK_EVENT, customerID, oldCityCode, newCityCode, newEventID,
-									newEventType, -1));
-							bookResult = sender.send();
+//							SendMessage sender = new SendMessage(new Header(Protocol.BOOK_EVENT, customerID, oldCityCode, newCityCode, newEventID,
+//									newEventType, -1));
+//							bookResult = sender.send();
+							bookResult = this.bookEvent(customerID, newEventID, newEventType);
 						}
 						if(bookResult.contains("successfully")) {//cancel old event
 							cancelResult = this.cancelEventUDP(customerID, oldEventID, oldEventType);
@@ -929,7 +931,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
 								oldEventID + oldEventType +
 										") : returned : " + result.toString());
-						return result.toString();
+						return result.trim().replaceAll("[\\000]*", "");
 					}
 				} else if(this.serverName.equalsIgnoreCase(newCityCode) &&
 						!this.serverName.equalsIgnoreCase(oldCityCode)) {//old event is remote, new event is local
@@ -937,13 +939,15 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					String bookResult = "";
 					//check isAvailable condition
 					Map eventMap = this.getStaticValue("eventMap");
-					int availability = (Integer)((HashMap) eventMap.get(newEventType)).get(newEventID);
+					int availability = 0;
+					if(((HashMap) eventMap.get(newEventType)) != null) {
+						availability = (Integer)((HashMap) eventMap.get(newEventType)).getOrDefault(newEventID, 0);
+					}
 					if(availability > 0) {
 						//check and cancel old event remotely
-//						SendMessage sender = new SendMessage(new Header(Protocol.CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
-//								oldEventType, -1));
-//						cancelResult = sender.send();
-						cancelResult = this.bookEvent(customerID, newEventID, newEventType);
+						SendMessage sender = new SendMessage(new Header(Protocol.CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
+								oldEventType, -1));
+						cancelResult = sender.send();
 					}
 					if(cancelResult.contains("successfully")) {
 						//book local event
@@ -956,7 +960,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
 							oldEventID + oldEventType +
 									") : returned : " + result.toString());
-					return result.toString();
+					return result.trim().replaceAll("[\\000]*", "");
 				}else if(!this.serverName.equalsIgnoreCase(oldCityCode) &&
 						!this.serverName.equalsIgnoreCase(newCityCode)) {//both events are remote
 					SendMessage sender = new SendMessage(new Header(Protocol.SWAP_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
@@ -965,11 +969,11 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
 							oldEventID + oldEventType +
 									") : returned : " + message);
-					return message;
+					return message.trim().replaceAll("[\\000]*", "");
 				}
 			}
 			
-		} catch (java.lang.ClassNotFoundException | SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException e) {
+		} catch (SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException | java.lang.ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
