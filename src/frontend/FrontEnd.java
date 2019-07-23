@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.SynchronousQueue;
 
 import org.json.simple.JSONObject;
@@ -24,11 +25,11 @@ import ipconfig.IPConfig;
 import vspackage.bean.Header;
 import vspackage.bean.Protocol;
 
+
 public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	Map<String, Integer> clock = new HashMap<String, Integer>();
 	
 	public String addEvent (String eventID, String eventType, int bookingCapacity) {
-		SynchronousQueue queue = new SynchronousQueue();
 		
 		Header header = new Header();
 		header.setCapacity(bookingCapacity);
@@ -50,7 +51,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 
 
 	public String removeEvent (String eventID, String eventType) {
-		SynchronousQueue queue = new SynchronousQueue();
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -69,7 +69,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 
 
 	public String listEventAvailability (String eventType) {
-		SynchronousQueue queue = new SynchronousQueue();
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -88,7 +87,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 
 
 	public String bookEvent (String customerID, String eventID, String eventType) {
-		SynchronousQueue queue = new SynchronousQueue();
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -109,7 +107,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 
 
 	public String getBookingSchedule (String customerID) {
-		SynchronousQueue queue = new SynchronousQueue();
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -128,7 +125,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 
 
 	public String cancelEvent (String customerID, String eventID, String eventType) {
-		SynchronousQueue queue = new SynchronousQueue();
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -147,7 +143,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 
 
 	public String swapEvent (String customerID, String newEventID, String newEventType, String oldEventID, String oldEventType) {
-		SynchronousQueue queue = new SynchronousQueue();
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -164,7 +159,63 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		
 		return null;
 	}
+	
+	
+	// Idea : Receive method waits for the reply from all the servers
+	// and then store the results in the queue. We use the queue to 
+	// get the correct result 
+	private String verify(Queue<String> queue) {
+		
+		int successCount = 0;
+		int failCount = 0;
+		
+		Map<String, String> successServer = new HashMap<String, String>();
+		Map<String, String> failServer = new HashMap<String, String>();
+		
+		String successServerNames = "";
+		String failServerNames = "";
 
+		
+		for(String str : queue) {
+			
+			if(str.contains("success")) {
+				successCount++;
+				
+				String[] temp = str.split(":");
+				
+				successServerNames = successServerNames + "-" + temp[1];
+						
+				
+			} else {
+				failCount++;
+				
+				String[] temp = str.split(":");
+				
+				failServerNames = failServerNames + "-" + temp[1];
+			}
+			
+		}
+		
+		successServerNames = successServerNames.substring(0, successServerNames.length() -2 );
+		failServerNames = failServerNames.substring(0, failServerNames.length() - 2);
+		
+		successServer.put("success", successServerNames);
+		failServer.put("fail", failServerNames);
+		
+		String result = successCount > failCount? "success" : "fail";
+		
+		
+		JSONObject response = new JSONObject();
+		response.put("result", result);
+		response.put("success", successServer);
+		response.put("fail", failServer);
+		
+		
+		
+		return response.toJSONString();
+	}
+
+	
 	public static void main(String[] args) {
 		
 		try {
