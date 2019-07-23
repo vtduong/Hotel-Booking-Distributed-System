@@ -41,7 +41,9 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.ADD_EVENT);
 		
+		SendToSequencer sender = new SendToSequencer(header);
 		// TODO send and receive
+		
 		
 		return null;
 	}
@@ -98,6 +100,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setNewEventID(null);
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.BOOK_EVENT);
+		
 		
 		//TODO send and receive
 		
