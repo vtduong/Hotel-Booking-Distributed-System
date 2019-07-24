@@ -117,22 +117,22 @@ public class OTW extends DEMSOperationsPOA {
 				} else {
 					serverResponse = "New event added.";
 				}
-				requestStatus = "Success";	
+				requestStatus = Util.Success;	
 			}
 			else {
-				requestStatus = "failure";
+				requestStatus = Util.Success;
 				serverResponse = "Customer can add events for Ottawa city only. Try Again.";
 			}
 
 			
 		} catch (Exception e) {
-			requestStatus = "failure";
+			requestStatus = Util.Failure;
 			serverResponse = "Request was not completed. Error Message :" + e.getMessage();
 		} finally {
 			logStatus("addEvent", requestParameters, requestStatus, serverResponse);
 
 		}
-		return serverResponse;
+		return serverResponse+Util.SEMI_COLON+requestStatus;
 
 	}
 	
@@ -279,15 +279,15 @@ public class OTW extends DEMSOperationsPOA {
 				if (validateMonth) {
 					serverResponse = "Event cannot be booked.";
 				}
-				requestStatus = "Sucess";
+				requestStatus = Util.Success;
 			} catch (Exception e) {
-				requestStatus = "failure";
+				requestStatus = Util.Failure;
 				serverResponse = "Request was not completed. Error Message :" + e;
 			} finally {
 				logStatus(Util.BOOK_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse;
+		return serverResponse+Util.SEMI_COLON+Util.Success;
 	}
 
 	@Override
@@ -325,8 +325,9 @@ public class OTW extends DEMSOperationsPOA {
 				response[0]=serverResponse;
 			}
 			serverResponse = response[0] + "\n" + response[1].trim() + "\n" + response[2].trim();
+			requestStatus=Util.Success;
 		} catch (Exception e) {
-			requestStatus = "failure";
+			requestStatus =Util.Failure;
 			serverResponse = "Request was not completed. Error Message :" + e.getMessage();
 			response[3] = serverResponse;
 
@@ -336,7 +337,7 @@ public class OTW extends DEMSOperationsPOA {
 			requestParameters.put("customerId", String.valueOf(customerId));
 			logStatus(Util.Get_Booking_Schedule, requestParameters, requestStatus, serverResponse);
 		}
-		return serverResponse;
+		return serverResponse+Util.SEMI_COLON+requestStatus;
 	}
 
 	@Override
@@ -397,9 +398,9 @@ public class OTW extends DEMSOperationsPOA {
 				} else {
 					serverResponse = "Booking does not exist";
 				}
-				requestStatus = "Sucess";
+				requestStatus = Util.Success;
 			} catch (Exception e) {
-				requestStatus = "Failure";
+				requestStatus = Util.Failure;
 			} finally {
 				requestParameters = new HashMap<String, String>();
 				requestParameters.put("eventId", eventId);
@@ -408,7 +409,7 @@ public class OTW extends DEMSOperationsPOA {
 				logStatus(Util.CANCEL_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse;
+		return serverResponse+Util.SEMI_COLON+requestStatus;
 	}
 
 	@Override
@@ -448,9 +449,9 @@ public class OTW extends DEMSOperationsPOA {
 			} else {
 				serverResponse = "Event was not available.";
 			}
-			requestStatus = "Sucess";
+			requestStatus = Util.Success;
 		} catch (Exception e) {
-			requestStatus = "Failure";
+			requestStatus = Util.Failure;
 			serverResponse = "Request was not completed. Error Message :" + e.getMessage();
 		} finally {
 			requestParameters = new HashMap<String, String>();
@@ -458,7 +459,7 @@ public class OTW extends DEMSOperationsPOA {
 			requestParameters.put("eventType", eventType);
 			logStatus("removeEvent", requestParameters, requestStatus, serverResponse);
 		}
-		return serverResponse;
+		return serverResponse+Util.SEMI_COLON+requestStatus;
 	}
 	
 	public synchronized void removeFromCustBook(String eventId,String eventType) {
@@ -524,15 +525,15 @@ public class OTW extends DEMSOperationsPOA {
 			}
 			response[2] = listofEvents.toString();
 			serverResponse = response[2] + " " + response[0] + " " + response[1];
-
+			requestStatus =Util.Success;
 		} catch (Exception e) {
-
+			requestStatus =Util.Failure;
 		} finally {
 			requestParameters = new HashMap<String, String>();
 			requestParameters.put("eventType", eventType);
 			logStatus("removeEvent", requestParameters, requestStatus, serverResponse);
 		}
-		return serverResponse;
+		return serverResponse+Util.SEMI_COLON+requestStatus;
 	}
 
 	public synchronized String udpCallforGetSchedule(String customerId) {
@@ -579,7 +580,9 @@ public class OTW extends DEMSOperationsPOA {
 		}else {
 			message2 = "Cannot swap events.";
 		}
+		requestStatus=Util.Success;
 		}catch(Exception e) {
+			requestStatus=Util.Failure;
 			message2 = "Swap Failure";
 		}finally {
 			requestParameters = new HashMap<String, String>();
@@ -590,7 +593,7 @@ public class OTW extends DEMSOperationsPOA {
 			requestParameters.put("customerId", customerID);
 			logStatus(Util.Swap_event, requestParameters, requestStatus, message2);
 		}
-		return message2.trim();
+		return message2.trim()+Util.SEMI_COLON+requestStatus;
 	}
 
 	public synchronized String booking_exist(String custID, String eventID, String eventType) {
