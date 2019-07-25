@@ -11,6 +11,7 @@ public class Header {
 	private int capacity;
 	private String newEventType;
 	private String newEventID;
+	private int sequenceId;
 	
 	
 	public Header(int PROTOCOL_TYPE, String userID, String fromServer, String toServer, String oldEventID,
@@ -138,6 +139,12 @@ public class Header {
 	 */
 	public int getCapacity() {
 		return capacity;
+	}
+	public int getSequenceId() {
+		return sequenceId;
+	}
+	public void setSequenceId(int sequenceId) {
+		this.sequenceId = sequenceId;
 	}
 	
 	
