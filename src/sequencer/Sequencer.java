@@ -9,12 +9,13 @@ import org.json.simple.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import aspackage.clientServer.Util;
+import extension.AdditionalFunctions;
 import extension.Clock;
 import ipconfig.IPConfig;
 import vspackage.bean.Header;
 import vspackage.tools.JSONParser;
 
-public class Sequencer implements Clock {
+public class Sequencer  extends AdditionalFunctions{
 	private static SendRequest msr;
 	private static int seqClock=0;
     private static int[]serverPorts;
@@ -36,6 +37,7 @@ public class Sequencer implements Clock {
 				byte[] buffer = new byte[Util.BUFFER_SIZE]; 
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length); 
 				socket.receive(request);
+				// update local time
 				msr = new SendRequest(socket, request,seqClock);
 				seqClock++;
 			}
@@ -51,23 +53,7 @@ public class Sequencer implements Clock {
 
 
 
-	@Override
-	public int getLocalTime(String name) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void incrementLocalTime(String name) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Map<String, Integer> updateLocalClock(String name, Map<String, Integer> messageClock) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 	
 	
 	static class SendRequest implements Runnable {
@@ -91,9 +77,9 @@ public class Sequencer implements Clock {
 			JSONObject jsonData = new JSONObject();
 			jsonData.put("sequenceId", data.getSequenceId());
 			
-			//send  to all servers
 			
 			for(int i=0;i<4;i++) {
+				// call increment local clock.
 				//TODO
 			}
 			
