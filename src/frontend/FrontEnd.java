@@ -22,55 +22,146 @@ import FEApp.FEMethodPOA;
 import extension.Clock;
 import ipconfig.IPConfig;
 import vspackage.bean.Header;
+import vspackage.bean.Protocol;
 
 public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	Map<String, Integer> clock = new HashMap<String, Integer>();
 	
 	public String addEvent (String eventID, String eventType, int bookingCapacity) {
 		SynchronousQueue queue = new SynchronousQueue();
-		//TODO
+		
+		Header header = new Header();
+		header.setCapacity(bookingCapacity);
+		header.setEventID(eventID);
+		header.setEventType(eventType);
+		header.setFromServer(eventID.substring(0, 3));
+		header.setToServer(eventID.substring(0, 3));
+		header.setUserID(null);
+		header.setNewEventID(null);
+		header.setNewEventType(null);
+		header.setProtocol(Protocol.ADD_EVENT);
+		
+		SendToSequencer sender = new SendToSequencer(header);
+		// TODO send and receive
+		
+		
 		return null;
 	}
 
 
 	public String removeEvent (String eventID, String eventType) {
 		SynchronousQueue queue = new SynchronousQueue();
-		//TODO
+		
+		Header header = new Header();
+		header.setCapacity(0);
+		header.setEventID(eventID);
+		header.setEventType(eventType);
+		header.setFromServer(eventID.substring(0, 3));
+		header.setToServer(eventID.substring(0, 3));
+		header.setUserID(null);
+		header.setNewEventID(null);
+		header.setNewEventType(null);
+		header.setProtocol(Protocol.REMOVE_EVENT);
+		
+		//TODO send and receive
 		return null;
 	}
 
 
 	public String listEventAvailability (String eventType) {
 		SynchronousQueue queue = new SynchronousQueue();
-		//TODO
+		
+		Header header = new Header();
+		header.setCapacity(0);
+		header.setEventID(null);
+		header.setEventType(eventType);
+		header.setFromServer(null);
+		header.setToServer(null);
+		header.setUserID(null);
+		header.setNewEventID(null);
+		header.setNewEventType(null);
+		header.setProtocol(Protocol.EVENT_AVAILABLITY);
+		
+		//TODO send and receive
 		return null;
 	}
 
 
 	public String bookEvent (String customerID, String eventID, String eventType) {
 		SynchronousQueue queue = new SynchronousQueue();
-		//TODO
+		
+		Header header = new Header();
+		header.setCapacity(0);
+		header.setEventID(eventID);
+		header.setEventType(eventType);
+		header.setFromServer(customerID.substring(0, 3));
+		header.setToServer(eventID.substring(0, 3));
+		header.setUserID(customerID);
+		header.setNewEventID(null);
+		header.setNewEventType(null);
+		header.setProtocol(Protocol.BOOK_EVENT);
+		
+		
+		//TODO send and receive
+		
 		return null;
 	}
 
 
 	public String getBookingSchedule (String customerID) {
 		SynchronousQueue queue = new SynchronousQueue();
-		//TODO
+		
+		Header header = new Header();
+		header.setCapacity(0);
+		header.setEventID(null);
+		header.setEventType(null);
+		header.setFromServer(customerID.substring(0, 3));
+		header.setToServer(null);
+		header.setUserID(customerID);
+		header.setNewEventID(null);
+		header.setNewEventType(null);
+		header.setProtocol(Protocol.GET_SCHEDULE_EVENT);
+		
+		//TODO send and receive
 		return null;
 	}
 
 
 	public String cancelEvent (String customerID, String eventID, String eventType) {
 		SynchronousQueue queue = new SynchronousQueue();
-		//TODO
+		
+		Header header = new Header();
+		header.setCapacity(0);
+		header.setEventID(eventID);
+		header.setEventType(eventType);
+		header.setFromServer(customerID.substring(0, 3));
+		header.setToServer(eventID.substring(0, 3));
+		header.setUserID(customerID);
+		header.setNewEventID(null);
+		header.setNewEventType(null);
+		header.setProtocol(Protocol.CANCEL_EVENT);
+		
+		//TODO send and receive
 		return null;
 	}
 
 
 	public String swapEvent (String customerID, String newEventID, String newEventType, String oldEventID, String oldEventType) {
 		SynchronousQueue queue = new SynchronousQueue();
-		//TODO
+		
+		Header header = new Header();
+		header.setCapacity(0);
+		header.setEventID(oldEventID);
+		header.setEventType(oldEventType);
+		header.setFromServer(null);
+		header.setToServer(null);
+		header.setUserID(customerID);
+		header.setNewEventID(newEventID);
+		header.setNewEventType(newEventType);
+		header.setProtocol(Protocol.SWAP_EVENT);
+		
+		//TODO send and receive
+		
 		return null;
 	}
 
