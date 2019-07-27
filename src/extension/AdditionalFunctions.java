@@ -24,6 +24,12 @@ public abstract class AdditionalFunctions implements Clock{
 	
 	protected AdditionalFunctions() {
 		this.clock = new HashMap<String, Integer>();
+		clock.put("FE", 0);
+		clock.put("SE", 0);
+		clock.put("RM1", 0);
+		clock.put("RM2", 0);
+		clock.put("RM3", 0);
+		clock.put("RM4", 0);
 	}
 
 	/**

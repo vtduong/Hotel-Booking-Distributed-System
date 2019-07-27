@@ -31,6 +31,8 @@ public class Util {
 		public static final String Booking_Exist ="booking_exist";
 		public static final String Capasity_Exist ="capasity_exist";
 		public static final String Can_Book ="can_book";
-		public static final String RE = "remove_event";;
+		public static final String RE = "remove_event";
+		public static final String Success = "Success";
+		public static final String Failure = "Failure";;
 
 }
