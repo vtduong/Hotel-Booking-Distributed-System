@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -393,11 +394,16 @@ class ReceiveFromHost implements Runnable {
 			
 			if(queue.size() == Integer.parseInt(IPConfig.getProperty("total_rm"))) {
 				thread.interrupt();
+			
 			}
+			
+		} catch(SocketTimeoutException e) {
+			
+			queue.add("crashed" + " " + addr);
 		
 		} catch(Exception e) {
 			
-			queue.add("fail" + " " + addr);
+			queue.add("failure" + " " + addr);
 		
 		} finally {
 			
