@@ -5,9 +5,15 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 
 import org.json.simple.JSONObject;
@@ -42,8 +48,63 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.ADD_EVENT);
 		
-		SendToSequencer sender = new SendToSequencer(header);
-		// TODO send and receive
+		Queue<String> queue = new LinkedList<String>();
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			
+			ReceiveFromHost fromRMOne = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("port_rm_one")), 
+					Integer.parseInt(IPConfig.getProperty("rm_fe_port_one")), 
+					IPConfig.getProperty("rm_one"),
+					queue, Thread.currentThread());
+			
+			ReceiveFromHost fromRMTwo = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("port_rm_two")), 
+					Integer.parseInt(IPConfig.getProperty("rm_fe_port_two")), 
+					IPConfig.getProperty("rm_two"),
+					queue, Thread.currentThread());
+			
+			ReceiveFromHost fromRMThree = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("port_rm_three")), 
+					Integer.parseInt(IPConfig.getProperty("rm_fe_port_three")), 
+					IPConfig.getProperty("rm_three"),
+					queue, Thread.currentThread());
+			
+			ReceiveFromHost fromRMFour = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("port_rm_four")), 
+					Integer.parseInt(IPConfig.getProperty("rm_fe_port_four")), 
+					IPConfig.getProperty("rm_four"),
+					queue, Thread.currentThread());
+			
+			Thread one = new Thread(fromRMOne);
+			Thread two = new Thread(fromRMTwo);
+			Thread three = new Thread(fromRMThree);
+			Thread four = new Thread(fromRMFour);
+			
+			ExecutorService service = Executors.newCachedThreadPool();
+			service.execute(one);
+			service.execute(two);
+			service.execute(three);
+			service.execute(four);
+			
+			service.shutdown();
+			
+			Thread.sleep(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}	
+		
+		
+		
+		// TODO verification part;
 		
 		
 		return null;
@@ -301,20 +362,61 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 class ReceiveFromHost implements Runnable {
 	
 	private Queue<String> queue = null;
-	Thread thread = null;
+	private Thread thread = null;
 	
-	public ReceiveFromHost(SynchronousQueue queue, Thread thread) {
+	private String addr = null;
+	private int from;
+	private int to;
+	
+	public ReceiveFromHost(int from, int to, String addr, Queue<String> queue, Thread thread) {
 		this.queue = queue;
 		this.thread = thread;
+		this.from = from;
+		this.to = to;
+		this.addr = addr;
 	}
 	
-	private void receive() {
+	private void receive() throws SocketException {
 		
+		DatagramSocket socket = new DatagramSocket(this.to);
+		
+		try {
+			
+			socket.setSoTimeout(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+			byte[] packet = new byte[101];
+			
+			DatagramPacket datagram = new DatagramPacket(packet, packet.length, InetAddress.getByName(this.addr), this.from);
+			socket.receive(datagram);
+			
+			queue.add(new String(packet) + " " + addr);
+			
+			if(queue.size() == Integer.parseInt(IPConfig.getProperty("total_rm"))) {
+				thread.interrupt();
+			}
+		
+		} catch(Exception e) {
+			
+			queue.add("fail" + " " + addr);
+		
+		} finally {
+			
+			socket.close();
+		}
 	}
+	
+	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		// store the results in the queue
+		
+		try {
+			
+			receive();
+			
+		} catch (SocketException e) {
+			
+			e.printStackTrace();
+		}
 	}
 
 }
