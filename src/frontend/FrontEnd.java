@@ -300,13 +300,17 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 
 class ReceiveFromHost implements Runnable {
 	
-	private SynchronousQueue queue = null;
+	private Queue<String> queue = null;
+	Thread thread = null;
 	
-	public ReceiveFromHost(SynchronousQueue queue) {
+	public ReceiveFromHost(SynchronousQueue queue, Thread thread) {
 		this.queue = queue;
+		this.thread = thread;
 	}
 	
-	
+	private void receive() {
+		
+	}
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
