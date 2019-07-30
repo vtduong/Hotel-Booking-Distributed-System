@@ -3,6 +3,9 @@
  */
 package extension;
 
+import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +19,7 @@ public abstract class AdditionalFunctions implements Clock{
 
 	//each component of the system (except client) must use this clock
 	protected volatile Map<String, Integer> clock; 
-	
+	protected String pid;
 	
 	protected AdditionalFunctions( Map<String, Integer> clock) {
 		this.clock = clock;
@@ -24,12 +27,16 @@ public abstract class AdditionalFunctions implements Clock{
 	
 	protected AdditionalFunctions() {
 		this.clock = new HashMap<String, Integer>();
-		clock.put("FE", 0);
-		clock.put("SE", 0);
-		clock.put("RM1", 0);
-		clock.put("RM2", 0);
-		clock.put("RM3", 0);
-		clock.put("RM4", 0);
+		String id = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+		String hostID = "";
+		try {
+			hostID = InetAddress.getLocalHost().toString().split("/")[0];
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		pid = hostID + ":" + id;
+		System.out.println(pid);
 	}
 
 	/**

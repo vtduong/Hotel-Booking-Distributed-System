@@ -19,11 +19,16 @@ public class Sequencer  extends AdditionalFunctions{
 	private static SendRequest msr;
 	private static int seqClock=0;
     private static int[]serverPorts;
+    
+    public Sequencer() {
+    	super();
+    	UDPListener();
+    }
 
 	public static void main(String[] args) {
 		System.out.println("Sequencer Ready And Waiting ...");
 		serverPorts = new int[4];
-		UDPListener();
+		new Sequencer();
 	}
 	
 	

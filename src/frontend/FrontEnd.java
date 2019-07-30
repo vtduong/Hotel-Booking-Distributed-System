@@ -27,6 +27,10 @@ import vspackage.bean.Protocol;
 public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	Map<String, Integer> clock = new HashMap<String, Integer>();
 	
+	public FrontEnd() {
+		super();
+	}
+	
 	public String addEvent (String eventID, String eventType, int bookingCapacity) {
 		SynchronousQueue queue = new SynchronousQueue();
 		
