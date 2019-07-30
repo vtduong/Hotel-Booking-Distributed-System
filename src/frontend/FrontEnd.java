@@ -5,17 +5,14 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.SynchronousQueue;
 
 import org.json.simple.JSONObject;
 import org.omg.CORBA.ORB;
@@ -34,6 +31,10 @@ import vspackage.bean.Protocol;
 
 
 public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
+	
+	private static final long serialVersionUID = 1L;
+	
+	
 	Map<String, Integer> clock = new HashMap<String, Integer>();
 	
 	public String addEvent (String eventID, String eventType, int bookingCapacity) {
@@ -57,34 +58,27 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			sender.send();
 			
 			
-			ReceiveFromHost fromRMOne = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("port_rm_one")), 
-					Integer.parseInt(IPConfig.getProperty("rm_fe_port_one")), 
-					IPConfig.getProperty("rm_one"),
+			ReceiveFromHost fromHostOne = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_one")),  
 					queue, Thread.currentThread());
 			
-			ReceiveFromHost fromRMTwo = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("port_rm_two")), 
-					Integer.parseInt(IPConfig.getProperty("rm_fe_port_two")), 
-					IPConfig.getProperty("rm_two"),
+			ReceiveFromHost fromHostTwo = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_two")),  
 					queue, Thread.currentThread());
 			
-			ReceiveFromHost fromRMThree = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("port_rm_three")), 
-					Integer.parseInt(IPConfig.getProperty("rm_fe_port_three")), 
-					IPConfig.getProperty("rm_three"),
+			ReceiveFromHost fromHostThree = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_three")),  
 					queue, Thread.currentThread());
 			
-			ReceiveFromHost fromRMFour = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("port_rm_four")), 
-					Integer.parseInt(IPConfig.getProperty("rm_fe_port_four")), 
-					IPConfig.getProperty("rm_four"),
+			
+			ReceiveFromHost fromHostFour = new ReceiveFromHost(
+					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_four")),  
 					queue, Thread.currentThread());
 			
-			Thread one = new Thread(fromRMOne);
-			Thread two = new Thread(fromRMTwo);
-			Thread three = new Thread(fromRMThree);
-			Thread four = new Thread(fromRMFour);
+			Thread one = new Thread(fromHostOne);
+			Thread two = new Thread(fromHostTwo);
+			Thread three = new Thread(fromHostThree);
+			Thread four = new Thread(fromHostFour);
 			
 			ExecutorService service = Executors.newCachedThreadPool();
 			service.execute(one);
@@ -365,32 +359,32 @@ class ReceiveFromHost implements Runnable {
 	private Queue<String> queue = null;
 	private Thread thread = null;
 	
-	private String addr = null;
-	private int from;
+	//private String addr = null;
+	//private int from;
 	private int to;
 	
-	public ReceiveFromHost(int from, int to, String addr, Queue<String> queue, Thread thread) {
+	public ReceiveFromHost(int to, Queue<String> queue, Thread thread) {
 		this.queue = queue;
 		this.thread = thread;
-		this.from = from;
+		//this.from = from;
 		this.to = to;
-		this.addr = addr;
+		//this.addr = addr;
 	}
 	
 	private void receive() throws SocketException {
 		
 		DatagramSocket socket = new DatagramSocket(this.to);
+		byte[] packet = new byte[101];
+		DatagramPacket datagram = new DatagramPacket(packet, packet.length);
 		
 		try {
 			
 			socket.setSoTimeout(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
 			
-			byte[] packet = new byte[101];
 			
-			DatagramPacket datagram = new DatagramPacket(packet, packet.length, InetAddress.getByName(this.addr), this.from);
 			socket.receive(datagram);
 			
-			queue.add(new String(packet) + " " + addr);
+			queue.add(new String(packet) + " " + datagram.getSocketAddress() + " " + datagram.getPort());
 			
 			if(queue.size() == Integer.parseInt(IPConfig.getProperty("total_rm"))) {
 				thread.interrupt();
@@ -399,11 +393,11 @@ class ReceiveFromHost implements Runnable {
 			
 		} catch(SocketTimeoutException e) {
 			
-			queue.add("crashed" + " " + addr);
+			queue.add("crashed" + " " + datagram.getSocketAddress() + " " + datagram.getPort());
 		
 		} catch(Exception e) {
 			
-			queue.add("failure" + " " + addr);
+			queue.add("failure" + " " + datagram.getSocketAddress() + " " + datagram.getPort());
 		
 		} finally {
 			
@@ -445,6 +439,8 @@ class SendToSequencer {
 		} 
 	}
 
+	
+	@SuppressWarnings("unchecked")
 	public String send() throws IOException {
 
 		//TODO
