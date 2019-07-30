@@ -1,6 +1,7 @@
 package vspackage.server;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;

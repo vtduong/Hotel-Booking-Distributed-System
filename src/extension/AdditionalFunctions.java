@@ -90,5 +90,7 @@ public abstract class AdditionalFunctions implements Clock{
 	private static synchronized void setClock(Map<String, Integer> clock) {
 		clock = clock;
 	}
+	
+	
 
 }
