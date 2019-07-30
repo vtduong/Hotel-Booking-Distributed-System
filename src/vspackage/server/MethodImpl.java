@@ -49,9 +49,13 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 //	 */
 //	private volatile Map<String,HashMap<String, List<String>>> eventCus = null;
 	
+	protected MethodImpl() throws SecurityException, NoSuchFieldException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
+		this(null, null);
+	}
+	
 	
 	protected MethodImpl(String name, String fullName) throws IOException, SecurityException, NoSuchFieldException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException{
-		super();
+		super(name);
 		serverName = name;
 		this.fullName = fullName;
 		
@@ -65,7 +69,8 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 		initEventList();
 		initCusList();
 		
-		ReceiveMessage recevive = new ReceiveMessage(name);
+//		ReceiveMessage recevive = new ReceiveMessage(name);
+		ReceiveMessage recevive = new ReceiveMessage(serverName);
 		Thread thread = new Thread(recevive);
 		thread.start();
 	}

@@ -21,7 +21,7 @@ public class Sequencer  extends AdditionalFunctions{
     private static int[]serverPorts;
     
     public Sequencer() {
-    	super();
+    	super(Sequencer.class.getSimpleName());
     	UDPListener();
     }
 
