@@ -3,6 +3,7 @@ package aspackage.clientServer;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
@@ -144,6 +145,17 @@ public class MTLServer {
 				requestMsg = new String(request.getData());
 				
 					String replyStr =parseRequest(requestMsg);
+					
+//					int sequenceID = data.getSequenceId();
+//					String ip = InetAddress.getLocalHost().toString().split("/")[1];
+//					if(sequenceID == 1) {
+//						if(ip.equalsIgnoreCase("192.168.1.5")) {
+//							return;//crash = do nothing
+//						}
+//						if(ip.equalsIgnoreCase("192.168.1.2")) {
+//							replyStr = "incorrect result"; //return incorrect result = software failure
+//						}
+//					}
 					
 					buffer = new byte[Util.BUFFER_SIZE];
 					byte[] replyBuff = new byte[Util.BUFFER_SIZE];
