@@ -37,6 +37,10 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	
 	Map<String, Integer> clock = new HashMap<String, Integer>();
 	
+	public FrontEnd() {
+		super();
+	}
+	
 	public String addEvent (String eventID, String eventType, int bookingCapacity) {
 		
 		Header header = new Header();

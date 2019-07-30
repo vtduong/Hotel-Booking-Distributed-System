@@ -1060,6 +1060,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					data.setToServer((String) jsonObj.get("toServer"));
 					data.setProtocol(Integer.parseInt(jsonObj.get("protocol_type")));
 					data.setUserID((String) jsonObj.get("userID"));
+					data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
 					
 					
 					/*
@@ -1121,26 +1122,22 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					} else if(data.getProtocol() == Protocol.SWAP_EVENT) {
 						result = swapEventUDP(data.getUserID(), data.getNewEventID(), data.getNewEventType(), data.getEventID(), data.getEventType());
 					}
-					//else if( protocol == CHECK&Cancle)
-						//check&CancleUPD()
 					
-//					ByteArrayOutputStream out = new ByteArrayOutputStream();
-//					ObjectOutputStream obj = new ObjectOutputStream(out);
-//					obj.writeObject(result);
-					
-					//Latest comment
-//					JSONObject replyJSON = new JSONObject();
-//					replyJSON.put("result", result);
-					//
-					
-//					byte[] reply = out.toByteArray();
-					
-					//byte[] reply = replyJSON.toJSONString().getBytes();
+					int sequenceID = data.getSequenceId();
+					String ip = InetAddress.getLocalHost().toString().split("/")[1];
+					if(sequenceID == 1) {
+						if(ip.equalsIgnoreCase("192.168.1.5")) {
+							return;//crash = do nothing
+						}
+						if(ip.equalsIgnoreCase("192.168.1.2")) {
+							result = "incorrect result"; //return incorrect result = software failure
+						}
+					}
 					byte[] reply = result.toString().getBytes();
 					
 					DatagramPacket replyPacket = new DatagramPacket(reply, reply.length, packet.getAddress(), packet.getPort());
-					
 					socket.send(replyPacket);
+					
 					
 					logger.log(2, "Run(" + 
 							") : returned : " + "None : send data from port " + port);
