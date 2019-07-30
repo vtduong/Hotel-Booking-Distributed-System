@@ -75,7 +75,7 @@ public abstract class AdditionalFunctions implements Clock{
 	 *
 	 * @param name the name
 	 * @param messageTime the message time
-	 * @return the updated local clock
+	 * @return the updated message clock
 	 */
 	public synchronized Map<String, Integer> updateLocalClock(String name, Map<String, Integer> messageClock) {
 		int newTime = 0;
@@ -92,7 +92,7 @@ public abstract class AdditionalFunctions implements Clock{
 			this.clock = messageClock;
 		}
 		
-		return this.clock;
+		return messageClock;
 	}
 
 
