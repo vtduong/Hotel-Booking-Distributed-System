@@ -7,8 +7,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -37,9 +39,109 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	
 	Map<String, Integer> clock = new HashMap<String, Integer>();
 	
+	
 	public FrontEnd() {
 		super();
 	}
+	
+	
+	private Queue<String> getMessages() throws NumberFormatException, IOException {
+		Queue<String> queue = new LinkedList<String>();
+		
+		ReceiveFromHost fromHostOne = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_one")),  
+				queue, Thread.currentThread());
+		
+		ReceiveFromHost fromHostTwo = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_two")),  
+				queue, Thread.currentThread());
+		
+		ReceiveFromHost fromHostThree = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_three")),  
+				queue, Thread.currentThread());
+		
+		
+		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_four")),  
+				queue, Thread.currentThread());
+		
+		Thread one = new Thread(fromHostOne);
+		Thread two = new Thread(fromHostTwo);
+		Thread three = new Thread(fromHostThree);
+		Thread four = new Thread(fromHostFour);
+		
+		ExecutorService service = Executors.newCachedThreadPool();
+		service.execute(one);
+		service.execute(two);
+		service.execute(three);
+		service.execute(four);
+		
+		service.shutdown();
+		
+		try {
+			Thread.sleep(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+		} catch(InterruptedException e) {
+			
+			System.out.print("Received all the messages from the server....");
+		}
+		
+		return queue;
+	}
+
+	
+	// Idea : Receive method waits for the reply from all the servers
+	// and then store the results in the queue. We use the queue to 
+	// get the correct result 
+	private Map<String, List<String>> verify(Queue<String> queue) {
+		
+		int successCount = 0;
+		int failCount = 0;
+		
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		//Map<String, String> successServer = new HashMap<String, String>();
+		//Map<String, String> failServer = new HashMap<String, String>();
+		
+		//String successServerNames = "";
+		//String failServerNames = "";
+		
+		List<String> successServerNames = new ArrayList<String>();
+		List<String> failServerNames = new ArrayList<String>();
+		
+		for(String str : queue) {
+			
+			if(str.contains("success")) {
+				successCount++;
+				
+				String[] temp = str.split(":");
+				
+				
+				successServerNames.add(temp[1]);		
+				
+			} else {
+				failCount++;
+				
+				String[] temp = str.split(":");
+				
+				failServerNames.add(temp[1]);
+			}
+			
+		}
+		
+		
+		String result = successCount > failCount? "success" : "fail";
+		
+		List<String> storeResult = new ArrayList<String>();
+		storeResult.add(result);
+		
+		map.put("result", storeResult);
+		map.put("success", successServerNames);
+		map.put("failed", failServerNames);
+		
+		return map;
+		
+	}
+	
 	
 	public String addEvent (String eventID, String eventType, int bookingCapacity) {
 		
@@ -54,46 +156,29 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.ADD_EVENT);
 		
-		Queue<String> queue = new LinkedList<String>();
+		Queue<String> queue = null;
 		
 		try {
 			
 			SendToSequencer sender = new SendToSequencer(header);
 			sender.send();
 			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
 			
-			ReceiveFromHost fromHostOne = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_one")),  
-					queue, Thread.currentThread());
+			Map<String, List<String>> map = verify(queue);
 			
-			ReceiveFromHost fromHostTwo = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_two")),  
-					queue, Thread.currentThread());
+			// TODO send message to rm.
 			
-			ReceiveFromHost fromHostThree = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_three")),  
-					queue, Thread.currentThread());
+			if(map.get("failed").size() > 0) {
+				
+				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				multicast.multicast();
+				
+			}
 			
 			
-			ReceiveFromHost fromHostFour = new ReceiveFromHost(
-					Integer.parseInt(IPConfig.getProperty("fm_waiting_reply_four")),  
-					queue, Thread.currentThread());
-			
-			Thread one = new Thread(fromHostOne);
-			Thread two = new Thread(fromHostTwo);
-			Thread three = new Thread(fromHostThree);
-			Thread four = new Thread(fromHostFour);
-			
-			ExecutorService service = Executors.newCachedThreadPool();
-			service.execute(one);
-			service.execute(two);
-			service.execute(three);
-			service.execute(four);
-			
-			service.shutdown();
-			
-			Thread.sleep(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
-			
+			return map.get("result").get(0);
 			
 		} catch(Exception e) {
 			
@@ -123,7 +208,36 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.REMOVE_EVENT);
 		
-		//TODO send and receive
+		Queue<String> queue = null;
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
+			
+			Map<String, List<String>> map = verify(queue);
+			
+			// TODO send message to rm.
+			
+			if(map.get("failed").size() > 0) {
+				
+				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				multicast.multicast();
+				
+			}
+			
+			
+			return map.get("result").get(0);
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}	
+		
 		return null;
 	}
 
@@ -160,7 +274,35 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setProtocol(Protocol.BOOK_EVENT);
 		
 		
-		//TODO send and receive
+		Queue<String> queue = null;
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
+			
+			Map<String, List<String>> map = verify(queue);
+			
+			// TODO send message to rm.
+			
+			if(map.get("failed").size() > 0) {
+				
+				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				multicast.multicast();
+				
+			}
+			
+			
+			return map.get("result").get(0);
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}	
 		
 		return null;
 	}
@@ -197,7 +339,35 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.CANCEL_EVENT);
 		
-		//TODO send and receive
+		Queue<String> queue = null;
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
+			
+			Map<String, List<String>> map = verify(queue);
+			
+			// TODO send message to rm.
+			
+			if(map.get("failed").size() > 0) {
+				
+				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				multicast.multicast();
+				
+			}
+			
+			
+			return map.get("result").get(0);
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}	
 		return null;
 	}
 
@@ -220,60 +390,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		return null;
 	}
 	
-	
-	// Idea : Receive method waits for the reply from all the servers
-	// and then store the results in the queue. We use the queue to 
-	// get the correct result 
-	private String verify(Queue<String> queue) {
-		
-		int successCount = 0;
-		int failCount = 0;
-		
-		Map<String, String> successServer = new HashMap<String, String>();
-		Map<String, String> failServer = new HashMap<String, String>();
-		
-		String successServerNames = "";
-		String failServerNames = "";
-
-		
-		for(String str : queue) {
-			
-			if(str.contains("success")) {
-				successCount++;
-				
-				String[] temp = str.split(":");
-				
-				successServerNames = successServerNames + "-" + temp[1];
-						
-				
-			} else {
-				failCount++;
-				
-				String[] temp = str.split(":");
-				
-				failServerNames = failServerNames + "-" + temp[1];
-			}
-			
-		}
-		
-		successServerNames = successServerNames.substring(0, successServerNames.length() -2 );
-		failServerNames = failServerNames.substring(0, failServerNames.length() - 2);
-		
-		successServer.put("success", successServerNames);
-		failServer.put("fail", failServerNames);
-		
-		String result = successCount > failCount? "success" : "fail";
-		
-		
-		JSONObject response = new JSONObject();
-		response.put("result", result);
-		response.put("success", successServer);
-		response.put("fail", failServer);
-		
-		
-		
-		return response.toJSONString();
-	}
 
 	
 	public static void main(String[] args) {
@@ -388,7 +504,7 @@ class ReceiveFromHost implements Runnable {
 			
 			socket.receive(datagram);
 			
-			queue.add(new String(packet) + " " + datagram.getSocketAddress() + " " + datagram.getPort());
+			queue.add(new String(packet) + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
 			
 			if(queue.size() == Integer.parseInt(IPConfig.getProperty("total_rm"))) {
 				thread.interrupt();
@@ -397,11 +513,11 @@ class ReceiveFromHost implements Runnable {
 			
 		} catch(SocketTimeoutException e) {
 			
-			queue.add("crashed" + " " + datagram.getSocketAddress() + " " + datagram.getPort());
+			queue.add("crashed" + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
 		
 		} catch(Exception e) {
 			
-			queue.add("failure" + " " + datagram.getSocketAddress() + " " + datagram.getPort());
+			queue.add("failure" + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
 		
 		} finally {
 			
@@ -435,6 +551,8 @@ class SendToSequencer {
 	public SendToSequencer(Header header) {
 		
 		try {
+			int selfPort = Integer.parseInt(IPConfig.getProperty("unicast_fe_port"));
+			socket = new DatagramSocket(selfPort);
 			this.header = header;
 			this.port = Integer.parseInt(IPConfig.getProperty("sequencer_receive_port"));
 		} catch (Exception e) {
@@ -484,4 +602,77 @@ class SendToSequencer {
 
 	}
 	
+}
+
+
+class MulticastRM {
+	
+	private List<String> failedAddr = null;
+	
+	MulticastRM(List<String> failedAddr) {
+		
+		this.failedAddr = failedAddr;
+	}
+	
+	public void multicast() throws NumberFormatException, IOException {
+		
+		int totalRM = Integer.parseInt(IPConfig.getProperty("total_rm")); 
+		
+		String rm_one_addr = IPConfig.getProperty("rm_one");
+		String rm_two_addr = IPConfig.getProperty("rm_two");
+		String rm_three_addr = IPConfig.getProperty("rm_three");
+		String rm_four_addr = IPConfig.getProperty("rm_four");
+		
+		int rm_one_port = Integer.parseInt(IPConfig.getProperty("port_rm_one"));
+		int rm_two_port = Integer.parseInt(IPConfig.getProperty("port_rm_two"));
+		int rm_three_port = Integer.parseInt(IPConfig.getProperty("port_rm_three"));
+		int rm_four_port = Integer.parseInt(IPConfig.getProperty("port_rm_four"));
+		
+		String failedServers = "";
+		
+		for(String str : failedAddr)
+			failedServers = failedServers + str + ",";
+		
+		failedServers = failedServers.substring(0, failedServers.length() - 1);
+		
+		UnicastRM unicastOne = new UnicastRM(rm_one_addr, rm_one_port, failedServers);
+		UnicastRM unicastTwo = new UnicastRM(rm_two_addr, rm_two_port, failedServers);
+		UnicastRM unicastThree = new UnicastRM(rm_three_addr, rm_three_port, failedServers);
+		UnicastRM unicastFour = new UnicastRM(rm_four_addr, rm_four_port, failedServers);
+		
+		unicastOne.unicast();
+		unicastTwo.unicast();
+		unicastThree.unicast();
+		unicastFour.unicast();
+		
+		//TODO unicast
+	}
+}
+
+
+class UnicastRM {
+	
+	private String addr = null;
+	private String data = "";
+	private int port = 0;
+	
+	UnicastRM(String addr, int port, String data) {
+		this.addr = addr;
+		this.port = port;
+		this.data = data;
+	}
+	
+	public void unicast() throws NumberFormatException, IOException {
+		int selfPort = Integer.parseInt(IPConfig.getProperty("unicast_fe_port"));
+		DatagramSocket socket = new DatagramSocket(selfPort);
+		
+		byte[] msg = data.getBytes();
+		
+		DatagramPacket packet = new DatagramPacket(msg, msg.length, 
+				InetAddress.getByName(this.addr), this.port);
+		
+		socket.send(packet);
+		socket.close();
+	}
+
 }
