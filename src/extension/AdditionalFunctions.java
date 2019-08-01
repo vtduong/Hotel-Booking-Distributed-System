@@ -19,24 +19,26 @@ public abstract class AdditionalFunctions implements Clock{
 
 	//each component of the system (except client) must use this clock
 	protected volatile Map<String, Integer> clock; 
-	protected String pid;
+	protected String uniqueID;
+	protected String componentName;
+	protected String hostID;
 	
 	protected AdditionalFunctions( Map<String, Integer> clock) {
 		this.clock = clock;
 	}
 	
-	protected AdditionalFunctions() {
-		this.clock = new HashMap<String, Integer>();
-		String id = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-		String hostID = "";
+	protected AdditionalFunctions(String componentName) {
+		
 		try {
 			hostID = InetAddress.getLocalHost().toString().split("/")[0];
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		pid = hostID + ":" + id;
-		System.out.println(pid);
+		uniqueID = hostID + ":" + componentName;
+		this.clock = new HashMap<String, Integer>();
+		this.clock.put(uniqueID, 0);
+		System.out.println(uniqueID);
 	}
 
 	/**
@@ -73,18 +75,24 @@ public abstract class AdditionalFunctions implements Clock{
 	 *
 	 * @param name the name
 	 * @param messageTime the message time
-	 * @return the updated local clock
+	 * @return the updated message clock
 	 */
 	public synchronized Map<String, Integer> updateLocalClock(String name, Map<String, Integer> messageClock) {
 		int newTime = 0;
 		//compare local clock with message clock and update local clock accordingly
 		for(Map.Entry<String, Integer> entry : messageClock.entrySet()) {
-//			int localTime = this.clock.get(entry.getKey());
+			//add and update this message clock with local clock if not already exist
+			if(!messageClock.containsKey(name)) {
+				messageClock.put(name, clock.get(name));
+			}
 			newTime = Math.max(this.clock.get(entry.getKey()), messageClock.get(entry.getKey()));
 			this.clock.put(name, newTime);
+			//add and update this local clock with message clock if not already exist
+			messageClock.put(name, this.clock.get(name));
+			this.clock = messageClock;
 		}
 		
-		return this.clock;
+		return messageClock;
 	}
 
 

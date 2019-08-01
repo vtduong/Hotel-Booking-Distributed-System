@@ -129,7 +129,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		}
 		
 		
-		String result = successCount > failCount? "success" : "fail";
+		String result = successCount > failCount? "success" : "failed";
 		
 		List<String> storeResult = new ArrayList<String>();
 		storeResult.add(result);
@@ -170,9 +170,10 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			// TODO send message to rm.
 			
-			if(map.get("failed").size() > 0) {
+			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+			if(map.get(fault).size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				MulticastRM multicast = new MulticastRM(map.get(fault));
 				multicast.multicast();
 				
 			}
@@ -222,9 +223,10 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			// TODO send message to rm.
 			
-			if(map.get("failed").size() > 0) {
+			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+			if(map.get(fault).size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				MulticastRM multicast = new MulticastRM(map.get(fault));
 				multicast.multicast();
 				
 			}
@@ -288,9 +290,10 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			// TODO send message to rm.
 			
-			if(map.get("failed").size() > 0) {
+			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+			if(map.get(fault).size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				MulticastRM multicast = new MulticastRM(map.get(fault));
 				multicast.multicast();
 				
 			}
@@ -351,11 +354,12 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			Map<String, List<String>> map = verify(queue);
 			
-			// TODO send message to rm.
 			
-			if(map.get("failed").size() > 0) {
+			
+			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+			if(map.get(fault).size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get("failed"));
+				MulticastRM multicast = new MulticastRM(map.get(fault));
 				multicast.multicast();
 				
 			}
