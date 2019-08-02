@@ -45,7 +45,7 @@ public class Sequencer extends AdditionalFunctions {
     static ArrayList<Integer> serverPorts;
     private static Sequencer seq;
     
-    private Sequencer() {
+    private Sequencer() throws NumberFormatException, IOException {
     	super(Sequencer.class.getSimpleName());
       msgqueue = new HashMap<String, JSONObject>();
       serverPorts.add(Integer.parseInt(IPConfig.getProperty("TORPort")));
@@ -54,7 +54,7 @@ public class Sequencer extends AdditionalFunctions {
     	UDPListener();
     }
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NumberFormatException, IOException {
 		System.out.println("Sequencer Ready And Waiting ...");
 		new Sequencer();
 
