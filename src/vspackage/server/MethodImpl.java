@@ -228,6 +228,9 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 			Map eventMap = (HashMap) this.getStaticValue("eventMap");
 			Map eventCus = this.getStaticValue("eventCus");
 			isExist = ((HashMap) eventMap.get(eventType)).containsKey(eventID);
+			if(bookingCapacity < 0) {
+				return "capacity must be non-zero. failed to create event";
+			}
 			
 			if(isExist) {
 				Map newMap = new HashMap<>(eventMap);
@@ -259,7 +262,7 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 			logger.log(0, "addEventUDP(" + eventID + "," + eventType + "," + bookingCapacity +
 					") : returned : " + "Something went wrong : " + e.getMessage());
 			
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 	}
@@ -361,7 +364,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			logger.log(0, "removeEventUDP(" + eventID + "," + eventType  +
 					") : returned : " + "Something went wrong : " + e.getMessage());
 			
-			return "Something went wrong";
+			return "Something went wrong, failed";
 		}
 //		
 	}
@@ -403,7 +406,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			logger.log(0, "listEventAvailabilityUPD(" + eventType  +
 					") : returned : " + "Something went wrong : " + e.getMessage());
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 	}
@@ -437,7 +440,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			logger.log(0, "getBookingScheduleUDP(" + userID  +
 					") : returned : " + "Something went wrong " + e.getMessage());
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 		
@@ -858,7 +861,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			e.printStackTrace();
 			logger.log(0, "cancelEventUDP(" + customerID + "," + eventID + "," + eventType + 
 					") : returned : " + "Something went wrong : " + e.getMessage());
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 	}
@@ -900,7 +903,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 							result1 = this.cancelEventUDP(customerID, oldEventID, oldEventType);
 						}
 						if(result1.equalsIgnoreCase("") || result2.equalsIgnoreCase("")) {
-							result = "cannot swap events";
+							result = result2 + " " + result1;
 						}else {
 							result = result2 + " " + result1;
 						}

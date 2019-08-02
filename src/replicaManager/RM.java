@@ -113,6 +113,13 @@ class ReceiveMessage implements Runnable {
 					
 					Object result = null;
 					
+					if(data.getProtocol() == Protocol.CRASH) {
+						
+					}
+					if(data.getProtocol() == Protocol.FAIL) {
+						
+					}
+					
 					//TODO add operations
 					byte[] reply = result.toString().getBytes();
 					
