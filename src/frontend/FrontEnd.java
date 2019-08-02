@@ -258,6 +258,36 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setProtocol(Protocol.EVENT_AVAILABLITY);
 		
 		//TODO send and receive
+		Queue<String> queue = null;
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
+			
+			Map<String, List<String>> map = verify(queue);
+			
+			// TODO send message to rm.
+			
+			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+			if(map.get(fault).size() > 0) {
+				
+				MulticastRM multicast = new MulticastRM(map.get(fault));
+				multicast.multicast();
+				
+			}
+			
+			
+			return map.get("result").get(0);
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}
 		return null;
 	}
 

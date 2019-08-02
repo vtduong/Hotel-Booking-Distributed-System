@@ -21,31 +21,12 @@ import vspackage.tools.JSONParser;
 
 public class Sequencer extends AdditionalFunctions {
 	private static SendRequest msr;
-<<<<<<< HEAD
-	private static int seqClock = 0;
-	private static Map<String,JSONObject> msgqueue;
-	static ArrayList<Integer> serverPorts;
-	private static Sequencer seq;
-
-	private Sequencer() throws NumberFormatException, IOException {
-		super();
-		msgqueue = new HashMap<String, JSONObject>();
-		serverPorts.add(Integer.parseInt(IPConfig.getProperty("TORPort")));
-		serverPorts.add(Integer.parseInt(IPConfig.getProperty("MTLPort")));
-		serverPorts.add(Integer.parseInt(IPConfig.getProperty("OTWPort")));
-	}
-
-	public static void main(String[] args) {
-		System.out.println("Sequencer Ready And Waiting ...");
-
-		UDPListener();
-=======
     private static int seqClock = 0;
     private static Map<String,JSONObject> msgqueue;
     static ArrayList<Integer> serverPorts;
     private static Sequencer seq;
     
-    private Sequencer() {
+    private Sequencer() throws NumberFormatException, IOException {
     	super(Sequencer.class.getSimpleName());
       msgqueue = new HashMap<String, JSONObject>();
       serverPorts.add(Integer.parseInt(IPConfig.getProperty("TORPort")));
@@ -54,11 +35,10 @@ public class Sequencer extends AdditionalFunctions {
     	UDPListener();
     }
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NumberFormatException, IOException {
 		System.out.println("Sequencer Ready And Waiting ...");
 		new Sequencer();
 
->>>>>>> aad8f8df87c71949cf9e4e601aec4920bba687af
 	}
 
 	private static void UDPListener() {
