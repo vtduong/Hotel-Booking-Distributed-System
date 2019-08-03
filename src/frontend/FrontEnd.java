@@ -8,11 +8,14 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -95,8 +98,12 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	// get the correct result 
 	private Map<String, List<String>> verify(Queue<String> queue) {
 		
-		int successCount = 0;
-		int failCount = 0;
+//		int successCount = 0;
+//		int failCount = 0;
+//		int crashCount = 0;
+//		int incorrectCount = 0;
+		
+		Map<String, Integer> count = new HashMap<String, Integer>();
 		
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
 		//Map<String, String> successServer = new HashMap<String, String>();
@@ -107,36 +114,67 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		
 		List<String> successServerNames = new ArrayList<String>();
 		List<String> failServerNames = new ArrayList<String>();
+		List<String> crashServerNames = new ArrayList<String>();
+		List<String> incorrectServerNames = new ArrayList<String>();
 		
 		for(String str : queue) {
 			
-			if(str.contains("success")) {
-				successCount++;
-				
+			if(str.toLowerCase().contains("success")) {
+				//successCount++;
+				count.put("success", count.getOrDefault("success", 0) + 1);
 				String[] temp = str.split(":");
 				
 				
-				successServerNames.add(temp[1]);		
+				successServerNames.add(temp[1] + ":" + temp[2]);		
 				
-			} else {
-				failCount++;
-				
+			} else if(str.toLowerCase().contains("incorrect")) { 
+				//incorrectCount++;
+				count.put("incorrect", count.getOrDefault("incorrect", 0) + 1);
 				String[] temp = str.split(":");
 				
-				failServerNames.add(temp[1]);
+				incorrectServerNames.add(temp[1] + ":" + temp[2]);
+				
+			} else if(str.toLowerCase().contains("fail")) {
+				//failCount++;
+				count.put("fail", count.getOrDefault("fail", 0) + 1);
+				String[] temp = str.split(":");
+				
+				failServerNames.add(temp[1] + ":" + temp[2]);
+				
+			} else if(str.toLowerCase().contains("crash")) {
+				//crashCount++;
+				count.put("crash", count.getOrDefault("crash"
+						+ "", 0) + 1);
+				String[] temp = str.split(":");
+				
+				failServerNames.add(temp[1] + ":" + temp[2]);
+				
 			}
 			
 		}
 		
+		Map<String, Integer> sortedCount = new TreeMap<String, Integer>();
 		
-		String result = successCount > failCount? "success" : "failed";
+		count.entrySet().stream().
+		sorted(Entry.comparingByValue(Comparator.reverseOrder())).
+		forEach(action -> sortedCount.put(action.getKey(), action.getValue()));
+		
+		String result = "";
+		
+		for(String str : sortedCount.keySet()) {
+			result = str;
+			break;
+		}
+			
 		
 		List<String> storeResult = new ArrayList<String>();
 		storeResult.add(result);
 		
 		map.put("result", storeResult);
 		map.put("success", successServerNames);
-		map.put("failed", failServerNames);
+		map.put("fail", failServerNames);
+		map.put("crash", crashServerNames);
+		map.put("incorrect", incorrectServerNames);
 		
 		return map;
 		
