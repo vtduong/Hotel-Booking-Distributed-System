@@ -101,7 +101,7 @@ public class Sequencer{
 
 	static class SendRequest implements Runnable {
 		DatagramSocket socket = null;
-		DatagramPacket request = null;
+		DatagramPacket request = null; 
 		int seqClock;
 
 		public SendRequest(DatagramSocket socket, DatagramPacket request, int seqClock) {
