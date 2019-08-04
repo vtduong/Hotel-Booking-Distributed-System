@@ -23,7 +23,7 @@ public class Sequencer{
 	private static SendRequest msr;
     private static int seqClock = 0;
     private static Map<String,JSONObject> msgqueue;
-    static ArrayList<Integer> serverPorts;
+    static ArrayList<Integer> serverPorts = new ArrayList<Integer>() ;
     private static Sequencer seq;
     
     private Sequencer() throws NumberFormatException, IOException {
@@ -47,7 +47,7 @@ public class Sequencer{
 	private static void UDPListener() {
 		DatagramSocket socket = null;
 		try {
-			int seqport = Integer.parseInt(IPConfig.getProperty("sequencer_receive_port"));
+			int seqport = Integer.parseInt(IPConfig.getProperty("sequencer_port"));
 			socket = new DatagramSocket(seqport);
 			while (true) {
 				byte[] buffer = new byte[Util.BUFFER_SIZE];
