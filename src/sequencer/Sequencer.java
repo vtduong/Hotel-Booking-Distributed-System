@@ -19,7 +19,7 @@ import ipconfig.IPConfig;
 import vspackage.bean.Header;
 import vspackage.tools.JSONParser;
 
-public class Sequencer extends AdditionalFunctions {
+public class Sequencer{
 	private static SendRequest msr;
     private static int seqClock = 0;
     private static Map<String,JSONObject> msgqueue;
@@ -27,11 +27,14 @@ public class Sequencer extends AdditionalFunctions {
     private static Sequencer seq;
     
     private Sequencer() throws NumberFormatException, IOException {
-    	super(Sequencer.class.getSimpleName());
+//    	super(Sequencer.class.getSimpleName());
       msgqueue = new HashMap<String, JSONObject>();
-      serverPorts.add(Integer.parseInt(IPConfig.getProperty("TORPort")));
-      serverPorts.add(Integer.parseInt(IPConfig.getProperty("MTLPort")));
-      serverPorts.add(Integer.parseInt(IPConfig.getProperty("OTWPort")));
+      serverPorts.add(Integer.parseInt(IPConfig.getProperty("tor_port_as")));
+      serverPorts.add(Integer.parseInt(IPConfig.getProperty("mtl_port_as")));
+      serverPorts.add(Integer.parseInt(IPConfig.getProperty("otw_port_as")));
+      serverPorts.add(Integer.parseInt(IPConfig.getProperty("tor_port_vs")));
+      serverPorts.add(Integer.parseInt(IPConfig.getProperty("mtl_port_vs")));
+      serverPorts.add(Integer.parseInt(IPConfig.getProperty("otw_port_vs")));
     	UDPListener();
     }
 
@@ -56,7 +59,11 @@ public class Sequencer extends AdditionalFunctions {
 					JSONParser parser = new JSONParser(content);
 					Map<String, String> jsonObj = parser.deSerialize();
 					Integer seq =Integer.parseInt(jsonObj.get("sequenceId"));
-					
+					String json = msgqueue.get(seq).toJSONString();
+					byte[] data = json.getBytes();
+					DatagramPacket packet = new DatagramPacket(data, data.length, request.getAddress(), request.getPort());
+					socket.send(packet);
+					new Retry(socket, packet);
 					
 				}else {
 					msr = new SendRequest(socket, request, seqClock);
@@ -70,6 +77,26 @@ public class Sequencer extends AdditionalFunctions {
 				socket.close();
 		}
 
+	}
+	static class Retry implements Runnable {
+		DatagramSocket socket = null;
+		DatagramPacket request = null;
+		public Retry(DatagramSocket socket, DatagramPacket request) {
+			this.socket = socket;
+			this.request = request;
+			
+		}
+
+		@Override
+		public void run() {
+			
+			try {
+				socket.send(request);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 	static class SendRequest implements Runnable {
@@ -105,7 +132,7 @@ public class Sequencer extends AdditionalFunctions {
 								ports);
 
 						socket.send(sendReq);
-						seq.incrementLocalTime("SE");
+//						seq.incrementLocalTime("SE");
 					}
 					 msgqueue.put(String.valueOf(seqClock), jsonData);
 				} catch (IOException e) {
