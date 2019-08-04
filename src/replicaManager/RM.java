@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ipconfig.IPConfig;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.SecurityException;
 import vspackage.bean.Header;
 import vspackage.bean.Protocol;
@@ -25,16 +27,17 @@ import vspackage.tools.Logger;
  */
 public class RM {
 	private Logger logger = null;
+	private String hostIP = null;
 	/**
 	 * @throws IOException 
 	 * @throws NumberFormatException 
 	 * 
 	 */
 	public RM() throws NumberFormatException, IOException {
-		String ip = InetAddress.getLocalHost().toString().split("/")[1];
-		logger = new Logger(ip);
-		logger.log(2, ip + " started.");
-		new Thread(new ReceiveMessage(ip)).start();;
+		this.hostIP = InetAddress.getLocalHost().toString().split("/")[1];
+		logger = new Logger(hostIP);
+		logger.log(2, hostIP + " started.");
+		new Thread(new ReceiveMessage(hostIP)).start();;
 	}
 
 	/**
@@ -52,14 +55,14 @@ class ReceiveMessage implements Runnable {
 		DatagramSocket socket = null;
 		int port;
 		
-		public ReceiveMessage(String serverType) throws NumberFormatException, IOException {
+		public ReceiveMessage(String ip) throws NumberFormatException, IOException {
 			port = 0;
 			
 			//TODO add port number
 			
 			this.socket = new DatagramSocket(port);
 			
-			logger.log(2, "ReceiveMessage(" + serverType + 
+			logger.log(2, "ReceiveMessage(" + ip + 
 					") : returned : " + "None : Init the socket and port " + port);
 		}
 		
@@ -114,7 +117,10 @@ class ReceiveMessage implements Runnable {
 					Object result = null;
 					
 					if(data.getProtocol() == Protocol.CRASH) {
-						
+						if(data.getToServer().split(":")[0].equalsIgnoreCase(hostIP)) {
+							//send request to synch data
+							
+						}
 					}
 					if(data.getProtocol() == Protocol.FAIL) {
 						
@@ -145,10 +151,78 @@ class ReceiveMessage implements Runnable {
 					e.printStackTrace();
 				}
 			}
-		}
-
-	
-		
+		}	
 	}
+
+class MulticastRM {
+	
+	private List<String> failedAddr = null;
+	
+	MulticastRM(List<String> failedAddr) {
+		
+		this.failedAddr = failedAddr;
+	}
+	
+	public void multicast() throws NumberFormatException, IOException {
+		
+		int totalRM = Integer.parseInt(IPConfig.getProperty("total_rm")); 
+		
+		String rm_one_addr = IPConfig.getProperty("rm_one");
+		String rm_two_addr = IPConfig.getProperty("rm_two");
+		String rm_three_addr = IPConfig.getProperty("rm_three");
+		String rm_four_addr = IPConfig.getProperty("rm_four");
+		
+		int rm_one_port = Integer.parseInt(IPConfig.getProperty("port_rm_one"));
+		int rm_two_port = Integer.parseInt(IPConfig.getProperty("port_rm_two"));
+		int rm_three_port = Integer.parseInt(IPConfig.getProperty("port_rm_three"));
+		int rm_four_port = Integer.parseInt(IPConfig.getProperty("port_rm_four"));
+		
+		String failedServers = "";
+		
+		for(String str : failedAddr)
+			failedServers = failedServers + str + ",";
+		
+		failedServers = failedServers.substring(0, failedServers.length() - 1);
+		
+		UnicastRM unicastOne = new UnicastRM(rm_one_addr, rm_one_port, failedServers);
+		UnicastRM unicastTwo = new UnicastRM(rm_two_addr, rm_two_port, failedServers);
+		UnicastRM unicastThree = new UnicastRM(rm_three_addr, rm_three_port, failedServers);
+		UnicastRM unicastFour = new UnicastRM(rm_four_addr, rm_four_port, failedServers);
+		
+		unicastOne.unicast();
+		unicastTwo.unicast();
+		unicastThree.unicast();
+		unicastFour.unicast();
+		
+		//TODO unicast
+	}
+}
+
+
+class UnicastRM {
+	
+	private String addr = null;
+	private String data = "";
+	private int port = 0;
+	
+	UnicastRM(String addr, int port, String data) {
+		this.addr = addr;
+		this.port = port;
+		this.data = data;
+	}
+	
+	public void unicast() throws NumberFormatException, IOException {
+		int selfPort = Integer.parseInt(IPConfig.getProperty("unicast_fe_port"));
+		DatagramSocket socket = new DatagramSocket(selfPort);
+		
+		byte[] msg = data.getBytes();
+		
+		DatagramPacket packet = new DatagramPacket(msg, msg.length, 
+				InetAddress.getByName(this.addr), this.port);
+		
+		socket.send(packet);
+		socket.close();
+	}
+}
 
 }

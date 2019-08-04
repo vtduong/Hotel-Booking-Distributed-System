@@ -19,6 +19,7 @@ import java.util.Map;
 import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
 import aspackage.utility.FileLogger;
+import vspackage.tools.Adapter;
 
 public class OTWServer {
     public static OTW exportedObj;
@@ -144,8 +145,8 @@ public class OTWServer {
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 				aSocketTOR.receive(request);
 				
-				System.out.println("Request received on OTW Server: " + new String(request.getData()));
-				requestMsg = new String(request.getData());
+				System.out.println("Request received on OTW Server: " + new String(Adapter.objectToString(request.getData())));
+				requestMsg = new String(Adapter.objectToString(request.getData()));
 				
 					String replyStr =parseRequest(requestMsg);
 					

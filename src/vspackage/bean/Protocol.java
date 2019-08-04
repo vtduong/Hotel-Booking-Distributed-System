@@ -13,6 +13,6 @@ public class Protocol {
 	public static final int FAIL = 500;
 	public static final int CHECK_AND_BOOK = 8;
 	public static final int CHECK_AND_CANCEL = 9;
-	public static final int CRASH = 0;
+	public static final int FE_TO_HOST_FAULT = 400;
 	
 }

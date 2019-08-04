@@ -27,6 +27,8 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
+import com.google.gson.Gson;
+
 import FEApp.FEMethodHelper;
 import FEApp.FEMethodPOA;
 import extension.Clock;
@@ -208,12 +210,22 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			// TODO send message to rm.
 			
-			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
-			if(map.get(fault).size() > 0) {
+//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+//			if(map.get(fault).size() > 0) {
+//				
+//				MulticastRM multicast = new MulticastRM(map.get(fault));
+//				multicast.multicast();
+//				
+//			}
+			
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get(fault));
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
 				multicast.multicast();
-				
 			}
 			
 			
@@ -261,12 +273,22 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			// TODO send message to rm.
 			
-			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
-			if(map.get(fault).size() > 0) {
+//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+//			if(map.get(fault).size() > 0) {
+//				
+//				MulticastRM multicast = new MulticastRM(map.get(fault));
+//				multicast.multicast();
+//				
+//			}
+			
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get(fault));
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
 				multicast.multicast();
-				
 			}
 			
 			
@@ -308,14 +330,23 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			Map<String, List<String>> map = verify(queue);
 			
-			// TODO send message to rm.
+//			
+//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+//			if(map.get(fault).size() > 0) {
+//				
+//				MulticastRM multicast = new MulticastRM(map.get(fault));
+//				multicast.multicast();
+//				
+//			}
 			
-			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
-			if(map.get(fault).size() > 0) {
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get(fault));
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
 				multicast.multicast();
-				
 			}
 			
 			
@@ -355,17 +386,25 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			queue = getMessages();
 			
 			Map<String, List<String>> map = verify(queue);
+		
 			
-			// TODO send message to rm.
+//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+//			if(map.get(fault).size() > 0) {
+//				
+//				MulticastRM multicast = new MulticastRM(map.get(fault));
+//				multicast.multicast();
+//				
+//			}
 			
-			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
-			if(map.get(fault).size() > 0) {
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get(fault));
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
 				multicast.multicast();
-				
 			}
-			
 			
 			return map.get("result").get(0);
 			
@@ -422,16 +461,23 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			Map<String, List<String>> map = verify(queue);
 			
+//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+//			if(map.get(fault).size() > 0) {
+//				
+//				MulticastRM multicast = new MulticastRM(map.get(fault));
+//				multicast.multicast();
+//				
+//			}
 			
-			
-			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
-			if(map.get(fault).size() > 0) {
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
 				
-				MulticastRM multicast = new MulticastRM(map.get(fault));
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
 				multicast.multicast();
-				
 			}
-			
 			
 			return map.get("result").get(0);
 			
@@ -637,7 +683,6 @@ class SendToSequencer {
 	@SuppressWarnings("unchecked")
 	public String send() throws IOException {
 
-		//TODO
 		String sequencerAddr = IPConfig.getProperty("sequencer_addr");
 		
 		InetAddress addr = InetAddress.getByName(sequencerAddr);
@@ -658,6 +703,8 @@ class SendToSequencer {
 		byte[] data = json.getBytes();
 		DatagramPacket packet = new DatagramPacket(data, data.length, addr, port);
 		
+		socket.send(packet);
+		
 		byte[] statusCode = new byte[10000];
 		
 		DatagramPacket ack = new DatagramPacket(statusCode, statusCode.length);
@@ -667,8 +714,6 @@ class SendToSequencer {
 		socket.disconnect();
 		socket.close();
 		
-//		logger.log(2, "SendMessage(" + protocol + "," + userID + 
-//				") : returned : " + new String(statusCode));
 		
 		return new String(statusCode);
 
@@ -679,11 +724,11 @@ class SendToSequencer {
 
 class MulticastRM {
 	
-	private List<String> failedAddr = null;
+	private Header header;
 	
-	MulticastRM(List<String> failedAddr) {
+	MulticastRM(Header header) {
 		
-		this.failedAddr = failedAddr;
+		this.header = header;
 	}
 	
 	public void multicast() throws NumberFormatException, IOException {
@@ -700,43 +745,41 @@ class MulticastRM {
 		int rm_three_port = Integer.parseInt(IPConfig.getProperty("port_rm_three"));
 		int rm_four_port = Integer.parseInt(IPConfig.getProperty("port_rm_four"));
 		
-		String failedServers = "";
 		
-		for(String str : failedAddr)
-			failedServers = failedServers + str + ",";
-		
-		failedServers = failedServers.substring(0, failedServers.length() - 1);
-		
-		UnicastRM unicastOne = new UnicastRM(rm_one_addr, rm_one_port, failedServers);
-		UnicastRM unicastTwo = new UnicastRM(rm_two_addr, rm_two_port, failedServers);
-		UnicastRM unicastThree = new UnicastRM(rm_three_addr, rm_three_port, failedServers);
-		UnicastRM unicastFour = new UnicastRM(rm_four_addr, rm_four_port, failedServers);
+		UnicastRM unicastOne = new UnicastRM(rm_one_addr, rm_one_port, header);
+		UnicastRM unicastTwo = new UnicastRM(rm_two_addr, rm_two_port, header);
+		UnicastRM unicastThree = new UnicastRM(rm_three_addr, rm_three_port, header);
+		UnicastRM unicastFour = new UnicastRM(rm_four_addr, rm_four_port, header);
 		
 		unicastOne.unicast();
 		unicastTwo.unicast();
 		unicastThree.unicast();
 		unicastFour.unicast();
 		
-		//TODO unicast
+		
 	}
 }
 
 
 class UnicastRM {
 	
-	private String addr = null;
-	private String data = "";
-	private int port = 0;
+	private String addr;
+	private int port;
+	private Header header;
 	
-	UnicastRM(String addr, int port, String data) {
+	UnicastRM(String addr, int port, Header header) {
 		this.addr = addr;
 		this.port = port;
-		this.data = data;
+		this.header = header;
 	}
 	
 	public void unicast() throws NumberFormatException, IOException {
 		int selfPort = Integer.parseInt(IPConfig.getProperty("unicast_fe_port"));
 		DatagramSocket socket = new DatagramSocket(selfPort);
+		
+		Gson gson = new Gson();
+		
+		String data = gson.toJson(header);
 		
 		byte[] msg = data.getBytes();
 		
