@@ -1,5 +1,7 @@
 package vspackage.bean;
 
+import java.util.List;
+
 public class Header {
 	
 	private int PROTOCOL_TYPE;
@@ -12,6 +14,11 @@ public class Header {
 	private String newEventType;
 	private String newEventID;
 	private int sequenceId;
+	private List<String> error;
+	private List<String> incorrect;
+	private List<String> crash;
+	
+	
 	
 	
 	public Header(int PROTOCOL_TYPE, String userID, String fromServer, String toServer, String oldEventID,
@@ -30,6 +37,24 @@ public class Header {
 	public Header(int PROTOCOL_TYPE, String userID, String fromServer, String toServer, String eventID,
 			String eventType, int capacity) {
 		this(PROTOCOL_TYPE, userID, fromServer, toServer, eventID, eventType, null, null, capacity);
+	}
+	
+	public Header(int PROTOCOL_TYPE, List<String> error, List<String> incorrect,
+			List<String> crash) {
+		super();
+		this.PROTOCOL_TYPE = PROTOCOL_TYPE;
+		this.userID = "";
+		this.fromServer = "";
+		this.toServer = "";
+		this.eventID = "";
+		this.eventType = "";
+		this.newEventID = "";
+		this.newEventType = "";
+		this.capacity = 0;
+		this.error = error;
+		this.crash = crash;
+		this.incorrect = incorrect;
+		this.sequenceId = 0;
 	}
 
 	public Header() {
@@ -140,12 +165,57 @@ public class Header {
 	public int getCapacity() {
 		return capacity;
 	}
+	
 	public int getSequenceId() {
 		return sequenceId;
 	}
+	
 	public void setSequenceId(int sequenceId) {
 		this.sequenceId = sequenceId;
 	}
+	
+	/**
+	 * @return the error
+	 */
+	public List<String> getError() {
+		return error;
+	}
+
+	/**
+	 * @param error the error to set
+	 */
+	public void setError(List<String> error) {
+		this.error = error;
+	}
+
+	/**
+	 * @return the incorrect
+	 */
+	public List<String> getIncorrect() {
+		return incorrect;
+	}
+
+	/**
+	 * @param incorrect the incorrect to set
+	 */
+	public void setIncorrect(List<String> incorrect) {
+		this.incorrect = incorrect;
+	}
+
+	/**
+	 * @return the crash
+	 */
+	public List<String> getCrash() {
+		return crash;
+	}
+
+	/**
+	 * @param crash the crash to set
+	 */
+	public void setCrash(List<String> crash) {
+		this.crash = crash;
+	}
+
 	
 	
 	
