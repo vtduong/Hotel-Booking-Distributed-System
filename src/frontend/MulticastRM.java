@@ -18,10 +18,10 @@ public class MulticastRM {
 		
 		int totalRM = Integer.parseInt(IPConfig.getProperty("total_rm")); 
 		
-		String rm_one_addr = IPConfig.getProperty("rm_one");
-		String rm_two_addr = IPConfig.getProperty("rm_two");
-		String rm_three_addr = IPConfig.getProperty("rm_three");
-		String rm_four_addr = IPConfig.getProperty("rm_four");
+		String rm_one_addr = IPConfig.getProperty("host1");
+		String rm_two_addr = IPConfig.getProperty("host2");
+		String rm_three_addr = IPConfig.getProperty("host3");
+		String rm_four_addr = IPConfig.getProperty("host4");
 		
 		int port_rm = Integer.parseInt(IPConfig.getProperty("port_rm"));
 		

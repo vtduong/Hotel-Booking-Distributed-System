@@ -53,20 +53,19 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		Queue<String> queue = new LinkedList<String>();
 		
 		ReceiveFromHost fromHostOne = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_one")),  
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_one_host")),  
 				queue, Thread.currentThread());
 		
 		ReceiveFromHost fromHostTwo = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_two")),  
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_two_host")),  
 				queue, Thread.currentThread());
 		
 		ReceiveFromHost fromHostThree = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three")),  
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
 				queue, Thread.currentThread());
 		
-		
 		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four")),  
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
 				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);

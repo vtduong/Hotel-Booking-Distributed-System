@@ -66,3 +66,123 @@ Server Resposnse:New event added.
 requestParameters:{eventId=MTLM100100, eventType=Seminar, bookingCapacity=10}
 Request time:2019-08-05T16:31:38.350
 ======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T17:46:41.209
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-08-05T17:46:41.212
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-08-05T17:46:41.213
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T17:46:50.223
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-08-05T17:46:50.226
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-08-05T17:46:50.227
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T17:52:50.418
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-08-05T17:52:50.421
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-08-05T17:52:50.421
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T17:58:23.300
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-08-05T17:58:23.305
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-08-05T17:58:23.306
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T18:03:13.893
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-08-05T18:03:13.897
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-08-05T18:03:13.898
+======================================
