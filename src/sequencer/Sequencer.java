@@ -10,17 +10,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.json.simple.JSONObject;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import aspackage.clientServer.Util;
-import extension.AdditionalFunctions;
-import extension.Clock;
 import ipconfig.IPConfig;
 import vspackage.bean.Header;
-import vspackage.bean.Protocol;
 import vspackage.tools.JSONParser;
 
 public class Sequencer{

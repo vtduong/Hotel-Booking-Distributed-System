@@ -14,3 +14,11 @@ Server Resposnse:You have no event in Ottawa
 requestParameters:{customerId=MTLC1234}
 Request time:2019-07-13T18:41:04.851
 ======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=OTWM100100, eventType=Trade Show, bookingCapacity=1}
+Request time:2019-08-05T16:31:52.329
+======================================
