@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.json.simple.JSONObject;
 
@@ -54,7 +56,6 @@ public class Sequencer{
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 				socket.receive(request);
 				String content = new String(request.getData());
-				// update local time
 				if(content.contains("resend")) {
 					JSONParser parser = new JSONParser(content);
 					Map<String, String> jsonObj = parser.deSerialize();
@@ -66,7 +67,9 @@ public class Sequencer{
 					new Retry(socket, packet);
 					
 				}else {
+					
 					msr = new SendRequest(socket, request, seqClock);
+					System.out.print("send reqeuest");
 					seqClock++;
 				}
 			}
@@ -99,7 +102,7 @@ public class Sequencer{
 		
 	}
 
-	static class SendRequest implements Runnable {
+	static class SendRequest extends Thread {
 		DatagramSocket socket = null;
 		DatagramPacket request = null; 
 		int seqClock;
@@ -108,41 +111,54 @@ public class Sequencer{
 			this.socket = socket;
 			this.request = request;
 			this.seqClock = seqClock + 1;
+			sendpacket();
 		}
+		
+       public void sendpacket(){
+		ExecutorService executor = Executors.newCachedThreadPool();
+		executor.execute(new Runnable() {
+			
+			@Override
+			public void run() {
+				ObjectMapper mapper = new ObjectMapper();
+				String content = new String(request.getData());
+				JSONParser parser = new JSONParser(content);
+				Map<String, String> jsonObj = parser.deSerialize();
+				Header data = new Header();
+				data.setSequenceId(seqClock);
+				JSONObject jsonData = new JSONObject();
+				jsonData.put("sequenceId", data.getSequenceId());
+				String json = jsonData.toJSONString();
+				System.out.println("Json string"+json);
+				byte[] packet_to_send = json.getBytes();
 
-		@Override
-		public void run() {
-			ObjectMapper mapper = new ObjectMapper();
-			String content = new String(request.getData());
-			JSONParser parser = new JSONParser(content);
-			Map<String, String> jsonObj = parser.deSerialize();
-			Header data = new Header();
-			data.setSequenceId(seqClock);
-			JSONObject jsonData = new JSONObject();
-			jsonData.put("sequenceId", data.getSequenceId());
-			String json = jsonData.toJSONString();
+				for (int i = 0; i < 4; i++) {
+					try {
+						String hostname = IPConfig.getProperty("host" + i + 1);
+						System.out.println(hostname);
+						InetAddress hostIP = InetAddress.getByName(IPConfig.getProperty("host" + i + 1));
+						for (Integer ports : serverPorts) {
+							DatagramPacket sendReq = new DatagramPacket(packet_to_send, packet_to_send.length, hostIP,
+									ports);
 
-			byte[] packet_to_send = json.getBytes();
-
-			for (int i = 0; i < 4; i++) {
-				try {
-					InetAddress hostIP = InetAddress.getByName(IPConfig.getProperty("host" + i + 1));
-					for (Integer ports : serverPorts) {
-						DatagramPacket sendReq = new DatagramPacket(packet_to_send, packet_to_send.length, hostIP,
-								ports);
-
-						socket.send(sendReq);
-//						seq.incrementLocalTime("SE");
+							socket.send(sendReq);
+						}
+						 msgqueue.put(String.valueOf(seqClock), jsonData);
+					} catch (IOException e) {
+						
+						e.printStackTrace();
+					}finally {
+						
 					}
-					 msgqueue.put(String.valueOf(seqClock), jsonData);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+
 				}
 
 			}
-
-		}
+		});
+		
+		executor.shutdown();
+       }
+		
 
 	}
 
