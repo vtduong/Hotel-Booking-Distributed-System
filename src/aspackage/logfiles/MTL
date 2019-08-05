@@ -42,3 +42,27 @@ You have no event in Ottawa
 requestParameters:{customerId=MTLC1234}
 Request time:2019-07-13T18:41:12.183
 ======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T16:31:38.344
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-08-05T16:31:38.349
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=MTLM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-08-05T16:31:38.350
+======================================
