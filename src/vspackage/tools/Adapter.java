@@ -22,7 +22,7 @@ public class Adapter {
 		String newEventType = (String) jsonObj.get("newEventType");
 		String fromServer = (String) jsonObj.get("fromServer");
 		String toServer = (String) jsonObj.get("toServer");
-		int protocol = Integer.parseInt(jsonObj.get("protocol_type"));
+		int protocol = Integer.parseInt(jsonObj.get("PROTOCOL_TYPE"));
 		String userID = (String) jsonObj.get("userID");
 		
 		String output = "";
