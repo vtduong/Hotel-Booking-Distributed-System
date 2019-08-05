@@ -23,16 +23,13 @@ public class MulticastRM {
 		String rm_three_addr = IPConfig.getProperty("rm_three");
 		String rm_four_addr = IPConfig.getProperty("rm_four");
 		
-		int rm_one_port = Integer.parseInt(IPConfig.getProperty("port_rm_one"));
-		int rm_two_port = Integer.parseInt(IPConfig.getProperty("port_rm_two"));
-		int rm_three_port = Integer.parseInt(IPConfig.getProperty("port_rm_three"));
-		int rm_four_port = Integer.parseInt(IPConfig.getProperty("port_rm_four"));
+		int port_rm = Integer.parseInt(IPConfig.getProperty("port_rm"));
 		
 		
-		UnicastRM unicastOne = new UnicastRM(rm_one_addr, rm_one_port, header);
-		UnicastRM unicastTwo = new UnicastRM(rm_two_addr, rm_two_port, header);
-		UnicastRM unicastThree = new UnicastRM(rm_three_addr, rm_three_port, header);
-		UnicastRM unicastFour = new UnicastRM(rm_four_addr, rm_four_port, header);
+		UnicastRM unicastOne = new UnicastRM(rm_one_addr, port_rm, header);
+		UnicastRM unicastTwo = new UnicastRM(rm_two_addr, port_rm, header);
+		UnicastRM unicastThree = new UnicastRM(rm_three_addr, port_rm, header);
+		UnicastRM unicastFour = new UnicastRM(rm_four_addr, port_rm, header);
 		
 		unicastOne.unicast();
 		unicastTwo.unicast();
