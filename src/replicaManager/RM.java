@@ -117,7 +117,7 @@ class ReceiveMessage implements Runnable {
 			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 			
 			socket.receive(reply);
-			String content = new String(packet.getData());
+			String content = new String(reply.getData());
 			return  gson.fromJson(content, Header.class);
 
 		}
@@ -180,7 +180,7 @@ class ReceiveMessage implements Runnable {
 					if(errorList.size() > 0) {
 						this.syncData(errorList);
 					}
-					
+					socket.disconnect();
 					socket.close();
 
 					logger.log(2, "Run(" + 
@@ -248,82 +248,16 @@ class ReceiveMessage implements Runnable {
 
 		private Map<String, HashMap<String, Integer>> getCorrectEventMap(
 				List<Map<String, HashMap<String, Integer>>> eventMapList) {
-			// TODO Auto-generated method stub
+			for(int i = 0; i < eventMapList.size() -1; i++) {
+				for(int k = i + 1; k < eventMapList.size(); k++ ) {
+					if(eventMapList.get(i).equals(eventMapList.get(k))){
+						return eventMapList.get(i);
+					}
+				}
+			}
 			return null;
 		}
 
-		
 	}
-
-class MulticastRM {
-	
-	private List<String> failedAddr = null;
-	
-	MulticastRM(List<String> failedAddr) {
-		
-		this.failedAddr = failedAddr;
-	}
-	
-	public void multicast() throws NumberFormatException, IOException {
-		
-		int totalRM = Integer.parseInt(IPConfig.getProperty("total_rm")); 
-		
-		String rm_one_addr = IPConfig.getProperty("rm_one");
-		String rm_two_addr = IPConfig.getProperty("rm_two");
-		String rm_three_addr = IPConfig.getProperty("rm_three");
-		String rm_four_addr = IPConfig.getProperty("rm_four");
-		
-		int rm_one_port = Integer.parseInt(IPConfig.getProperty("port_rm_one"));
-		int rm_two_port = Integer.parseInt(IPConfig.getProperty("port_rm_two"));
-		int rm_three_port = Integer.parseInt(IPConfig.getProperty("port_rm_three"));
-		int rm_four_port = Integer.parseInt(IPConfig.getProperty("port_rm_four"));
-		
-		String failedServers = "";
-		
-		for(String str : failedAddr)
-			failedServers = failedServers + str + ",";
-		
-		failedServers = failedServers.substring(0, failedServers.length() - 1);
-		
-		UnicastRM unicastOne = new UnicastRM(rm_one_addr, rm_one_port, failedServers);
-		UnicastRM unicastTwo = new UnicastRM(rm_two_addr, rm_two_port, failedServers);
-		UnicastRM unicastThree = new UnicastRM(rm_three_addr, rm_three_port, failedServers);
-		UnicastRM unicastFour = new UnicastRM(rm_four_addr, rm_four_port, failedServers);
-		
-		unicastOne.unicast();
-		unicastTwo.unicast();
-		unicastThree.unicast();
-		unicastFour.unicast();
-		
-		//TODO unicast
-	}
-}
-
-
-class UnicastRM {
-	
-	private String addr = null;
-	private String data = "";
-	private int port = 0;
-	
-	UnicastRM(String addr, int port, String data) {
-		this.addr = addr;
-		this.port = port;
-		this.data = data;
-	}
-	
-	public void unicast() throws NumberFormatException, IOException {
-		int selfPort = Integer.parseInt(IPConfig.getProperty("unicast_fe_port"));
-		DatagramSocket socket = new DatagramSocket(selfPort);
-		
-		byte[] msg = data.getBytes();
-		
-		DatagramPacket packet = new DatagramPacket(msg, msg.length, 
-				InetAddress.getByName(this.addr), this.port);
-		
-		socket.send(packet);
-		socket.close();
-	}
-}
 
 }
