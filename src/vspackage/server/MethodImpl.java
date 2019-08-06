@@ -19,6 +19,7 @@ import java.util.Scanner;
 import org.json.simple.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 import extension.AdditionalFunctions;
 import ipconfig.IPConfig;
@@ -1048,32 +1049,38 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				DatagramPacket packet = new DatagramPacket(message, message.length);
 				
 				try {
+					Header data = null;
 					ObjectMapper mapper = new ObjectMapper();
 					socket.receive(packet);
 					String content = new String(message);
-					//content = content.replaceAll("\\uFEFF", "");
-					//Object json = new JSONParser().parse(content);
-					//JSONObject jsonObj = (JSONObject) json;
-					
-					JSONParser parser = new JSONParser(content);
-					Map<String, String> jsonObj = parser.deSerialize();
-					
-//					Header data = mapper.readValue(new String(message), Header.class);
-					
-					Header data = new Header();
-					
-					
-					data.setCapacity(Integer.parseInt(jsonObj.get("capacity").trim()));
-					data.setEventID((String) jsonObj.get("eventID"));
-					data.setEventType((String) jsonObj.get("eventType"));
-					data.setNewEventID((String) jsonObj.get("newEventID"));
-					data.setNewEventType((String) jsonObj.get("newEventType"));
-					data.setFromServer((String) jsonObj.get("fromServer"));
-					data.setToServer((String) jsonObj.get("toServer"));
-					data.setProtocol(Integer.parseInt(jsonObj.get("PROTOCOL_TYPE")));
-					data.setUserID((String) jsonObj.get("userID"));
-					data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
-					
+
+					if(packet.getPort() == Integer.parseInt(IPConfig.getProperty("port_rm"))) {
+						Gson gson = new Gson();
+						data = gson.fromJson(content, Header.class);
+					}else {
+						//content = content.replaceAll("\\uFEFF", "");
+						//Object json = new JSONParser().parse(content);
+						//JSONObject jsonObj = (JSONObject) json;
+						
+						JSONParser parser = new JSONParser(content);
+						Map<String, String> jsonObj = parser.deSerialize();
+						
+//						Header data = mapper.readValue(new String(message), Header.class);
+						
+						data = new Header();
+						
+						
+						data.setCapacity(Integer.parseInt(jsonObj.get("capacity").trim()));
+						data.setEventID((String) jsonObj.get("eventID"));
+						data.setEventType((String) jsonObj.get("eventType"));
+						data.setNewEventID((String) jsonObj.get("newEventID"));
+						data.setNewEventType((String) jsonObj.get("newEventType"));
+						data.setFromServer((String) jsonObj.get("fromServer"));
+						data.setToServer((String) jsonObj.get("toServer"));
+						data.setProtocol(Integer.parseInt(jsonObj.get("protocol_type")));
+						data.setUserID((String) jsonObj.get("userID"));
+						data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
+					}
 					
 					/*
 					 * The handling message logic here. 
@@ -1133,6 +1140,19 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						
 					} else if(data.getProtocol() == Protocol.SWAP_EVENT) {
 						result = swapEventUDP(data.getUserID(), data.getNewEventID(), data.getNewEventType(), data.getEventID(), data.getEventType());
+					} else if(data.getProtocol() == Protocol.SYNC_REQUEST) {
+						//return a header with 2 hashmap of this server
+						Map<String, HashMap<String, Integer>> eventMap = MethodImpl.this.getStaticValue("eventMap");
+						Map<String,HashMap<String, List<String>>> eventCus = MethodImpl.this.getStaticValue("eventCus");
+						unicastOneWay(packet.getAddress().getHostAddress(), packet.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
+						return;
+					} else if(data.getProtocol() == Protocol.SYNC) {
+						//get the 2 hashmaps from header and set the 2 hashmaps of this server
+						Map<String, HashMap<String, Integer>> syncedEventMap = data.getEventMap();
+						Map<String,HashMap<String, List<String>>> syncedEventCus = data.getEventCus();
+						MethodImpl.this.setStaticValue("eventMap", syncedEventMap);
+						MethodImpl.this.setStaticValue("eventCus", syncedEventCus);
+						return;
 					}
 					
 					int sequenceID = data.getSequenceId();
@@ -1157,7 +1177,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					
 					
-				} catch (IOException e) {
+				} catch (IOException | SecurityException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
 					
 					try {
 						logger.log(0, "Run(" + 
@@ -1171,7 +1191,17 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				}
 			}
 		}
-
+		public void unicastOneWay(String addr, int port, Header header) throws IOException {
+			Gson gson = new Gson();
+			
+			String data = gson.toJson(header);
+			
+			byte[] msg = data.getBytes();
+			
+			DatagramPacket packet = new DatagramPacket(msg, msg.length, 
+					InetAddress.getByName(addr), port);
+			socket.send(packet);
+		}
 	
 		
 	}
