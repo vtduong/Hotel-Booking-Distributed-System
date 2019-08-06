@@ -12,14 +12,20 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
+import aspackage.utility.DataStructureAdapter;
 import aspackage.utility.FileLogger;
+import vspackage.bean.Header;
+import vspackage.bean.Protocol;
+import vspackage.server.MethodImpl;
 import vspackage.tools.Adapter;
 
 public class MTLServer {
@@ -27,30 +33,9 @@ public class MTLServer {
     
     public static void main(String args[]){
 		try {
-			ORB orb = ORB.init(args, null);
-			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-			rootpoa.the_POAManager().activate();
 			exportedObj = new MTL();
-			exportedObj.setORB(orb);
-
-			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(exportedObj);
-			DEMSOperations href = DEMSOperationsHelper.narrow(ref);
-
-		
-			org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
-			
-			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-
-			// bind the Object Reference in Naming 
-			NameComponent path[] = ncRef.to_name("MTL");
-			ncRef.rebind(path, href);
-
 			System.out.println("MTL Server ready and waiting ...");
 			listenUDP();
-			// wait for invocations from clients
-			for (;;) {
-				orb.run();
-			}
 		}
 
 		catch (Exception e) {
@@ -63,12 +48,14 @@ public class MTLServer {
 	}
 
 	
-    private static String parseRequest(String input) {
+    private static String parseRequest(String input, DatagramPacket request) {
+    	DataStructureAdapter ds =new DataStructureAdapter();
 		String toReturn = input;
 		if (input.contains(Util.BOOK_EVENT) || input.contains(Util.Get_Booking_Schedule)
 				|| input.contains(Util.CANCEL_EVENT) || input.contains(Util.List_Event_Availability)
 				|| input.contains(Util.Booking_Exist) || input.contains(Util.Capasity_Exist)
-				|| input.contains(Util.Can_Book) || input.contains(Util.RE)
+				|| input.contains(Util.Can_Book) || input.contains(Util.RE) ||
+				input.contains(Util.SYNC)
 
 		) {
 			String[] inputArray = input.split(Util.SEMI_COLON);
@@ -100,7 +87,22 @@ public class MTLServer {
 				toReturn="success";
 				exportedObj.removeFromCustBook(inputArray[1].trim(), inputArray[2].trim());
 				break;
-
+				
+			case Util.SYNC:
+				Header data = null;
+				Gson gson = new Gson();
+				String content = new String(request.getData());
+				data = gson.fromJson(content, Header.class);
+				exportedObj.customerBook =ds.convertCustomerMap((HashMap<String, HashMap<String, List<String>>>) data.getEventCus());
+				exportedObj.eventBook=ds.convertEventMap(data.getEventMap());
+				toReturn="success";
+				break;
+				
+			case Util.SYNC_REQUEST:
+    			Map<String, Map<String, Integer>> eventMap = ds.convertEventMapToHeaderFormat(exportedObj.eventBook);
+     			Map<String,HashMap<String, List<String>>> eventCus = ds.convertCustomerMapToHeaderFormat(exportedObj.customerBook);
+				//unicastOneWay(packet.getAddress().getHostAddress(), packet.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
+				break;
 			default:
 				break;
 
@@ -145,7 +147,7 @@ public class MTLServer {
 				System.out.println("Request received on MTL Server: " + new String(Adapter.objectToString(request.getData())));
 				requestMsg = new String(Adapter.objectToString(request.getData()));
 				
-					String replyStr =parseRequest(requestMsg);
+					String replyStr =parseRequest(requestMsg,request);
 					
 //					int sequenceID = data.getSequenceId();
 //					String ip = InetAddress.getLocalHost().toString().split("/")[1];
