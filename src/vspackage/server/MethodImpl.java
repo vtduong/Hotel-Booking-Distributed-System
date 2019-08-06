@@ -21,6 +21,7 @@ import org.json.simple.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import extension.AdditionalFunctions;
+import ipconfig.IPConfig;
 //import server.MethodImpl.SendMessage;
 import vspackage.RemoteMethodApp.RemoteMethodPOA;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.ClassNotFoundException;
@@ -219,7 +220,7 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "From Server " + serverName + "cannot proceed.";
+		return "From Server " + serverName + "cannot proceed. fail";
 	}
 	
 	private String addEventUDP(String eventID, String eventType, int bookingCapacity) throws SecurityException, IOException{
@@ -228,6 +229,9 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 			Map eventMap = (HashMap) this.getStaticValue("eventMap");
 			Map eventCus = this.getStaticValue("eventCus");
 			isExist = ((HashMap) eventMap.get(eventType)).containsKey(eventID);
+			if(bookingCapacity < 0) {
+				return "capacity must be non-zero. failed to create event";
+			}
 			
 			if(isExist) {
 				Map newMap = new HashMap<>(eventMap);
@@ -259,7 +263,7 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 			logger.log(0, "addEventUDP(" + eventID + "," + eventType + "," + bookingCapacity +
 					") : returned : " + "Something went wrong : " + e.getMessage());
 			
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 	}
@@ -361,7 +365,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			logger.log(0, "removeEventUDP(" + eventID + "," + eventType  +
 					") : returned : " + "Something went wrong : " + e.getMessage());
 			
-			return "Something went wrong";
+			return "Something went wrong, failed";
 		}
 //		
 	}
@@ -403,7 +407,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			logger.log(0, "listEventAvailabilityUPD(" + eventType  +
 					") : returned : " + "Something went wrong : " + e.getMessage());
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 	}
@@ -437,7 +441,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			logger.log(0, "getBookingScheduleUDP(" + userID  +
 					") : returned : " + "Something went wrong " + e.getMessage());
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 		
@@ -545,7 +549,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					}
 					
 					if(count == 3 && days <= 30) {
-						return "Maximum number of remote event has been booked, no booking done";
+						return "Maximum number of remote event has been booked, no booking done. fail";
 					}else {
 						int status = 0;
 						//forward request to dest server
@@ -564,7 +568,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 	
 			
 		}
-		return "From Server " + serverName + " Something went wrong";
+		return "From Server " + serverName + " Something went wrong. fail";
 	}
 	
 	private String getRemoteEventsByEventType(int protocol, String eventType) throws ClassNotFoundException, IOException {
@@ -729,16 +733,16 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			Map eventCus = this.getStaticValue("eventCus");
 			Map eventMap = this.getStaticValue("eventMap");
 			if(!((HashMap) eventCus.get(eventType)).containsKey(eventID)||  !((HashMap) eventMap.get(eventType)).containsKey(eventID))
-				return "No event exists";
+				return "No event exists. fail";
 			List<String> cusList = (List<String>) ((HashMap) eventCus.get(eventType)).get(eventID);
 //			int cap = eventMap.get(eventType).get(eventID);
 			int curAvailability = (int) ((HashMap) eventMap.get(eventType)).get(eventID);
 
 			if(cusList.contains(clientID)) {//check if event has been booked by the same person
-				return "Client has already booked this event";
+				return "Client has already booked this event. fail";
 			}
 			if(curAvailability == 0) {//check if event is full
-				return "Event is full, cannot be booked";
+				return "Event is full, cannot be booked. fail";
 			}
 			if(curAvailability > 0 && !cusList.contains(clientID)) {//else add cus to event's cus list
 				Map newEventCus = new HashMap<>(eventCus);
@@ -756,7 +760,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			
 			e.printStackTrace();
-			return "Something went wrong";
+			return "Something went wrong. fail";
 		}
 		
 		logger.log(2, "bookEventUPD(" + clientID + "," + eventID  + "," + eventType + 
@@ -800,7 +804,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				String status = "Something went wrong";
+				String status = "Something went wrong. fail";
 				return "From Server " + serverName + status;
 			}
 		}
@@ -852,13 +856,13 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				logger.log(2, "cancelEventUDP(" + customerID + "," + eventID + "," + eventType + 
 						") : returned : " + "Event belongs to another customer, no cancelation done");
 				
-				return "Event belongs to another customer, no cancelation done";
+				return "Event belongs to another customer, no cancelation done. fail";
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
 			logger.log(0, "cancelEventUDP(" + customerID + "," + eventID + "," + eventType + 
 					") : returned : " + "Something went wrong : " + e.getMessage());
-			return "Something went wrong";
+			return "Something went wrong. failed";
 		}
 		
 	}
@@ -900,7 +904,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 							result1 = this.cancelEventUDP(customerID, oldEventID, oldEventType);
 						}
 						if(result1.equalsIgnoreCase("") || result2.equalsIgnoreCase("")) {
-							result = "cannot swap events";
+							result = result2 + " " + result1;
 						}else {
 							result = result2 + " " + result1;
 						}
@@ -991,7 +995,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			e.printStackTrace();
 		}
 		
-		return "something went wrong";
+		return "something went wrong. fail";
 
 		
 	}
@@ -1131,16 +1135,17 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
 					if(sequenceID == 1) {
-						if(ip.equalsIgnoreCase("192.168.1.5")) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("rm_one"))) {
 							return;//crash = do nothing
 						}
-						if(ip.equalsIgnoreCase("192.168.1.2")) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("rm_two"))) {
 							result = "incorrect result"; //return incorrect result = software failure
 						}
 					}
 					byte[] reply = result.toString().getBytes();
 					
-					DatagramPacket replyPacket = new DatagramPacket(reply, reply.length, packet.getAddress(), packet.getPort());
+					DatagramPacket replyPacket = new DatagramPacket(
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					socket.send(replyPacket);
 					
 					

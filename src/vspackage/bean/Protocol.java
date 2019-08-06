@@ -14,5 +14,7 @@ public class Protocol {
 	public static final int CHECK_AND_BOOK = 8;
 	public static final int CHECK_AND_CANCEL = 9;
 	public static final int FE_TO_HOST_FAULT = 400;
+	public static final int SYNC = 10;
+	public static final int SYNC_REQUEST = 11;
 	
 }
