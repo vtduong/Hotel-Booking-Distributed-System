@@ -1,6 +1,8 @@
 package vspackage.bean;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Header {
 	
@@ -17,6 +19,8 @@ public class Header {
 	private List<String> error;
 	private List<String> incorrect;
 	private List<String> crash;
+	private Map<String, HashMap<String, Integer>> eventMap;
+	private Map<String,HashMap<String, List<String>>> eventCus;
 	
 	
 	
@@ -56,7 +60,38 @@ public class Header {
 		this.incorrect = incorrect;
 		this.sequenceId = 0;
 	}
+	
+	public Header(int PROTOCOL_TYPE, Map<String, HashMap<String, Integer>> eventMap, Map<String,HashMap<String, List<String>>> eventCus) {
+		super();
+		this.PROTOCOL_TYPE = PROTOCOL_TYPE;
+		this.userID = "";
+		this.fromServer = "";
+		this.toServer = "";
+		this.eventID = "";
+		this.eventType = "";
+		this.newEventID = "";
+		this.newEventType = "";
+		this.capacity = 0;
+		this.error = null;
+		this.crash = null;
+		this.incorrect = null;
+		this.sequenceId = 0;
+		this.eventMap = eventMap;
+		this.eventCus = eventCus;
+	}
 
+	public Map<String, HashMap<String, Integer>> getEventMap() {
+		return eventMap;
+	}
+	public void setEventMap(Map<String, HashMap<String, Integer>> eventMap) {
+		this.eventMap = eventMap;
+	}
+	public Map<String, HashMap<String, List<String>>> getEventCus() {
+		return eventCus;
+	}
+	public void setEventCus(Map<String, HashMap<String, List<String>>> eventCus) {
+		this.eventCus = eventCus;
+	}
 	public Header() {
 		// TODO Auto-generated constructor stub
 	}

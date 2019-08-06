@@ -1,0 +1,10 @@
+2019-08-04 at 20:35:42 EDT INFO MTL MTL started.
+2019-08-04 at 20:35:42 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-04 at 20:35:42 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-04 at 20:35:42 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 6002
+2019-08-04 at 20:35:42 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-04 at 20:54:46 EDT INFO MTL MTL started.
+2019-08-04 at 20:54:46 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-04 at 20:54:46 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-04 at 20:54:46 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 6002
+2019-08-04 at 20:54:46 EDT INFO MTL Run() : returned : None : Thread started

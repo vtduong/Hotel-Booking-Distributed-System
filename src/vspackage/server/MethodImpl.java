@@ -21,6 +21,7 @@ import org.json.simple.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import extension.AdditionalFunctions;
+import ipconfig.IPConfig;
 //import server.MethodImpl.SendMessage;
 import vspackage.RemoteMethodApp.RemoteMethodPOA;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.ClassNotFoundException;
@@ -1134,16 +1135,17 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
 					if(sequenceID == 1) {
-						if(ip.equalsIgnoreCase("192.168.1.5")) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("rm_one"))) {
 							return;//crash = do nothing
 						}
-						if(ip.equalsIgnoreCase("192.168.1.2")) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("rm_two"))) {
 							result = "incorrect result"; //return incorrect result = software failure
 						}
 					}
 					byte[] reply = result.toString().getBytes();
 					
-					DatagramPacket replyPacket = new DatagramPacket(reply, reply.length, packet.getAddress(), packet.getPort());
+					DatagramPacket replyPacket = new DatagramPacket(
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					socket.send(replyPacket);
 					
 					

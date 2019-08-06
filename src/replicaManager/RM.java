@@ -7,10 +7,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 import ipconfig.IPConfig;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.SecurityException;
@@ -28,6 +31,8 @@ import vspackage.tools.Logger;
 public class RM {
 	private Logger logger = null;
 	private String hostIP = null;
+	private List<String> otherIPs = null;
+	private List<String> workingIPs = null;
 	/**
 	 * @throws IOException 
 	 * @throws NumberFormatException 
@@ -35,9 +40,38 @@ public class RM {
 	 */
 	public RM() throws NumberFormatException, IOException {
 		this.hostIP = InetAddress.getLocalHost().toString().split("/")[1];
-		logger = new Logger(hostIP);
-		logger.log(2, hostIP + " started.");
-		new Thread(new ReceiveMessage(hostIP)).start();;
+		System.out.println(hostIP);
+		otherIPs = new ArrayList<String>();
+		this.addOtherIPs(this.hostIP);
+		this.workingIPs.addAll(this.otherIPs);
+//		logger = new Logger(hostIP);
+//		logger.log(2, hostIP + " started.");
+		new Thread(new ReceiveMessage(hostIP)).start();
+	}
+
+	private void addOtherIPs(String hostIP) throws IOException {
+		String rm1 = IPConfig.getProperty("rm_one");
+		String rm2 = IPConfig.getProperty("rm_two");
+		String rm3 = IPConfig.getProperty("rm_three");
+		String rm4 = IPConfig.getProperty("rm_four");
+		if(hostIP.equalsIgnoreCase(rm1)) {
+			this.otherIPs.add(IPConfig.getProperty("rm_two"));
+			this.otherIPs.add(IPConfig.getProperty("rm_three"));
+			this.otherIPs.add(IPConfig.getProperty("rm_four"));
+		}else if(hostIP.equalsIgnoreCase(rm2)) {
+			this.otherIPs.add(IPConfig.getProperty("rm_one"));
+			this.otherIPs.add(IPConfig.getProperty("rm_three"));
+			this.otherIPs.add(IPConfig.getProperty("rm_four"));
+		}else if(hostIP.equalsIgnoreCase(rm3)) {
+			this.otherIPs.add(IPConfig.getProperty("rm_one"));
+			this.otherIPs.add(IPConfig.getProperty("rm_two"));
+			this.otherIPs.add(IPConfig.getProperty("rm_four"));
+		}else if(hostIP.equalsIgnoreCase(rm4)) {
+			this.otherIPs.add(IPConfig.getProperty("rm_one"));
+			this.otherIPs.add(IPConfig.getProperty("rm_three"));
+			this.otherIPs.add(IPConfig.getProperty("rm_one"));
+		}
+		
 	}
 
 	/**
@@ -53,17 +87,38 @@ public class RM {
 class ReceiveMessage implements Runnable {
 		
 		DatagramSocket socket = null;
+		String hostIP = null;
 		int port;
 		
 		public ReceiveMessage(String ip) throws NumberFormatException, IOException {
-			port = 0;
-			
+			port = Integer.parseInt(IPConfig.getProperty("port_rm"));
+			this.hostIP = ip;
 			//TODO add port number
 			
 			this.socket = new DatagramSocket(port);
 			
 			logger.log(2, "ReceiveMessage(" + ip + 
 					") : returned : " + "None : Init the socket and port " + port);
+		}
+		
+		public Header unicast(String addr, int port, Header header) throws NumberFormatException, IOException{
+			Gson gson = new Gson();
+			
+			String data = gson.toJson(header);
+			
+			byte[] msg = data.getBytes();
+			
+			DatagramPacket packet = new DatagramPacket(msg, msg.length, 
+					InetAddress.getByName(addr), port);
+			socket.send(packet);
+			
+			byte [] buffer = new byte[1000];
+			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+			
+			socket.receive(reply);
+			String content = new String(packet.getData());
+			return  gson.fromJson(content, Header.class);
+
 		}
 		
 		
@@ -85,29 +140,15 @@ class ReceiveMessage implements Runnable {
 				try {
 					ObjectMapper mapper = new ObjectMapper();
 					socket.receive(packet);
-					String content = new String(message);
-					//content = content.replaceAll("\\uFEFF", "");
-					//Object json = new JSONParser().parse(content);
-					//JSONObject jsonObj = (JSONObject) json;
+					String content = new String(packet.getData());
+					Gson gson = new Gson();
+					Header data = gson.fromJson(content, Header.class);
 					
-					JSONParser parser = new JSONParser(content);
-					Map<String, String> jsonObj = parser.deSerialize();
-					
-//					Header data = mapper.readValue(new String(message), Header.class);
-					
-					Header data = new Header();
+					List<String> errorList = data.getError();//the string is of IP:port
+					List<String> incorrectList = data.getIncorrect();
+					List<String> crashList = data.getCrash();
 					
 					
-					data.setCapacity(Integer.parseInt(jsonObj.get("capacity").trim()));
-					data.setEventID((String) jsonObj.get("eventID"));
-					data.setEventType((String) jsonObj.get("eventType"));
-					data.setNewEventID((String) jsonObj.get("newEventID"));
-					data.setNewEventType((String) jsonObj.get("newEventType"));
-					data.setFromServer((String) jsonObj.get("fromServer"));
-					data.setToServer((String) jsonObj.get("toServer"));
-					data.setProtocol(Integer.parseInt(jsonObj.get("protocol_type")));
-					data.setUserID((String) jsonObj.get("userID"));
-					data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
 					
 					
 					/*
@@ -115,22 +156,46 @@ class ReceiveMessage implements Runnable {
 					 */
 					
 					Object result = null;
+					if(crashList.size() > 0) {
+						for(String s : crashList) {
+							String ip = s.split(":")[0];
+							String port = s.split(":")[1];
+							if(ip.equalsIgnoreCase(hostIP)) {
+								//send a sync message to a working host and the corresponding server
+								List<Header> headerList = new ArrayList<Header>();
+								List<Map<String, HashMap<String, Integer>>> eventMapList = new ArrayList<Map<String, HashMap<String, Integer>>>();
+								List<Map<String,HashMap<String, List<String>>>> eventCusList = new ArrayList<Map<String,HashMap<String, List<String>>>>();
+								Header head = new Header(Protocol.SYNC_REQUEST, null, null);
+								//send unicast to other hosts
+								for(int i = 1; i < 4; i++) {
+									//skip itself
+									if(this.hostIP.equalsIgnoreCase(IPConfig.getProperty("host"+i))) {
+										continue;
+									}
+									Header responseHead = unicast(IPConfig.getProperty("host"+i), 										Integer.parseInt(IPConfig.getProperty(port)), head);
+									eventMapList.add(responseHead.getEventMap());
+									
+								}
+								Map<String, HashMap<String, Integer>> eventMap = getCorrectResult(eventMapList);
+								//send sync message to the right server based on port given by the FE
+							} else {
+								//TODO log the event
+							}
+									
+						}
+					}
 					
-					if(data.getProtocol() == Protocol.CRASH) {
-						if(data.getToServer().split(":")[0].equalsIgnoreCase(hostIP)) {
-							//send request to synch data
+					if(incorrectList.size() > 0) {
+						for(String s : incorrectList) {
 							
 						}
 					}
-					if(data.getProtocol() == Protocol.FAIL) {
-						
+					
+					if(errorList.size() > 0) {
+						for(String s : errorList) {
+							
+						}
 					}
-					
-					//TODO add operations
-					byte[] reply = result.toString().getBytes();
-					
-					DatagramPacket replyPacket = new DatagramPacket(reply, reply.length, packet.getAddress(), packet.getPort());
-					socket.send(replyPacket);
 					
 					
 					logger.log(2, "Run(" + 
@@ -151,6 +216,12 @@ class ReceiveMessage implements Runnable {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		private Map<String, HashMap<String, Integer>> getCorrectResult(
+				List<Map<String, HashMap<String, Integer>>> eventMapList) {
+			// TODO Compare result and return the majority
+			return null;
 		}	
 	}
 
