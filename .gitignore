@@ -120,6 +120,8 @@ buildNumber.properties
 
 #ignore logs & target
 **/logs/
+logs/
+logfiles/
 **/target/
 pom.xml.tag
 pom.xml.releaseBackup

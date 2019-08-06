@@ -1051,9 +1051,11 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				try {
 					Header data = null;
 					ObjectMapper mapper = new ObjectMapper();
+					System.out.println("waiting for a request");
 					socket.receive(packet);
 					String content = new String(message);
-
+					System.out.println("fucking received it: " + content);
+					
 					if(packet.getPort() == Integer.parseInt(IPConfig.getProperty("port_rm"))) {
 						Gson gson = new Gson();
 						data = gson.fromJson(content, Header.class);
@@ -1077,7 +1079,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						data.setNewEventType((String) jsonObj.get("newEventType"));
 						data.setFromServer((String) jsonObj.get("fromServer"));
 						data.setToServer((String) jsonObj.get("toServer"));
-						data.setProtocol(Integer.parseInt(jsonObj.get("protocol_type")));
+						data.setProtocol(Integer.parseInt(jsonObj.get("PROTOCOL_TYPE")));
 						data.setUserID((String) jsonObj.get("userID"));
 						data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
 					}
@@ -1157,18 +1159,20 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
-					if(sequenceID == 1) {
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("rm_one"))) {
+					if(sequenceID == 2) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
 							return;//crash = do nothing
 						}
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("rm_two"))) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("host2"))) {
 							result = "incorrect result"; //return incorrect result = software failure
 						}
 					}
 					byte[] reply = result.toString().getBytes();
 					
+//					DatagramPacket replyPacket = new DatagramPacket(
+//							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
-							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
 					socket.send(replyPacket);
 					
 					
