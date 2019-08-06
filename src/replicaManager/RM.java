@@ -180,7 +180,7 @@ class ReceiveMessage implements Runnable {
 					if(errorList.size() > 0) {
 						this.syncData(errorList);
 					}
-					
+					socket.disconnect();
 					socket.close();
 
 					logger.log(2, "Run(" + 
