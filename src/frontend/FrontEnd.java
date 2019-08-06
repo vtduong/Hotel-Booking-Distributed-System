@@ -120,6 +120,9 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		
 		List<String> nonCrashAddr = new ArrayList<String>();
 		
+		if(nonCrashAddr.size() == 0)
+			return null;
+		
 		for(String str : queue) {
 			
 			if(!str.contains("crashed")) {
@@ -131,8 +134,10 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			}
 		}
 		
+		String port = "";
 		// Port is same for all.
-		String port = nonCrashAddr.get(0).split(":")[1];
+		if(nonCrashAddr.size() > 0)
+			port = nonCrashAddr.get(0).split(":")[1];
 				
 		for(String str : nonCrashAddr) {
 			String[] temp = str.split(":");
