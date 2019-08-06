@@ -435,7 +435,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					") : returned : " + returnVal);
 			
 			
-			return returnVal;
+			return returnVal + "successfully";
 			
 		}catch(Exception e) {
 			e.printStackTrace();
