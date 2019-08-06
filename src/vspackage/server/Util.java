@@ -77,7 +77,7 @@ public class Util {
 	   
 	   /**
    	 * Unicast two ways: sender sends a header AND wait for response from receiver.
-   	 * The method returns header response
+   	 * The method returns the header from the response
    	 *
    	 * @param senderPort the sender port
    	 * @param receiverAddr the receiver addr
