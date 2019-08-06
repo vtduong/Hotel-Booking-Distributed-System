@@ -3,6 +3,7 @@ package aspackage.clientServer;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
@@ -22,7 +23,9 @@ import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
 import aspackage.utility.DataStructureAdapter;
 import aspackage.utility.FileLogger;
+import ipconfig.IPConfig;
 import vspackage.bean.Header;
+import vspackage.bean.Protocol;
 import vspackage.tools.Adapter;
 
 public class TORServer {
@@ -45,7 +48,7 @@ public class TORServer {
 
 	}
 
-	private static String parseRequest(String input, DatagramPacket request) {
+	private static String parseRequest(String input, DatagramPacket request) throws IOException {
 		DataStructureAdapter ds =new DataStructureAdapter();
 		String toReturn = input;
 		if (input.contains(Util.BOOK_EVENT) || input.contains(Util.Get_Booking_Schedule)
@@ -98,9 +101,9 @@ public class TORServer {
 				break;
 				
 			case Util.SYNC_REQUEST:
-    			Map<String, Map<String, Integer>> eventMap = ds.convertEventMapToHeaderFormat(exportedObj.eventBook);
+    			Map<String, HashMap<String, Integer>> eventMap = ds.convertEventMapToHeaderFormat(exportedObj.eventBook);
      			Map<String,HashMap<String, List<String>>> eventCus = ds.convertCustomerMapToHeaderFormat(exportedObj.customerBook);
-				//unicastOneWay(packet.getAddress().getHostAddress(), packet.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
+     			vspackage.server.Util.unicastOneWay(request.getAddress().getHostAddress(), request.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
 				break;
 				
 			default:
@@ -152,7 +155,7 @@ public class TORServer {
 				buffer = new byte[Util.BUFFER_SIZE];
 				byte[] replyBuff = new byte[Util.BUFFER_SIZE];
 				replyBuff = replyStr.getBytes();
-				DatagramPacket reply = new DatagramPacket(replyBuff, replyStr.length(), request.getAddress(),
+				DatagramPacket reply = new DatagramPacket(replyBuff, replyStr.length(), InetAddress.getByName(IPConfig.getProperty("fe_addr")),
 						request.getPort());
 				aSocketTOR.send(reply);
 

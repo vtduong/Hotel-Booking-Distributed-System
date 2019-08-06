@@ -69,22 +69,22 @@ public class DataStructureAdapter {
 	/*
 	 * 
 	 */
-	public synchronized Map<String, Map<String, Integer>> convertEventMapToHeaderFormat(HashMap<String, ArrayList<HashMap<String, EventInformation>>> eventBook) {
-		Map<String, Map<String, Integer>> eventMap = new HashMap<String, Map<String, Integer>>();
+	public synchronized Map<String, HashMap<String, Integer>> convertEventMapToHeaderFormat(HashMap<String, ArrayList<HashMap<String, EventInformation>>> eventBook) {
+		Map<String, HashMap<String, Integer>> eventMap = new HashMap<String, HashMap<String, Integer>>();
 		for(String eventType :eventBook.keySet()) {
 			ArrayList<HashMap<String, EventInformation>> tempmap = eventBook.get(eventType);
 			for(HashMap<String, EventInformation> m :tempmap) {
 				if(eventMap.containsKey(eventType)) {
 					for(String s : m.keySet()) {
 						EventInformation eventRec = m.get(s);
-						Map<String, Integer> temp = eventMap.get(eventType);
+						HashMap<String, Integer> temp = eventMap.get(eventType);
 						temp.put(eventRec.getEventId(), eventRec.getCapasity());
 						eventMap.put(eventType, temp);
 					}	
 				}else {
 					for(String s : m.keySet()) {
 						EventInformation eventRec = m.get(s);
-						Map<String, Integer> temp = new HashMap<String, Integer>();
+						HashMap<String, Integer> temp = new HashMap<String, Integer>();
 						temp.put(eventRec.getEventId(), eventRec.getCapasity());
 						eventMap.put(eventType, temp);
 					}	

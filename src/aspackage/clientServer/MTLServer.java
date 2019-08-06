@@ -23,6 +23,7 @@ import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
 import aspackage.utility.DataStructureAdapter;
 import aspackage.utility.FileLogger;
+import ipconfig.IPConfig;
 import vspackage.bean.Header;
 import vspackage.bean.Protocol;
 import vspackage.server.MethodImpl;
@@ -48,14 +49,14 @@ public class MTLServer {
 	}
 
 	
-    private static String parseRequest(String input, DatagramPacket request) {
+    private static String parseRequest(String input, DatagramPacket request) throws IOException {
     	DataStructureAdapter ds =new DataStructureAdapter();
 		String toReturn = input;
 		if (input.contains(Util.BOOK_EVENT) || input.contains(Util.Get_Booking_Schedule)
 				|| input.contains(Util.CANCEL_EVENT) || input.contains(Util.List_Event_Availability)
 				|| input.contains(Util.Booking_Exist) || input.contains(Util.Capasity_Exist)
 				|| input.contains(Util.Can_Book) || input.contains(Util.RE) ||
-				input.contains(Util.SYNC)
+				input.contains(Util.SYNC) || input.contains(Util.SYNC_REQUEST)
 
 		) {
 			String[] inputArray = input.split(Util.SEMI_COLON);
@@ -99,9 +100,9 @@ public class MTLServer {
 				break;
 				
 			case Util.SYNC_REQUEST:
-    			Map<String, Map<String, Integer>> eventMap = ds.convertEventMapToHeaderFormat(exportedObj.eventBook);
+    			Map<String, HashMap<String, Integer>> eventMap = ds.convertEventMapToHeaderFormat(exportedObj.eventBook);
      			Map<String,HashMap<String, List<String>>> eventCus = ds.convertCustomerMapToHeaderFormat(exportedObj.customerBook);
-				//unicastOneWay(packet.getAddress().getHostAddress(), packet.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
+     			vspackage.server.Util.unicastOneWay(request.getAddress().getHostAddress(), request.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
 				break;
 			default:
 				break;
@@ -163,7 +164,7 @@ public class MTLServer {
 					buffer = new byte[Util.BUFFER_SIZE];
 					byte[] replyBuff = new byte[Util.BUFFER_SIZE];
 					replyBuff =replyStr.getBytes();
-					DatagramPacket reply = new DatagramPacket(replyBuff, replyStr.length(), request.getAddress(),
+					DatagramPacket reply = new DatagramPacket(replyBuff, replyStr.length(), InetAddress.getByName(IPConfig.getProperty("fe_addr")),
 							request.getPort());
 					aSocketTOR.send(reply);
 				
