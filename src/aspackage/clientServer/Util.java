@@ -33,6 +33,7 @@ public class Util {
 		public static final String Can_Book ="can_book";
 		public static final String RE = "remove_event";
 		public static final String Success = "Success";
-		public static final String Failure = "Failure";;
-
+		public static final String Failure = "Failure";
+		public static final String SYNC = "SYNC";
+		public static final String SYNC_REQUEST ="SYNC_REQUEST";
 }

@@ -57,6 +57,14 @@ public class Adapter {
 			output = "swapEvent" + ";" + userID + ";" + newEventID + ";" + newEventType + ";" + eventID + ";" + eventType;
 			break;
 			
+		case Protocol.SYNC:
+			output = "SYNC;SYNC";
+			break;
+			
+		case Protocol.SYNC_REQUEST:
+			output = "SYNC_REQUEST;SYNC_REQUEST";
+			break;
+			
 		default:
 			output = null;
 			
