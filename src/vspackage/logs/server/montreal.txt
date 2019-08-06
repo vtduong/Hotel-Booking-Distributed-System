@@ -82,3 +82,43 @@
 2019-08-06 at 14:49:42 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
 2019-08-06 at 14:49:42 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
 2019-08-06 at 14:49:42 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:17:32 EDT INFO MTL MTL started.
+2019-08-06 at 16:17:32 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:17:32 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:17:32 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 16:17:32 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:19:37 EDT INFO MTL MTL started.
+2019-08-06 at 16:19:37 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:19:37 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:19:37 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 16:19:37 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:20:53 EDT INFO MTL MTL started.
+2019-08-06 at 16:20:53 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:20:53 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:20:53 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 16:20:54 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:33:24 EDT INFO MTL MTL started.
+2019-08-06 at 16:33:24 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:33:24 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:33:24 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 16:33:24 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:38:41 EDT INFO MTL MTL started.
+2019-08-06 at 16:38:41 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:38:41 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:38:41 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 16:38:41 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:45:56 EDT INFO MTL MTL started.
+2019-08-06 at 16:45:56 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:45:56 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:45:56 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 16:45:56 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:47:40 EDT INFO MTL MTL started.
+2019-08-06 at 16:47:40 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:47:40 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 16:47:40 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 16:47:40 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 16:48:21 EDT INFO MTL bookEventUPD(MTLC1234,MTLM100514,Conference) : returned : Event has been successfully booked
+2019-08-06 at 16:48:21 EDT INFO MTL Run() : returned : None : send data from port 2005
+2019-08-06 at 16:48:21 EDT INFO MTL Run() : returned : None : send data from port 2005
+2019-08-06 at 16:48:21 EDT INFO MTL Run() : returned : None : send data from port 2005
+2019-08-06 at 16:48:21 EDT INFO MTL Run() : returned : None : send data from port 2005

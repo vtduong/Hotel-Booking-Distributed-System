@@ -1077,7 +1077,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						data.setNewEventType((String) jsonObj.get("newEventType"));
 						data.setFromServer((String) jsonObj.get("fromServer"));
 						data.setToServer((String) jsonObj.get("toServer"));
-						data.setProtocol(Integer.parseInt(jsonObj.get("protocol_type")));
+						data.setProtocol(Integer.parseInt(jsonObj.get("PROTOCOL_TYPE")));
 						data.setUserID((String) jsonObj.get("userID"));
 						data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
 					}
