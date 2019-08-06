@@ -70,15 +70,15 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
-		Thread two = new Thread(fromHostTwo);
-		Thread three = new Thread(fromHostThree);
-		Thread four = new Thread(fromHostFour);
+		//Thread two = new Thread(fromHostTwo);
+//		Thread three = new Thread(fromHostThree);
+//		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
-		service.execute(two);
-		service.execute(three);
-		service.execute(four);
+//		service.execute(two);
+//		service.execute(three);
+//		service.execute(four);
 		
 		service.shutdown();
 		
@@ -678,7 +678,7 @@ class ReceiveFromHost implements Runnable {
 			
 			
 			socket.receive(datagram);
-			
+			System.out.println("received: " + new String(datagram.getData()));
 			queue.add(new String(packet) + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
 			
 			if(queue.size() == Integer.parseInt(IPConfig.getProperty("total_rm"))) {
@@ -687,7 +687,7 @@ class ReceiveFromHost implements Runnable {
 			}
 			
 		} catch(SocketTimeoutException e) {
-			
+			System.out.println("socket timeout");
 			queue.add("crashed");
 		
 		} catch(Exception e) {
@@ -699,6 +699,7 @@ class ReceiveFromHost implements Runnable {
 			
 			socket.close();
 		}
+		System.out.println("about to exit received()");
 	}
 	
 	
