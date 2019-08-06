@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +102,7 @@ class ReceiveMessage implements Runnable {
 					") : returned : " + "None : Init the socket and port " + port);
 		}
 		
-		public Header unicast(String addr, int port, Header header) throws NumberFormatException, IOException{
+		public Header unicastTwoWays(String addr, int port, Header header) throws NumberFormatException, IOException{
 			Gson gson = new Gson();
 			
 			String data = gson.toJson(header);
@@ -119,6 +120,18 @@ class ReceiveMessage implements Runnable {
 			String content = new String(packet.getData());
 			return  gson.fromJson(content, Header.class);
 
+		}
+		
+		public void unicastOneWay(String addr, int port, Header header) throws IOException {
+			Gson gson = new Gson();
+			
+			String data = gson.toJson(header);
+			
+			byte[] msg = data.getBytes();
+			
+			DatagramPacket packet = new DatagramPacket(msg, msg.length, 
+					InetAddress.getByName(addr), port);
+			socket.send(packet);
 		}
 		
 		
@@ -157,50 +170,21 @@ class ReceiveMessage implements Runnable {
 					
 					Object result = null;
 					if(crashList.size() > 0) {
-						for(String s : crashList) {
-							String ip = s.split(":")[0];
-							String port = s.split(":")[1];
-							if(ip.equalsIgnoreCase(hostIP)) {
-								//send a sync message to a working host and the corresponding server
-								List<Header> headerList = new ArrayList<Header>();
-								List<Map<String, HashMap<String, Integer>>> eventMapList = new ArrayList<Map<String, HashMap<String, Integer>>>();
-								List<Map<String,HashMap<String, List<String>>>> eventCusList = new ArrayList<Map<String,HashMap<String, List<String>>>>();
-								Header head = new Header(Protocol.SYNC_REQUEST, null, null);
-								//send unicast to other hosts
-								for(int i = 1; i < 4; i++) {
-									//skip itself
-									if(this.hostIP.equalsIgnoreCase(IPConfig.getProperty("host"+i))) {
-										continue;
-									}
-									Header responseHead = unicast(IPConfig.getProperty("host"+i), 										Integer.parseInt(IPConfig.getProperty(port)), head);
-									eventMapList.add(responseHead.getEventMap());
-									
-								}
-								Map<String, HashMap<String, Integer>> eventMap = getCorrectResult(eventMapList);
-								//send sync message to the right server based on port given by the FE
-							} else {
-								//TODO log the event
-							}
-									
-						}
+						this.syncData(crashList);
 					}
 					
 					if(incorrectList.size() > 0) {
-						for(String s : incorrectList) {
-							
-						}
+						this.syncData(incorrectList);
 					}
 					
 					if(errorList.size() > 0) {
-						for(String s : errorList) {
-							
-						}
+						this.syncData(errorList);
 					}
 					
-					
+					socket.close();
+
 					logger.log(2, "Run(" + 
 							") : returned : " + "None : send data from port " + port);
-					
 					
 					
 				} catch (IOException e) {
@@ -218,11 +202,57 @@ class ReceiveMessage implements Runnable {
 			}
 		}
 
-		private Map<String, HashMap<String, Integer>> getCorrectResult(
-				List<Map<String, HashMap<String, Integer>>> eventMapList) {
-			// TODO Compare result and return the majority
+		private void syncData(List<String> crashList) throws NumberFormatException, IOException {
+			for(String s : crashList) {
+				String ip = s.split(":")[0];
+				String port = s.split(":")[1];
+				if(ip.equalsIgnoreCase(hostIP)) {
+					//send a sync message to a working host and the corresponding server
+					List<Map<String, HashMap<String, Integer>>> eventMapList = new ArrayList<Map<String, HashMap<String, Integer>>>();
+					List<Map<String,HashMap<String, List<String>>>> eventCusList = new ArrayList<Map<String,HashMap<String, List<String>>>>();
+					Header head = new Header(Protocol.SYNC_REQUEST, null, null);
+					//send unicast to other hosts
+					for(int i = 1; i < 4; i++) {
+						//skip itself
+						if(this.hostIP.equalsIgnoreCase(IPConfig.getProperty("host"+i))) {
+							continue;
+						}
+						Header responseHead = unicastTwoWays(IPConfig.getProperty("host"+i), 										Integer.parseInt(IPConfig.getProperty(port)), head);
+						eventMapList.add(responseHead.getEventMap());
+						eventCusList.add(responseHead.getEventCus());
+					}
+					Map<String, HashMap<String, Integer>> eventMap = getCorrectEventMap(eventMapList);
+					Map<String,HashMap<String, List<String>>> eventCus = getCorrectEventCus(eventCusList);
+					if(eventCus != null && eventMap != null) {
+						//send sync message to the right server based on port given by the FE
+						unicastOneWay(this.hostIP, Integer.parseInt(port), new Header(Protocol.SYNC, eventMap, eventCus));
+					}else {
+						System.out.println("SOMETHING IS REALLY WRONG!!!");
+					}
+				}
+			}
+			
+		}
+
+		private Map<String, HashMap<String, List<String>>> getCorrectEventCus(
+				List<Map<String, HashMap<String, List<String>>>> eventCusList) {
+			for(int i = 0; i < eventCusList.size() -1; i++) {
+				for(int k = i + 1; k < eventCusList.size(); k++ ) {
+					if(eventCusList.get(i).equals(eventCusList.get(k))){
+						return eventCusList.get(i);
+					}
+				}
+			}
 			return null;
-		}	
+		}
+
+		private Map<String, HashMap<String, Integer>> getCorrectEventMap(
+				List<Map<String, HashMap<String, Integer>>> eventMapList) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		
 	}
 
 class MulticastRM {
