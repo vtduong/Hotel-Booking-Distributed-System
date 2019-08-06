@@ -72,3 +72,13 @@
 2019-08-06 at 01:22:58 EDT INFO MTL Run() : returned : None : send data from port 2005
 2019-08-06 at 01:22:58 EDT INFO MTL Run() : returned : None : send data from port 2005
 2019-08-06 at 01:22:58 EDT INFO MTL Run() : returned : None : send data from port 2005
+2019-08-06 at 14:46:00 EDT INFO MTL MTL started.
+2019-08-06 at 14:46:00 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 14:46:00 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 14:46:00 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 14:46:00 EDT INFO MTL Run() : returned : None : Thread started
+2019-08-06 at 14:49:42 EDT INFO MTL MTL started.
+2019-08-06 at 14:49:42 EDT INFO MTL initEventList() : returned None : Completed reading the default event data.
+2019-08-06 at 14:49:42 EDT INFO MTL initCusList() : returned None : Completed reading the default event data.
+2019-08-06 at 14:49:42 EDT INFO MTL ReceiveMessage(MTL) : returned : None : Init the socket and port 2005
+2019-08-06 at 14:49:42 EDT INFO MTL Run() : returned : None : Thread started

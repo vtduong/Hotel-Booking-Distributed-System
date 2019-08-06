@@ -50,6 +50,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	
 	
 	private Queue<String> getMessages() throws NumberFormatException, IOException {
+		
 		Queue<String> queue = new LinkedList<String>();
 		
 		ReceiveFromHost fromHostOne = new ReceiveFromHost(
@@ -89,9 +90,62 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			System.out.print("Received all the messages from the server....");
 		}
 		
+		String crashAddr = detectCrashAddr(queue);
+		
+		if(crashAddr != null) {
+			
+			queue.remove("crashed");
+			queue.add("crashed" + crashAddr);
+		}
+		
+		else {
+			queue.remove("crashed");
+		}
 		return queue;
 	}
 
+	
+	public String detectCrashAddr(Queue<String> queue) throws IOException {
+		
+		String hostOne = IPConfig.getProperty("host1");
+		String hostTwo = IPConfig.getProperty("host2");
+		String hostThree = IPConfig.getProperty("host3");
+		String hostFour = IPConfig.getProperty("host4");
+		
+		List<String> allAddr = new ArrayList<String>();
+		allAddr.add(hostOne);
+		allAddr.add(hostTwo);
+		allAddr.add(hostThree);
+		allAddr.add(hostFour);
+		
+		List<String> nonCrashAddr = new ArrayList<String>();
+		
+		for(String str : queue) {
+			
+			if(!str.contains("crashed")) {
+				
+				String[] temp = str.split(":");
+				
+				// Stores addr and port number.
+				nonCrashAddr.add(temp[1] + ":" + temp[2]);
+			}
+		}
+		
+		// Port is same for all.
+		String port = nonCrashAddr.get(0).split(":")[1];
+				
+		for(String str : nonCrashAddr) {
+			String[] temp = str.split(":");
+			allAddr.remove(temp[0]);
+			
+		}
+		
+		if(allAddr.size() > 0) {
+			return allAddr.get(0) + ":" + port;
+		}
+		
+		return null;
+	}
 	
 	// Idea : Receive method waits for the reply from all the servers
 	// and then store the results in the queue. We use the queue to 
@@ -629,12 +683,13 @@ class ReceiveFromHost implements Runnable {
 			
 		} catch(SocketTimeoutException e) {
 			
-			queue.add("crashed" + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
+			queue.add("crashed");
 		
 		} catch(Exception e) {
 			
-			queue.add("failure" + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
-		
+			//queue.add("failure" + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
+			e.printStackTrace();
+			
 		} finally {
 			
 			socket.close();
