@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -65,19 +66,19 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
 				queue, Thread.currentThread());
 		
-		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-				queue, Thread.currentThread());
+//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+//				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
-		//Thread two = new Thread(fromHostTwo);
-//		Thread three = new Thread(fromHostThree);
+		Thread two = new Thread(fromHostTwo);
+		Thread three = new Thread(fromHostThree);
 //		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
-//		service.execute(two);
-//		service.execute(three);
+		service.execute(two);
+		service.execute(three);
 //		service.execute(four);
 		
 		service.shutdown();
@@ -90,22 +91,12 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			System.out.print("Received all the messages from the server....");
 		}
 		
-		String crashAddr = detectCrashAddr(queue);
+		return detectCrashAddr(queue);
 		
-		if(crashAddr != null) {
-			
-			queue.remove("crashed");
-			queue.add("crashed" + crashAddr);
-		}
-		
-		else {
-			queue.remove("crashed");
-		}
-		return queue;
 	}
 
 	
-	public String detectCrashAddr(Queue<String> queue) throws IOException {
+	public Queue<String> detectCrashAddr(Queue<String> queue) throws IOException {
 		
 		String hostOne = IPConfig.getProperty("host1");
 		String hostTwo = IPConfig.getProperty("host2");
@@ -113,43 +104,32 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		String hostFour = IPConfig.getProperty("host4");
 		
 		List<String> allAddr = new ArrayList<String>();
-		allAddr.add(hostOne);
-		allAddr.add(hostTwo);
-		allAddr.add(hostThree);
-		allAddr.add(hostFour);
+		allAddr.add(hostOne.trim());
+		allAddr.add(hostTwo.trim());
+		allAddr.add(hostThree.trim());
+		allAddr.add(hostFour.trim());
 		
-		List<String> nonCrashAddr = new ArrayList<String>();
-		
-		if(nonCrashAddr.size() == 0)
-			return null;
+		String port = "";
 		
 		for(String str : queue) {
 			
-			if(!str.contains("crashed")) {
+			if(!str.contains("crash")) {
 				
 				String[] temp = str.split(":");
+				port = temp[2];
 				
-				// Stores addr and port number.
-				nonCrashAddr.add(temp[1] + ":" + temp[2]);
+				allAddr.remove(temp[1].trim());
 			}
 		}
 		
-		String port = "";
-		// Port is same for all.
-		if(nonCrashAddr.size() > 0)
-			port = nonCrashAddr.get(0).split(":")[1];
-				
-		for(String str : nonCrashAddr) {
-			String[] temp = str.split(":");
-			allAddr.remove(temp[0]);
-			
+		queue.removeAll(Arrays.asList("crashed"));
+		
+		for(String str : allAddr) {
+			queue.add("crashed" + str + ":" + port);
 		}
 		
-		if(allAddr.size() > 0) {
-			return allAddr.get(0) + ":" + port;
-		}
+		return queue;
 		
-		return null;
 	}
 	
 	// Idea : Receive method waits for the reply from all the servers
@@ -157,19 +137,9 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	// get the correct result 
 	private Map<String, List<String>> verify(Queue<String> queue) {
 		
-//		int successCount = 0;
-//		int failCount = 0;
-//		int crashCount = 0;
-//		int incorrectCount = 0;
-		
 		Map<String, Integer> count = new HashMap<String, Integer>();
 		
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
-		//Map<String, String> successServer = new HashMap<String, String>();
-		//Map<String, String> failServer = new HashMap<String, String>();
-		
-		//String successServerNames = "";
-		//String failServerNames = "";
 		
 		List<String> successServerNames = new ArrayList<String>();
 		List<String> failServerNames = new ArrayList<String>();
@@ -206,7 +176,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 						+ "", 0) + 1);
 				String[] temp = str.split(":");
 				
-				failServerNames.add(temp[1] + ":" + temp[2]);
+				crashServerNames.add(temp[1] + ":" + temp[2]);
 				
 			}
 			
@@ -265,15 +235,6 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			Map<String, List<String>> map = verify(queue);
 			
-			// TODO send message to rm.
-			
-//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
-//			if(map.get(fault).size() > 0) {
-//				
-//				MulticastRM multicast = new MulticastRM(map.get(fault));
-//				multicast.multicast();
-//				
-//			}
 			
 			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
 					map.get("incorrect").size() > 0) {
@@ -407,7 +368,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			}
 			
 			
-			return map.get("result").get(0);
+			return queue.peek();
 			
 		} catch(Exception e) {
 			
@@ -488,8 +449,39 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.GET_SCHEDULE_EVENT);
 		
-		//TODO send and receive
+		Queue<String> queue = null;
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
+			
+			Map<String, List<String>> map = verify(queue);
+
+			
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
+				
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
+				multicast.multicast();
+			}
+			
+			
+			return queue.peek();
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}
 		return null;
+
 	}
 
 
@@ -678,8 +670,10 @@ class ReceiveFromHost implements Runnable {
 			
 			
 			socket.receive(datagram);
-			System.out.println("received: " + new String(datagram.getData()));
+			
 			queue.add(new String(packet) + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
+			
+			System.out.println("Received data : " + datagram.getSocketAddress() + ":" + datagram.getPort());
 			
 			if(queue.size() == Integer.parseInt(IPConfig.getProperty("total_rm"))) {
 				thread.interrupt();
@@ -687,8 +681,9 @@ class ReceiveFromHost implements Runnable {
 			}
 			
 		} catch(SocketTimeoutException e) {
-			System.out.println("socket timeout");
+			
 			queue.add("crashed");
+			System.out.println("Request timeout....");
 		
 		} catch(Exception e) {
 			
