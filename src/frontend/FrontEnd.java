@@ -184,7 +184,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		Map<String, Integer> sortedCount = new TreeMap<String, Integer>();
 		
 		count.entrySet().stream().
-		sorted(Entry.comparingByValue(Comparator.reverseOrder())).
+		sorted(Entry.comparingByValue()).
 		forEach(action -> sortedCount.put(action.getKey(), action.getValue()));
 		
 		String result = "";
