@@ -30,9 +30,9 @@ import vspackage.server.MethodImpl;
 import vspackage.tools.Adapter;
 
 public class MTLServer {
-    public static MTL exportedObj;
-    
-    public static void main(String args[]){
+	public static MTL exportedObj;
+
+	public static void main(String args[]) {
 		try {
 			exportedObj = new MTL();
 			System.out.println("MTL Server ready and waiting ...");
@@ -48,17 +48,10 @@ public class MTLServer {
 
 	}
 
-	
-    private static String parseRequest(String input, DatagramPacket request) throws IOException {
-    	DataStructureAdapter ds =new DataStructureAdapter();
+	private static String parseRequest(String input, DatagramPacket request) throws IOException {
+		DataStructureAdapter ds = new DataStructureAdapter();
 		String toReturn = input;
-		if (input.contains(Util.BOOK_EVENT) || input.contains(Util.Get_Booking_Schedule)
-				|| input.contains(Util.CANCEL_EVENT) || input.contains(Util.List_Event_Availability)
-				|| input.contains(Util.Booking_Exist) || input.contains(Util.Capasity_Exist)
-				|| input.contains(Util.Can_Book) || input.contains(Util.RE) ||
-				input.contains(Util.SYNC) || input.contains(Util.SYNC_REQUEST)
-
-		) {
+		if (true) {
 			String[] inputArray = input.split(Util.SEMI_COLON);
 			switch (inputArray[0].trim()) {
 			case Util.BOOK_EVENT:
@@ -79,30 +72,46 @@ public class MTLServer {
 			case Util.Capasity_Exist:
 				toReturn = exportedObj.capasity_exist(inputArray[1].trim(), inputArray[2].trim());
 				break;
-				
+
 			case Util.Can_Book:
 				toReturn = exportedObj.get_Customerbook(inputArray[1].trim(), inputArray[2].trim());
 				break;
-				
+
 			case Util.RE:
-				toReturn="success";
+				toReturn = "success";
 				exportedObj.removeFromCustBook(inputArray[1].trim(), inputArray[2].trim());
 				break;
-				
+
+			case Util.REM_EVENT:
+				toReturn = exportedObj.removeEvent(inputArray[1].trim(), inputArray[2].trim());
+				break;
+			case Util.ADD_EVENT:
+				toReturn = exportedObj.addEvent(inputArray[1].trim(), inputArray[2].trim(),
+						Integer.parseInt(inputArray[3].trim()));
+				break;
+			case Util.Swap_event:
+				toReturn = exportedObj.swapEvent(inputArray[1].trim(), inputArray[2].trim(), inputArray[3].trim(),
+						inputArray[4].trim(), inputArray[5].trim());
+				break;
+
 			case Util.SYNC:
 				Header data = null;
 				Gson gson = new Gson();
 				String content = new String(request.getData());
 				data = gson.fromJson(content, Header.class);
-				exportedObj.customerBook =ds.convertCustomerMap((HashMap<String, HashMap<String, List<String>>>) data.getEventCus());
-				exportedObj.eventBook=ds.convertEventMap(data.getEventMap());
-				toReturn="success";
+				exportedObj.customerBook = ds
+						.convertCustomerMap((HashMap<String, HashMap<String, List<String>>>) data.getEventCus());
+				exportedObj.eventBook = ds.convertEventMap(data.getEventMap());
+				toReturn = "success";
 				break;
-				
+
 			case Util.SYNC_REQUEST:
-    			Map<String, HashMap<String, Integer>> eventMap = ds.convertEventMapToHeaderFormat(exportedObj.eventBook);
-     			Map<String,HashMap<String, List<String>>> eventCus = ds.convertCustomerMapToHeaderFormat(exportedObj.customerBook);
-     			vspackage.server.Util.unicastOneWay(request.getAddress().getHostAddress(), request.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
+				Map<String, HashMap<String, Integer>> eventMap = ds
+						.convertEventMapToHeaderFormat(exportedObj.eventBook);
+				Map<String, HashMap<String, List<String>>> eventCus = ds
+						.convertCustomerMapToHeaderFormat(exportedObj.customerBook);
+				vspackage.server.Util.unicastOneWay(request.getAddress().getHostAddress(), request.getPort(),
+						new Header(Protocol.SYNC, eventMap, eventCus));
 				break;
 			default:
 				break;
@@ -113,30 +122,30 @@ public class MTLServer {
 
 	}
 
-	private static  String getfreeEvents(String inputArray) {
+	private static String getfreeEvents(String inputArray) {
 		ArrayList<HashMap<String, EventInformation>> templist = new ArrayList<HashMap<String, EventInformation>>();
-		ArrayList<String> listofEvents =new ArrayList<String>();
+		ArrayList<String> listofEvents = new ArrayList<String>();
 		HashMap<String, EventInformation> tempmap = new HashMap<String, EventInformation>();
-		if(exportedObj.eventBook.containsKey(inputArray)) {
+		if (exportedObj.eventBook.containsKey(inputArray)) {
 			templist = exportedObj.eventBook.get(inputArray);
-			for(HashMap<String, EventInformation> m :templist) {
-				for(String s:m.keySet()) {
-//					if(m.get(s).getCapasity()!=0) {
-						listofEvents.add(s +" "+ m.get(s).getCapasity());
-//					}
+			for (HashMap<String, EventInformation> m : templist) {
+				for (String s : m.keySet()) {
+					// if(m.get(s).getCapasity()!=0) {
+					listofEvents.add(s + " " + m.get(s).getCapasity());
+					// }
 				}
-				
+
 			}
 		}
-		if(listofEvents.isEmpty()) {
-			listofEvents.add("No events available in "+Util.MTLCITY+" city.");
+		if (listofEvents.isEmpty()) {
+			listofEvents.add("No events available in " + Util.MTLCITY + " city.");
 		}
 		return listofEvents.toString();
 	}
-	
-    private static void listenUDP() {
+
+	private static void listenUDP() {
 		DatagramSocket aSocketTOR = null;
-		String requestMsg ="";
+		String requestMsg = "";
 		try {
 			aSocketTOR = new DatagramSocket(2002);
 			System.out.println("UDP MTL Server:");
@@ -144,35 +153,36 @@ public class MTLServer {
 			while (true) {
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 				aSocketTOR.receive(request);
-				
-				System.out.println("Request received on MTL Server: " + new String(Adapter.objectToString(request.getData())));
+
+				System.out.println(
+						"Request received on MTL Server: " + new String(Adapter.objectToString(request.getData())));
 				requestMsg = new String(Adapter.objectToString(request.getData()));
-				
-					String replyStr =parseRequest(requestMsg,request);
-					
-//					int sequenceID = data.getSequenceId();
-//					String ip = InetAddress.getLocalHost().toString().split("/")[1];
-//					if(sequenceID == 1) {
-//						if(ip.equalsIgnoreCase("192.168.1.5")) {
-//							return;//crash = do nothing
-//						}
-//						if(ip.equalsIgnoreCase("192.168.1.2")) {
-//							replyStr = "incorrect result"; //return incorrect result = software failure
-//						}
-//					}
-					
-					buffer = new byte[Util.BUFFER_SIZE];
-					byte[] replyBuff = new byte[Util.BUFFER_SIZE];
-					replyBuff =replyStr.getBytes();
-					DatagramPacket reply = new DatagramPacket(replyBuff, replyStr.length(), InetAddress.getByName(IPConfig.getProperty("fe_addr")),
-							request.getPort());
+				String replyStr = parseRequest(requestMsg, request);
+
+				buffer = new byte[Util.BUFFER_SIZE];
+				byte[] replyBuff = new byte[Util.BUFFER_SIZE];
+				replyBuff = replyStr.getBytes();
+				DatagramPacket reply = null;
+				if (requestMsg.contains(Util.BOOK_EVENT) || requestMsg.contains(Util.Get_Booking_Schedule)
+						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT)
+						|| requestMsg.contains(Util.Swap_event) || requestMsg.contains(Util.REM_EVENT)
+						|| requestMsg.contains(Util.List_Event_Availability)) {
+
+					reply = new DatagramPacket(replyBuff, replyStr.length(),
+							InetAddress.getByName(IPConfig.getProperty("fe_addr")), request.getPort());
 					aSocketTOR.send(reply);
-				
-				//}
+				} else if (requestMsg.contains(Util.Booking_Exist) || requestMsg.contains(Util.Capasity_Exist)
+						|| requestMsg.contains(Util.Can_Book) || requestMsg.contains(Util.RE)) {
+					reply = new DatagramPacket(replyBuff, replyStr.length(), request.getAddress(), request.getPort());
+					aSocketTOR.send(reply);
+
+				} else {
+					// do nothing
+				}
+
 			}
-			
-			
-		}catch (SocketException e) {
+
+		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
 		} catch (IOException e) {
 			System.out.println("IO: " + e.getMessage());
@@ -180,8 +190,7 @@ public class MTLServer {
 			if (aSocketTOR != null)
 				aSocketTOR.close();
 		}
-		
-		
+
 	}
-    
+
 }

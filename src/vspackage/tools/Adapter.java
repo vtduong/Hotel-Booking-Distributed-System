@@ -2,6 +2,7 @@ package vspackage.tools;
 
 import java.util.Map;
 
+import aspackage.clientServer.Util;
 import vspackage.bean.Header;
 import vspackage.bean.Protocol;
 
@@ -34,11 +35,11 @@ public class Adapter {
 			break;
 		
 		case Protocol.ADD_EVENT:
-			output = "Add_Event" + ";" + eventID + ";" + eventType + ";" + capacity;
+			output = Util.ADD_EVENT + ";" + eventID + ";" + eventType + ";" + capacity;
 			break;
 			
 		case Protocol.CANCEL_EVENT:
-			output = "CE" + ";" + userID + ";" + eventID + ";" + eventType;
+			output = Util.CANCEL_EVENT + ";" + userID + ";" + eventID + ";" + eventType;
 			break;
 		
 		case Protocol.EVENT_AVAILABLITY:
@@ -50,7 +51,7 @@ public class Adapter {
 			break;
 			
 		case Protocol.REMOVE_EVENT:
-			output = "remove_event" + ";" + eventID + ";" + eventType;
+			output = Util.REM_EVENT + ";" + eventID + ";" + eventType;
 			break;
 		
 		case Protocol.SWAP_EVENT:
