@@ -48,7 +48,7 @@ public class Client {
 			Scanner scan = new Scanner(System.in);
 			int option = 0;
 			while(true) {
-				try {
+				try { 
 					option = Integer.parseInt(scan.nextLine());
 					if (type == 'C'){
 						if(option > 4){
@@ -187,7 +187,15 @@ public class Client {
 	         } else if(option == Protocol.ADD_EVENT) { //add new event
 	        	 logger.log(2, "adding an event");
 	        	 Object[] results = createEvent();
-	        	 String status = h.addEvent((String)results[1], (String)results[0], (Integer)results[2]);
+	        	 String cusCity = cusID.substring(0, 3);
+	        	 String eventCity = ((String)results[1]).substring(0,3);
+	        	 String status = "";
+	        	 if(cusCity.equalsIgnoreCase(eventCity)) {
+		        	 status = h.addEvent((String)results[1], (String)results[0], (Integer)results[2]);
+
+	        	 }else {
+	        		 status=  "Enter correct event id";
+	        	 }
 	        	 System.out.println(status);
 	        	 logger.log(2, status);
 	         
