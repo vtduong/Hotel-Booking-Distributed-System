@@ -128,6 +128,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			queue.add("crashed:" + str + ":" + port);
 		}
 		
+		System.out.println("queue "+queue.toString());
 		return queue;
 		
 	}
@@ -145,28 +146,31 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		List<String> failServerNames = new ArrayList<String>();
 		List<String> crashServerNames = new ArrayList<String>();
 		List<String> incorrectServerNames = new ArrayList<String>();
-		
+		Map<String,String> msgs = new HashMap<String, String>();
+		String msg="";
 		for(String str : queue) {
 			
 			if(str.toLowerCase().contains("success")) {
 				//successCount++;
 				count.put("success", count.getOrDefault("success", 0) + 1);
 				String[] temp = str.split(":");
-				
+				msgs.put("success", temp[0].trim());
 				successServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());		
 				
 			} else if(str.toLowerCase().contains("incorrect")) { 
 				//incorrectCount++;
 				count.put("incorrect", count.getOrDefault("incorrect", 0) + 1);
 				String[] temp = str.split(":");
-				
+				msgs.put("incorrect",temp[0].trim());
+
 				incorrectServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			} else if(str.toLowerCase().contains("fail")) {
 				//failCount++;
 				count.put("fail", count.getOrDefault("fail", 0) + 1);
 				String[] temp = str.split(":");
-				
+				msgs.put("fail",  temp[0].trim());
+
 				failServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			} else if(str.toLowerCase().contains("crash")) {
@@ -174,7 +178,8 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				count.put("crash", count.getOrDefault("crash"
 						+ "", 0) + 1);
 				String[] temp = str.split(":");
-				
+				msgs.put("crash", "crash");
+
 				crashServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			}
@@ -188,22 +193,24 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		forEach(action -> sortedCount.put(action.getKey(), action.getValue()));
 		
 		String result = "";
-		
+		System.out.println("sortedCount"+sortedCount.toString());
+		int counttemp =0;
 		for(String str : sortedCount.keySet()) {
-			result = str;
-			break;
+			if(sortedCount.get(str)>counttemp) {
+				counttemp = sortedCount.get(str);
+				result = str;
+			}
 		}
 			
 		
 		List<String> storeResult = new ArrayList<String>();
-		storeResult.add(result);
-		
+		storeResult.add(msgs.get(result));
 		map.put("result", storeResult);
 		map.put("success", successServerNames);
 		map.put("fail", failServerNames);
 		map.put("crash", crashServerNames);
 		map.put("incorrect", incorrectServerNames);
-		
+		System.out.println("map"+map.toString());
 		return map;
 		
 	}
