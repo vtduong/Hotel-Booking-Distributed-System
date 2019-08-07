@@ -65,19 +65,19 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
 				queue, Thread.currentThread());
 		
-		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-				queue, Thread.currentThread());
+//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+//				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
-		//Thread two = new Thread(fromHostTwo);
-//		Thread three = new Thread(fromHostThree);
+		Thread two = new Thread(fromHostTwo);
+		Thread three = new Thread(fromHostThree);
 //		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
-//		service.execute(two);
-//		service.execute(three);
+		service.execute(two);
+		service.execute(three);
 //		service.execute(four);
 		
 		service.shutdown();
@@ -206,7 +206,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 						+ "", 0) + 1);
 				String[] temp = str.split(":");
 				
-				failServerNames.add(temp[1] + ":" + temp[2]);
+				crashServerNames.add(temp[1] + ":" + temp[2]);
 				
 			}
 			

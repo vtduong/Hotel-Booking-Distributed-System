@@ -122,6 +122,7 @@ buildNumber.properties
 **/logs/
 logs/
 logfiles/
+ipconfig.properties
 **/target/
 pom.xml.tag
 pom.xml.releaseBackup
