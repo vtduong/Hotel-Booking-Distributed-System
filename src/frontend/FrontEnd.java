@@ -178,6 +178,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				count.put("crash", count.getOrDefault("crash"
 						+ "", 0) + 1);
 				String[] temp = str.split(":");
+
 				msgs.put("crash", "crash");
 
 				crashServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
