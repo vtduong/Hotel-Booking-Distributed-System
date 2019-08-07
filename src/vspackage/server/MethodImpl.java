@@ -1169,10 +1169,11 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					}
 					byte[] reply = result.toString().getBytes();
 					
+					System.out.println("Sending result: " + result);
 //					DatagramPacket replyPacket = new DatagramPacket(
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
-							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
 					socket.send(replyPacket);
 					
 					

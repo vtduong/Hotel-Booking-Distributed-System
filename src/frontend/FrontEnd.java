@@ -66,20 +66,20 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
 				queue, Thread.currentThread());
 		
-//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-//				queue, Thread.currentThread());
+		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
 		Thread two = new Thread(fromHostTwo);
 		Thread three = new Thread(fromHostThree);
-//		Thread four = new Thread(fromHostFour);
+		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
 		service.execute(two);
 		service.execute(three);
-//		service.execute(four);
+		service.execute(four);
 		
 		service.shutdown();
 		
@@ -128,6 +128,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			queue.add("crashed:" + str + ":" + port);
 		}
 		
+		System.out.println("queue "+queue.toString());
 		return queue;
 		
 	}
@@ -145,28 +146,31 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		List<String> failServerNames = new ArrayList<String>();
 		List<String> crashServerNames = new ArrayList<String>();
 		List<String> incorrectServerNames = new ArrayList<String>();
-		
+		Map<String,String> msgs = new HashMap<String, String>();
+		String msg="";
 		for(String str : queue) {
 			
 			if(str.toLowerCase().contains("success")) {
 				//successCount++;
 				count.put("success", count.getOrDefault("success", 0) + 1);
 				String[] temp = str.split(":");
-				
+				msgs.put("success", temp[0].trim());
 				successServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());		
 				
 			} else if(str.toLowerCase().contains("incorrect")) { 
 				//incorrectCount++;
 				count.put("incorrect", count.getOrDefault("incorrect", 0) + 1);
 				String[] temp = str.split(":");
-				
+				msgs.put("incorrect",temp[0].trim());
+
 				incorrectServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			} else if(str.toLowerCase().contains("fail")) {
 				//failCount++;
 				count.put("fail", count.getOrDefault("fail", 0) + 1);
 				String[] temp = str.split(":");
-				
+				msgs.put("fail",  temp[0].trim());
+
 				failServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			} else if(str.toLowerCase().contains("crash")) {
@@ -174,7 +178,8 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				count.put("crash", count.getOrDefault("crash"
 						+ "", 0) + 1);
 				String[] temp = str.split(":");
-				
+
+				msgs.put("crash", "crash");
 
 				crashServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
@@ -185,26 +190,28 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		Map<String, Integer> sortedCount = new TreeMap<String, Integer>();
 		
 		count.entrySet().stream().
-		sorted(Entry.comparingByValue(Comparator.reverseOrder())).
+		sorted(Entry.comparingByValue()).
 		forEach(action -> sortedCount.put(action.getKey(), action.getValue()));
 		
 		String result = "";
-		
+		System.out.println("sortedCount"+sortedCount.toString());
+		int counttemp =0;
 		for(String str : sortedCount.keySet()) {
-			result = str;
-			break;
+			if(sortedCount.get(str)>counttemp) {
+				counttemp = sortedCount.get(str);
+				result = str;
+			}
 		}
 			
 		
 		List<String> storeResult = new ArrayList<String>();
-		storeResult.add(result);
-		
+		storeResult.add(msgs.get(result));
 		map.put("result", storeResult);
 		map.put("success", successServerNames);
 		map.put("fail", failServerNames);
 		map.put("crash", crashServerNames);
 		map.put("incorrect", incorrectServerNames);
-		
+		System.out.println("map"+map.toString());
 		return map;
 		
 	}
@@ -553,6 +560,45 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setProtocol(Protocol.SWAP_EVENT);
 		
 		//TODO send and receive
+		
+		Queue<String> queue = null;
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
+			
+			Map<String, List<String>> map = verify(queue);
+		
+			
+//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+//			if(map.get(fault).size() > 0) {
+//				
+//				MulticastRM multicast = new MulticastRM(map.get(fault));
+//				multicast.multicast();
+//				
+//			}
+			
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
+				
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
+				multicast.multicast();
+			}
+			
+			return map.get("result").get(0);
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}	
 		
 		return null;
 	}
