@@ -66,20 +66,20 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
 				queue, Thread.currentThread());
 		
-//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-//				queue, Thread.currentThread());
+		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
 		Thread two = new Thread(fromHostTwo);
 		Thread three = new Thread(fromHostThree);
-//		Thread four = new Thread(fromHostFour);
+		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
 		service.execute(two);
 		service.execute(three);
-//		service.execute(four);
+		service.execute(four);
 		
 		service.shutdown();
 		
@@ -552,6 +552,45 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		header.setProtocol(Protocol.SWAP_EVENT);
 		
 		//TODO send and receive
+		
+		Queue<String> queue = null;
+		
+		try {
+			
+			SendToSequencer sender = new SendToSequencer(header);
+			sender.send();
+			
+			// Grabbing replies from all the servers.
+			queue = getMessages();
+			
+			Map<String, List<String>> map = verify(queue);
+		
+			
+//			String fault = map.get("success").size() > map.get("failed").size() ? "failed" : "success";
+//			if(map.get(fault).size() > 0) {
+//				
+//				MulticastRM multicast = new MulticastRM(map.get(fault));
+//				multicast.multicast();
+//				
+//			}
+			
+			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
+					map.get("incorrect").size() > 0) {
+				
+				Header faultHeader = new Header(Protocol.FE_TO_HOST_FAULT, map.get("fail"), 
+						map.get("incorrect"), map.get("crash"));
+				
+				MulticastRM multicast = new MulticastRM(faultHeader);
+				multicast.multicast();
+			}
+			
+			return map.get("result").get(0);
+			
+		} catch(Exception e) {
+			
+			e.printStackTrace();
+	
+		}	
 		
 		return null;
 	}
