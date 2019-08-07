@@ -1161,7 +1161,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
 					if(sequenceID == 2) {
 						if(ip.equalsIgnoreCase(IPConfig.getProperty("172.20.10.3"))) {
-							return;//crash = do nothing
+							continue;//crash = do nothing
 						}
 //						if(ip.equalsIgnoreCase(IPConfig.getProperty("192.168.43.153"))) {
 //							result = "incorrect result"; //return incorrect result = software failure
