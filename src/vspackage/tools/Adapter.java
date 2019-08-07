@@ -35,11 +35,11 @@ public class Adapter {
 			break;
 		
 		case Protocol.ADD_EVENT:
-			output = "Add_Event" + ";" + eventID + ";" + eventType + ";" + capacity;
+			output = Util.ADD_EVENT + ";" + eventID + ";" + eventType + ";" + capacity;
 			break;
 			
 		case Protocol.CANCEL_EVENT:
-			output = "CANCEL_EVENT" + ";" + userID + ";" + eventID + ";" + eventType;
+			output = Util.CANCEL_EVENT + ";" + userID + ";" + eventID + ";" + eventType;
 			break;
 		
 		case Protocol.EVENT_AVAILABLITY:
