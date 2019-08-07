@@ -1160,12 +1160,12 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
 					if(sequenceID == 2) {
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("192.168.43.99"))) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("172.20.10.3"))) {
 							return;//crash = do nothing
 						}
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("192.168.43.153"))) {
-							result = "incorrect result"; //return incorrect result = software failure
-						}
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("192.168.43.153"))) {
+//							result = "incorrect result"; //return incorrect result = software failure
+//						}
 					}
 					byte[] reply = result.toString().getBytes();
 					
