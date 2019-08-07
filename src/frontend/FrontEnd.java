@@ -118,14 +118,14 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				String[] temp = str.split(":");
 				port = temp[2];
 				
-				allAddr.remove(temp[1].trim());
+				allAddr.remove(temp[1].trim().replace("/", ""));
 			}
 		}
 		
 		queue.removeAll(Arrays.asList("crashed"));
 		
 		for(String str : allAddr) {
-			queue.add("crashed" + str + ":" + port);
+			queue.add("crashed:" + str + ":" + port);
 		}
 		
 		return queue;
@@ -153,22 +153,21 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				count.put("success", count.getOrDefault("success", 0) + 1);
 				String[] temp = str.split(":");
 				
-				
-				successServerNames.add(temp[1] + ":" + temp[2]);		
+				successServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());		
 				
 			} else if(str.toLowerCase().contains("incorrect")) { 
 				//incorrectCount++;
 				count.put("incorrect", count.getOrDefault("incorrect", 0) + 1);
 				String[] temp = str.split(":");
 				
-				incorrectServerNames.add(temp[1] + ":" + temp[2]);
+				incorrectServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			} else if(str.toLowerCase().contains("fail")) {
 				//failCount++;
 				count.put("fail", count.getOrDefault("fail", 0) + 1);
 				String[] temp = str.split(":");
 				
-				failServerNames.add(temp[1] + ":" + temp[2]);
+				failServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			} else if(str.toLowerCase().contains("crash")) {
 				//crashCount++;
@@ -176,7 +175,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 						+ "", 0) + 1);
 				String[] temp = str.split(":");
 				
-				crashServerNames.add(temp[1] + ":" + temp[2]);
+				crashServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());
 				
 			}
 			
