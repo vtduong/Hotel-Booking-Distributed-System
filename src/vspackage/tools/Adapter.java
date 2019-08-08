@@ -31,7 +31,7 @@ public class Adapter {
 		switch(protocol) {
 			
 		case Protocol.BOOK_EVENT:
-			output = "bookEvent" + ";" + userID + ";" + eventID + ";" + eventType;
+			output = "bookEvent1" + ";" + userID + ";" + eventID + ";" + eventType;
 			break;
 		
 		case Protocol.ADD_EVENT:
@@ -39,15 +39,15 @@ public class Adapter {
 			break;
 			
 		case Protocol.CANCEL_EVENT:
-			output = Util.CANCEL_EVENT + ";" + userID + ";" + eventID + ";" + eventType;
+			output = Util.CANCEL_EVENT1 + ";" + userID + ";" + eventID + ";" + eventType;
 			break;
 		
 		case Protocol.EVENT_AVAILABLITY:
-			output = "listEventAvailability" + ";" + eventType;
+			output = "listEventAvailability1" + ";" + eventType;
 			break;
 			
 		case Protocol.GET_SCHEDULE_EVENT:
-			output = "getBookingSchedule" + ";" + userID;
+			output = "getBookingSchedule1" + ";" + userID;
 			break;
 			
 		case Protocol.REMOVE_EVENT:

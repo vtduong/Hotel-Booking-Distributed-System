@@ -195,11 +195,11 @@ public class OTW extends DEMSOperationsPOA {
 				System.out.println(Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON + eventId
 						+ Util.SEMI_COLON + eventType);
 				serverResponse = udpSend(2002, Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 				break;
 			case Util.TOR:
 				serverResponse = udpSend(2001, Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 			}
 
 		} else {
@@ -266,32 +266,32 @@ public class OTW extends DEMSOperationsPOA {
 //					templist.add(tempmap);
 					eventBook.put(eventType, templist);
 					eventCust.put(eventRec.getEventId()+Util.SEMI_COLON+eventRec.getEventType(), customerId);
-					serverResponse = "Event is booked. To check booking schedule later select option '2' from the menu."
-							+ "Remaining Capasity :" + eventRec.getCapasity();
+					serverResponse = Util.Success+" Event is booked successfully. To check booking schedule later select option '2' from the menu."
+							+ "Remaining Capasity -" + eventRec.getCapasity();
 					requestStatus = Util.Success;
 				} else {
-					serverResponse = "Event cannot be booked. Either the capacity is full or User already has a entry.";
+					serverResponse = Util.Failure+" Event cannot be booked. Either the capacity is full or User already has a entry.";
 					requestStatus = Util.Failure;
 				}
 
 				if (!ispresent) {
-					serverResponse = "Event does not exist. Ensure you have correct event id.";
+					serverResponse = Util.Failure+"Event does not exist. Ensure you have correct event id.";
 					requestStatus = Util.Failure;
 				}
 
 				if (validateMonth) {
-					serverResponse = "Event cannot be booked.";
+					serverResponse = Util.Failure+"Event cannot be booked. Max month limit.";
 					requestStatus = Util.Failure;
 				}
 				
 			} catch (Exception e) {
 				requestStatus = Util.Failure;
-				serverResponse = "Request was not completed. Error Message :" + e;
+				serverResponse = Util.Failure+"Request was not completed. Error Message :" + e;
 			} finally {
 				logStatus(Util.BOOK_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse+Util.SEMI_COLON+Util.Success;
+		return (serverResponse).trim();
 	}
 
 	@Override
@@ -308,19 +308,19 @@ public class OTW extends DEMSOperationsPOA {
 				ArrayList<EventInformation> temp = customerBook.get(customerId);
 				for (EventInformation rec : customerBook.get(customerId)) {
 					System.out.println("Added event record: " + rec.getEventId());
-					resp = resp + "Event ID:" + rec.getEventId() + " Event Type:" + rec.getEventType() + " "
+					resp = resp + "Event ID " + rec.getEventId() + " Event Type " + rec.getEventType() + " "
 							+ " EVENT Date " + rec.getEventDate() + " EVENT Time " + rec.getEventTime() + "\n";
 				}
 				response[0] = resp;
 			}
 			try {
-				resp1 = udpSend(2002, Util.Get_Booking_Schedule + Util.SEMI_COLON + customerId);
+				resp1 = udpSend(2002, Util.Get_Booking_Schedule + Util.SEMI_COLON + customerId).trim();
 				response[1] = resp1;
 			} catch (Exception e) {
 				response[1] = "Could not get events Details for MTL";
 			}
 			try {
-				resp2 = udpSend(2001, Util.Get_Booking_Schedule + Util.SEMI_COLON + customerId);
+				resp2 = udpSend(2001, Util.Get_Booking_Schedule + Util.SEMI_COLON + customerId).trim();
 				response[2] = resp2;
 			} catch (Exception e) {
 				response[3] = "Could not get events Details for TOR";
@@ -341,7 +341,7 @@ public class OTW extends DEMSOperationsPOA {
 			requestParameters.put("customerId", String.valueOf(customerId));
 			logStatus(Util.Get_Booking_Schedule, requestParameters, requestStatus, serverResponse);
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return (serverResponse+Util.SEMI_COLON+requestStatus).trim();
 	}
 
 	@Override
@@ -354,11 +354,11 @@ public class OTW extends DEMSOperationsPOA {
 				System.out.println(Util.CANCEL_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON + eventId
 						+ Util.SEMI_COLON + eventType);
 				serverResponse = udpSend(2002, Util.CANCEL_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 				break;
 			case Util.TOR:
 				serverResponse = udpSend(2001, Util.CANCEL_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 			}
 
 		} else {
@@ -398,10 +398,10 @@ public class OTW extends DEMSOperationsPOA {
 					eventBook.put(eventType, templist);
 					customerBook.put(customerId, from);
 					eventCust.remove(eventId+Util.SEMI_COLON+eventType);
-					serverResponse = "Booking Cancelled.";
+					serverResponse = Util.Success+" Booking Cancelled successfully.";
 					requestStatus = Util.Success;
 				} else {
-					serverResponse = "Booking does not exist";
+					serverResponse =Util.Failure+" Booking does not exist";
 					requestStatus = Util.Failure;
 				}
 			} catch (Exception e) {
@@ -414,7 +414,7 @@ public class OTW extends DEMSOperationsPOA {
 				logStatus(Util.CANCEL_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return (serverResponse).trim();
 	}
 
 	@Override
