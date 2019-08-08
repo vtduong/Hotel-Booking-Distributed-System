@@ -265,32 +265,32 @@ public class MTL extends DEMSOperationsPOA {
 //					templist.add(tempmap);
 					eventBook.put(eventType, templist);
 					eventCust.put(eventRec.getEventId()+Util.SEMI_COLON+eventRec.getEventType(), customerId);
-					serverResponse = "Event is booked successfully. To check booking schedule later select option '2' from the menu."
-							+ "Remaining Capasity :" + eventRec.getCapasity();
+					serverResponse = Util.Success+" Event is booked successfully. To check booking schedule later select option '2' from the menu."
+							+ "Remaining Capasity -" + eventRec.getCapasity();
 					requestStatus = Util.Success;
 				} else {
-					serverResponse = "Event cannot be booked. Either the capacity is full or User already has a entry.";
+					serverResponse = Util.Failure+" Event cannot be booked. Either the capacity is full or User already has a entry.";
 					requestStatus = Util.Failure;
 				}
 
 				if (!ispresent) {
-					serverResponse = "Event does not exist. Ensure you have correct event id.";
+					serverResponse = Util.Failure+"Event does not exist. Ensure you have correct event id.";
 					requestStatus = Util.Failure;
 				}
 
 				if (validateMonth) {
-					serverResponse = "Event cannot be booked.";
+					serverResponse = Util.Failure+"Event cannot be booked. Max month limit.";
 					requestStatus = Util.Failure;
 				}
 				
 			} catch (Exception e) {
 				requestStatus = Util.Failure;
-				serverResponse = "Request was not completed. Error Message :" + e;
+				serverResponse = Util.Failure+"Request was not completed. Error Message :" + e;
 			} finally {
 				logStatus(Util.BOOK_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return (serverResponse+Util.SEMI_COLON+requestStatus).trim();
+		return (serverResponse).trim();
 	}
 
 	@Override
@@ -307,7 +307,7 @@ public class MTL extends DEMSOperationsPOA {
 				ArrayList<EventInformation> temp = customerBook.get(customerId);
 				for (EventInformation rec : customerBook.get(customerId)) {
 					System.out.println("Added event record: " + rec.getEventId());
-					resp = resp + "Event ID:" + rec.getEventId() + " Event Type:" + rec.getEventType() + " "
+					resp = resp + "Event ID " + rec.getEventId() + " Event Type " + rec.getEventType() + " "
 							+ " EVENT Date " + rec.getEventDate() + " EVENT Time " + rec.getEventTime() + "\n";
 				}
 				response[0] = resp;
@@ -396,10 +396,10 @@ public class MTL extends DEMSOperationsPOA {
 					eventBook.put(eventType, templist);
 					customerBook.put(customerId, from);
 					eventCust.remove(eventId+Util.SEMI_COLON+eventType);
-					serverResponse = "Booking Cancelled.";
+					serverResponse = Util.Success+" Booking Cancelled.";
 					requestStatus = Util.Success;
 				} else {
-					serverResponse = "Booking does not exist";
+					serverResponse = Util.Failure+" Booking does not exist";
 					requestStatus = Util.Failure;
 				}
 			} catch (Exception e) {
@@ -412,7 +412,7 @@ public class MTL extends DEMSOperationsPOA {
 				logStatus(Util.CANCEL_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return serverResponse.trim();
 	}
 
 	@Override
@@ -542,7 +542,7 @@ public class MTL extends DEMSOperationsPOA {
 			serverResponse1 = "Events in Montreal " + "\n";
 			ArrayList<EventInformation> temp = customerBook.get(customerId);
 			for (EventInformation rec : customerBook.get(customerId)) {
-				serverResponse1 = serverResponse1 + "Event ID:" + rec.getEventId() + " Event Type:" + rec.getEventType()
+				serverResponse1 = serverResponse1 + "Event ID " + rec.getEventId() + " Event Type " + rec.getEventType()
 						+ " " + " EVENT Date " + rec.getEventDate() + " EVENT Time " + rec.getEventTime() + "\n";
 			}
 		}
@@ -569,17 +569,17 @@ public class MTL extends DEMSOperationsPOA {
 					message2 = "Cannot swap events.";
 					requestStatus = Util.Failure;
 				} else {
-					message2 = "Swap Success";
+					message2 = "Swap Failure";
 					requestStatus = Util.Success;
 				}
 
 			}else{
-				message2 = "Cannot swap events.";
+				message2 = "Swap Failure";
 				requestStatus = Util.Failure;
 			};
 
 		}else {
-			message2 = "Cannot swap events.";
+			message2 = "Swap Failure";
 			requestStatus = Util.Failure;
 		}
 		}catch(Exception e) {

@@ -51,7 +51,7 @@ public class OTWServer {
 	private static String parseRequest(String input, DatagramPacket request) throws IOException {
 		DataStructureAdapter ds = new DataStructureAdapter();
 		String toReturn = input;
-		if (true) {
+		if (!input.contains(";"+Util.Success)&&!input.contains(";"+Util.Failure)) {
 			String[] inputArray = input.split(Util.SEMI_COLON);
 			switch (inputArray[0].trim()) {
 			case Util.BOOK_EVENT:
