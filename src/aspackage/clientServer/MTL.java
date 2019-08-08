@@ -569,7 +569,7 @@ public class MTL extends DEMSOperationsPOA {
 					message2 = "Cannot swap events.";
 					requestStatus = Util.Failure;
 				} else {
-					message2 = "Swap Failure";
+					message2 = "Swap Success";
 					requestStatus = Util.Success;
 				}
 

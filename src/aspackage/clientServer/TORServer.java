@@ -71,6 +71,7 @@ public class TORServer {
 				break;
 			case Util.Get_Booking_Schedule1:
 				toReturn = exportedObj.getBookingSchedule(inputArray[1].trim());
+				
 				break;
 			case Util.List_Event_Availability:
 				toReturn = getfreeEvents(inputArray[1].trim());

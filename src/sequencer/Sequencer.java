@@ -152,10 +152,16 @@ public class Sequencer{
 				System.out.println("data"+data);
 				byte[] packet_to_send = data.getBytes();
 				ArrayList<Integer> serverPorts = new ArrayList<Integer>();
-				if(jsonObj.get("fromServer")!=null) {
-					serverPorts = serverports.get(jsonObj.get("fromServer"));
-				}else {
-					serverPorts = serverports.get(jsonObj.get("userID").substring(0,3));
+				System.out.println(jsonObj.get("userID"));
+				if(content.contains("userID")) {
+					if(jsonObj.get("userID")!=null) {
+						serverPorts = serverports.get(jsonObj.get("userID").substring(0,3));
+					}else {
+						serverPorts = serverports.get(jsonObj.get("fromServer"));
+					}
+				}
+				else {
+					serverPorts = serverports.get(jsonObj.get("fromServer").substring(0,3));
 				}
 				
 
