@@ -6,7 +6,7 @@ module FEApp {
 
     string removeEvent(in string eventID, in string eventType);
 
-    string listEventAvailability(in string eventType);
+    string listEventAvailability(in string userID, in string eventType);
 
     string bookEvent (in string customerID, in string eventID, in string eventType);
 

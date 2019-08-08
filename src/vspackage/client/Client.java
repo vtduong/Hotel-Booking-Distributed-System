@@ -210,7 +210,7 @@ public class Client {
 	         } else if(option == Protocol.EVENT_AVAILABLITY) { //list event availability
 	        	 logger.log(2, "listing event availability");
 	        	 String eventType = inputEventType();
-        	 	String result = h.listEventAvailability(eventType);
+        	 	String result = h.listEventAvailability(cusID, eventType);
         	 	System.out.println("\n"+result);
         	 	logger.log(2, result);
 	         } else if(option == Protocol.SWAP_EVENT) {//swap event
@@ -288,7 +288,15 @@ public class Client {
 	         } else if(option == Protocol.ADD_EVENT) { //add new event
 	        	 logger.log(2, "adding an event");
 	        	 Object[] results = createEvent();
-	        	 String status = h.addEvent((String)results[1], (String)results[0], (Integer)results[2]);
+	        	 String cusCity = cusID.substring(0, 3);
+	        	 String eventCity = ((String)results[1]).substring(0,3);
+	        	 String status = "";
+	        	 if(cusCity.equalsIgnoreCase(eventCity)) {
+		        	 status = h.addEvent((String)results[1], (String)results[0], (Integer)results[2]);
+
+	        	 }else {
+	        		 status=  "Enter correct event id";
+	        	 }
 	        	 System.out.println(status);
 	        	 logger.log(2, status);
 	         

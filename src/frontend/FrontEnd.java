@@ -66,20 +66,20 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
 				queue, Thread.currentThread());
 		
-		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-				queue, Thread.currentThread());
+//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+//				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
 		Thread two = new Thread(fromHostTwo);
 		Thread three = new Thread(fromHostThree);
-		Thread four = new Thread(fromHostFour);
+//		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
 		service.execute(two);
 		service.execute(three);
-		service.execute(four);
+//		service.execute(four);
 		
 		service.shutdown();
 		
@@ -329,15 +329,15 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String listEventAvailability (String eventType) {
+	public String listEventAvailability (String userID, String eventType) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
 		header.setEventID(null);
 		header.setEventType(eventType);
-		header.setFromServer(null);
+		header.setFromServer(userID.substring(0, 3));
 		header.setToServer(null);
-		header.setUserID(null);
+		header.setUserID(userID);
 		header.setNewEventID(null);
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.EVENT_AVAILABLITY);

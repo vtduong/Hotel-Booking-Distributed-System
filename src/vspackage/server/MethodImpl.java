@@ -372,11 +372,11 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 	}
 	
 	
-	public synchronized String listEventAvailability(String eventType) throws vspackage.RemoteMethodApp.RemoteMethodPackage.IOException, vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException, ClassNotFoundException {
+	public synchronized String listEventAvailability(String userID, String eventType) throws vspackage.RemoteMethodApp.RemoteMethodPackage.IOException, vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException, ClassNotFoundException {
 		
 		
 		try {
-		StringBuilder builder = new StringBuilder(listEventAvailabilityUPD(eventType));
+		StringBuilder builder = new StringBuilder(listEventAvailabilityUPD(userID, eventType));
 	 	builder.append(getRemoteEventsByEventType(Protocol.EVENT_AVAILABLITY, eventType));
 		return "From Server " + serverName +  builder.toString();
 		} catch(Exception e) {
@@ -385,7 +385,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		}
 	}
 
-	private String listEventAvailabilityUPD(String eventType) throws SecurityException, IOException {
+	private String listEventAvailabilityUPD(String userID, String eventType) throws SecurityException, IOException {
 		String availability = "";
 		try {
 			Map eventMap = this.getStaticValue("eventMap");
@@ -733,7 +733,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			String status = "";
 			Map eventCus = this.getStaticValue("eventCus");
 			Map eventMap = this.getStaticValue("eventMap");
-			if(!((HashMap) eventCus.get(eventType)).containsKey(eventID)||  !((HashMap) eventMap.get(eventType)).containsKey(eventID))
+			if(eventCus.get(eventType) == null || !((HashMap) eventCus.get(eventType)).containsKey(eventID)||  !((HashMap) eventMap.get(eventType)).containsKey(eventID))
 				return "No event exists. fail";
 			List<String> cusList = (List<String>) ((HashMap) eventCus.get(eventType)).get(eventID);
 //			int cap = eventMap.get(eventType).get(eventID);
@@ -837,6 +837,9 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		try {
 			Map eventCus = this.getStaticValue("eventCus");
 			Map newEventCus = new HashMap<>(eventCus);
+			if(eventCus.get(eventType) == null) {
+				return "Event does not exist. failed";
+			}
 			isRemoved = ((List<String>) ((HashMap) newEventCus.get(eventType)).get(eventID)).remove(customerID) ;
 			Map eventMap = this.getStaticValue("eventMap");
 			if(isRemoved) {
@@ -1116,7 +1119,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					else if(data.getProtocol() == Protocol.EVENT_AVAILABLITY) {
 						
 						try {
-							result = listEventAvailabilityUPD(data.getEventType());
+							result = getRemoteEventsByEventType(Protocol.EVENT_AVAILABLITY, data.getEventType());
+							result += listEventAvailabilityUPD(data.getUserID(), data.getEventType());
 						} catch (SecurityException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1126,8 +1130,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					else if(data.getProtocol() == Protocol.GET_SCHEDULE_EVENT) {
 						
-						//result = getRemoteEvents(data.getUserID());
-						result = getBookingScheduleUDP(data.getUserID());
+						result = getRemoteEventsByClientID(Protocol.GET_SCHEDULE_EVENT, data.getUserID());
+						result += getBookingScheduleUDP(data.getUserID());
 						
 					}
 					
@@ -1159,14 +1163,14 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
-					if(sequenceID == 2) {
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("172.20.10.3"))) {
-							continue;//crash = do nothing
-						}
-//						if(ip.equalsIgnoreCase(IPConfig.getProperty("192.168.43.153"))) {
+//					if(sequenceID == 2) {
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
+//							continue;//crash = do nothing
+//						}
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
 //							result = "incorrect result"; //return incorrect result = software failure
 //						}
-					}
+//					}
 					byte[] reply = result.toString().getBytes();
 					
 					System.out.println("Sending result: " + result);
