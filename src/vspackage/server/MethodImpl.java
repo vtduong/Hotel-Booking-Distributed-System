@@ -1060,8 +1060,11 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					System.out.println("fucking received it: " + content);
 					
 					if(packet.getPort() == Integer.parseInt(IPConfig.getProperty("port_rm"))) {
+						System.out.println("received packet from RM:");
 						Gson gson = new Gson();
 						data = gson.fromJson(content, Header.class);
+						System.out.println(data.getEventMap());
+						System.out.println(data.getEventCus());
 					}else {
 						//content = content.replaceAll("\\uFEFF", "");
 						//Object json = new JSONParser().parse(content);
@@ -1154,17 +1157,17 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						Map<String, HashMap<String, Integer>> eventMap = MethodImpl.this.getStaticValue("eventMap");
 						Map<String,HashMap<String, List<String>>> eventCus = MethodImpl.this.getStaticValue("eventCus");
 						unicastOneWay(packet.getAddress().getHostAddress(), packet.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
-						return;
+						continue;
 					} else if(data.getProtocol() == Protocol.SYNC) {
 						//get the 2 hashmaps from header and set the 2 hashmaps of this server
 						System.out.println("Syncing data...");
 						Map<String, HashMap<String, Integer>> syncedEventMap = data.getEventMap();
 						Map<String,HashMap<String, List<String>>> syncedEventCus = data.getEventCus();
-						MethodImpl.this.setStaticValue("eventMap", syncedEventMap);
-						MethodImpl.this.setStaticValue("eventCus", syncedEventCus);
+//						MethodImpl.this.setStaticValue("eventMap", syncedEventMap);
+//						MethodImpl.this.setStaticValue("eventCus", syncedEventCus);
 						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
 						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
-						return;
+						continue;
 					}
 					
 					int sequenceID = data.getSequenceId();

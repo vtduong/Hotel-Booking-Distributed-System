@@ -132,6 +132,7 @@ class ReceiveMessage implements Runnable {
 		}
 		
 		public void unicastOneWay(String addr, int port, Header header) throws IOException {
+			System.out.println("inside unicastOneWay to " + addr + " " + port);
 			Gson gson = new Gson();
 			
 			String data = gson.toJson(header);
@@ -249,9 +250,10 @@ class ReceiveMessage implements Runnable {
 						//send sync message to the right server based on port given by the FE
 						System.out.println("Sending sync data from RM to server");
 						unicastOneWay(this.hostIP, Integer.parseInt(port), new Header(Protocol.SYNC, eventMap, eventCus));
-					}else {
-						System.out.println("DATA IS NULL");
 					}
+//					else {
+//						System.out.println("DATA IS NULL");
+//					}
 				}
 			}
 			
