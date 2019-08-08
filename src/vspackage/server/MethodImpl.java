@@ -1061,7 +1061,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					if(packet.getPort() == Integer.parseInt(IPConfig.getProperty("port_rm"))) {
 						Gson gson = new Gson();
-						data = gson.fromJson(content, Header.class);
+						data = gson.fromJson(content.trim(), Header.class);
 					}else {
 						//content = content.replaceAll("\\uFEFF", "");
 						//Object json = new JSONParser().parse(content);
