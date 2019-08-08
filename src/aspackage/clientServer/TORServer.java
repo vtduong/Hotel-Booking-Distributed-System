@@ -63,8 +63,14 @@ public class TORServer {
 			case Util.Get_Booking_Schedule:
 				toReturn = exportedObj.udpCallforGetSchedule(inputArray[1].trim());
 				break;
+			case Util.Get_Booking_Schedule1:
+				toReturn = exportedObj.getBookingSchedule(inputArray[1].trim());
+				break;
 			case Util.List_Event_Availability:
 				toReturn = getfreeEvents(inputArray[1].trim());
+				break;
+			case Util.List_Event_Availability1:
+				toReturn = exportedObj.listEventAvailability(inputArray[1].trim());
 				break;
 			case Util.Booking_Exist:
 				toReturn = exportedObj.booking_exist(inputArray[3].trim(), inputArray[1].trim(), inputArray[2].trim());
@@ -164,16 +170,18 @@ public class TORServer {
 				byte[] replyBuff = new byte[Util.BUFFER_SIZE];
 				replyBuff = replyStr.getBytes();
 				DatagramPacket reply = null;
-				if (requestMsg.contains(Util.BOOK_EVENT) || requestMsg.contains(Util.Get_Booking_Schedule)
+				if (requestMsg.contains(Util.BOOK_EVENT) || requestMsg.contains(Util.Get_Booking_Schedule1)
 						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT)
 						|| requestMsg.contains(Util.Swap_event) || requestMsg.contains(Util.REM_EVENT)
-						|| requestMsg.contains(Util.List_Event_Availability)) {
+						|| requestMsg.contains(Util.List_Event_Availability1)) {
 
 					reply = new DatagramPacket(replyBuff, replyStr.length(),
-							InetAddress.getByName(IPConfig.getProperty("fe_addr")), request.getPort());
+							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61002);
 					aSocketTOR.send(reply);
 				} else if (requestMsg.contains(Util.Booking_Exist) || requestMsg.contains(Util.Capasity_Exist)
-						|| requestMsg.contains(Util.Can_Book) || requestMsg.contains(Util.RE)) {
+						|| requestMsg.contains(Util.Can_Book) || requestMsg.contains(Util.RE)
+						|| requestMsg.contains(Util.Get_Booking_Schedule)
+						|| requestMsg.contains(Util.List_Event_Availability)) {
 					reply = new DatagramPacket(replyBuff, replyStr.length(), request.getAddress(), request.getPort());
 					aSocketTOR.send(reply);
 
@@ -186,7 +194,7 @@ public class TORServer {
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
 		} catch (IOException e) {
-			System.out.println("IO: " + e.getMessage());
+			System.out.println("IO: " + e.getMessage()); 
 		} finally {
 			if (aSocketTOR != null)
 				aSocketTOR.close();

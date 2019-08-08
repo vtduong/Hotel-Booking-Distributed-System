@@ -39,11 +39,11 @@ public class Sequencer{
       serverPortsMTL.add(Integer.parseInt(IPConfig.getProperty("mtl_port_vs")));
       serverPortsOTW.add(Integer.parseInt(IPConfig.getProperty("otw_port_vs")));
       serverports.put("MTL", serverPortsMTL);
-      serverports.put("OTW", serverPortsTOR);
-      serverports.put("TOR", serverPortsOTW);
+      serverports.put("TOR", serverPortsTOR);
+      serverports.put("OTW", serverPortsOTW);
       hostNames.add(IPConfig.getProperty("host1"));
-      hostNames.add(IPConfig.getProperty("host3"));
-      hostNames.add(IPConfig.getProperty("host2"));
+       hostNames.add(IPConfig.getProperty("host3"));
+       hostNames.add(IPConfig.getProperty("host2")); 
       hostNames.add(IPConfig.getProperty("host4"));
     	UDPListener(); 
     }
@@ -151,7 +151,13 @@ public class Sequencer{
 				String data = gson.toJson(header);
 				System.out.println("data"+data);
 				byte[] packet_to_send = data.getBytes();
-				ArrayList<Integer> serverPorts = serverports.get(jsonObj.get("toServer"));
+				ArrayList<Integer> serverPorts = new ArrayList<Integer>();
+				if(jsonObj.get("fromServer")!=null) {
+					serverPorts = serverports.get(jsonObj.get("fromServer"));
+				}else {
+					serverPorts = serverports.get(jsonObj.get("userID").substring(0,3));
+				}
+				
 
 				for (String host:hostNames) {
 					try {

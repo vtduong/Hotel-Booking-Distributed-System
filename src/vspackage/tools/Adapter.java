@@ -43,11 +43,11 @@ public class Adapter {
 			break;
 		
 		case Protocol.EVENT_AVAILABLITY:
-			output = "listEventAvailability" + ";" + eventType;
+			output = "listEventAvailability1" + ";" + eventType;
 			break;
 			
 		case Protocol.GET_SCHEDULE_EVENT:
-			output = "getBookingSchedule" + ";" + userID;
+			output = "getBookingSchedule1" + ";" + userID;
 			break;
 			
 		case Protocol.REMOVE_EVENT:
