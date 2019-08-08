@@ -17,12 +17,14 @@ public class Util {
 		public static final String TOR ="TOR";
 		public static final String OTW ="OTW";
 		public static final String List_Event_Availability ="listEventAvailability";
+		public static final String List_Event_Availability1 ="listEventAvailability1";
 		public static final String ADD_EVENT= "Add_Event";
 		public static final String REM_EVENT= "Remove_Event";
 		public static final String ON_BEHALF= "Operation_on_behalf_of_Customer";
 		public static final String LIST_EVENT= "List_ALL_Events";
 		public static final String CANCEL_EVENT ="CE";
 		public static final String Get_Booking_Schedule ="getBookingSchedule";
+		public static final String Get_Booking_Schedule1 ="getBookingSchedule1";
 		public static final String UDPCALL = "UDP CALL";
 		public static HashMap<String,String> getServer = new HashMap<String,String>();
 		public static final String Booking_Cancelled= "Booking Cancelled.";
