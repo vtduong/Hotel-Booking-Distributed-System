@@ -210,7 +210,7 @@ public class Client {
 	         } else if(option == Protocol.EVENT_AVAILABLITY) { //list event availability
 	        	 logger.log(2, "listing event availability");
 	        	 String eventType = inputEventType();
-        	 	String result = h.listEventAvailability(eventType);
+        	 	String result = h.listEventAvailability(cusID, eventType);
         	 	System.out.println("\n"+result);
         	 	logger.log(2, result);
 	         } else if(option == Protocol.SWAP_EVENT) {//swap event

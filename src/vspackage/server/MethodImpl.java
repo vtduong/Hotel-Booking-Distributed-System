@@ -372,11 +372,11 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 	}
 	
 	
-	public synchronized String listEventAvailability(String eventType) throws vspackage.RemoteMethodApp.RemoteMethodPackage.IOException, vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException, ClassNotFoundException {
+	public synchronized String listEventAvailability(String userID, String eventType) throws vspackage.RemoteMethodApp.RemoteMethodPackage.IOException, vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException, ClassNotFoundException {
 		
 		
 		try {
-		StringBuilder builder = new StringBuilder(listEventAvailabilityUPD(eventType));
+		StringBuilder builder = new StringBuilder(listEventAvailabilityUPD(userID, eventType));
 	 	builder.append(getRemoteEventsByEventType(Protocol.EVENT_AVAILABLITY, eventType));
 		return "From Server " + serverName +  builder.toString();
 		} catch(Exception e) {
@@ -385,7 +385,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		}
 	}
 
-	private String listEventAvailabilityUPD(String eventType) throws SecurityException, IOException {
+	private String listEventAvailabilityUPD(String userID, String eventType) throws SecurityException, IOException {
 		String availability = "";
 		try {
 			Map eventMap = this.getStaticValue("eventMap");
@@ -1120,7 +1120,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						
 						try {
 							result = getRemoteEventsByEventType(Protocol.EVENT_AVAILABLITY, data.getEventType());
-							result += listEventAvailabilityUPD(data.getEventType());
+							result += listEventAvailabilityUPD(data.getUserID(), data.getEventType());
 						} catch (SecurityException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

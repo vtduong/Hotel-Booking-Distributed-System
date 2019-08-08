@@ -329,15 +329,15 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String listEventAvailability (String eventType) {
+	public String listEventAvailability (String userID, String eventType) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
 		header.setEventID(null);
 		header.setEventType(eventType);
-		header.setFromServer(null);
+		header.setFromServer(userID.substring(0, 3));
 		header.setToServer(null);
-		header.setUserID(null);
+		header.setUserID(userID);
 		header.setNewEventID(null);
 		header.setNewEventType(null);
 		header.setProtocol(Protocol.EVENT_AVAILABLITY);
