@@ -733,7 +733,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			String status = "";
 			Map eventCus = this.getStaticValue("eventCus");
 			Map eventMap = this.getStaticValue("eventMap");
-			if(!((HashMap) eventCus.get(eventType)).containsKey(eventID)||  !((HashMap) eventMap.get(eventType)).containsKey(eventID))
+			if(eventCus.get(eventType) == null || !((HashMap) eventCus.get(eventType)).containsKey(eventID)||  !((HashMap) eventMap.get(eventType)).containsKey(eventID))
 				return "No event exists. fail";
 			List<String> cusList = (List<String>) ((HashMap) eventCus.get(eventType)).get(eventID);
 //			int cap = eventMap.get(eventType).get(eventID);
@@ -837,6 +837,9 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		try {
 			Map eventCus = this.getStaticValue("eventCus");
 			Map newEventCus = new HashMap<>(eventCus);
+			if(eventCus.get(eventType) == null) {
+				return "Event does not exist. failed";
+			}
 			isRemoved = ((List<String>) ((HashMap) newEventCus.get(eventType)).get(eventID)).remove(customerID) ;
 			Map eventMap = this.getStaticValue("eventMap");
 			if(isRemoved) {
