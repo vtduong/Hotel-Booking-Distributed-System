@@ -71,6 +71,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
+
 		Thread two = new Thread(fromHostTwo);
 		Thread three = new Thread(fromHostThree);
 		Thread four = new Thread(fromHostFour);
