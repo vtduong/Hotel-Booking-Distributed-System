@@ -66,20 +66,20 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
 				queue, Thread.currentThread());
 		
-//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-//				queue, Thread.currentThread());
+		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
 		Thread two = new Thread(fromHostTwo);
 		Thread three = new Thread(fromHostThree);
-//		Thread four = new Thread(fromHostFour);
+		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
 		service.execute(two);
 		service.execute(three);
-//		service.execute(four);
+		service.execute(four);
 		
 		service.shutdown();
 		
@@ -136,8 +136,9 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	// Idea : Receive method waits for the reply from all the servers
 	// and then store the results in the queue. We use the queue to 
 	// get the correct result 
-	private Map<String, List<String>> verify(Queue<String> queue) {
+	private Map<String, List<String>> verify(Queue<String> allqueue) {
 		
+		Queue<String> queue = new LinkedList<String>(allqueue);
 		Map<String, Integer> count = new HashMap<String, Integer>();
 		
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
