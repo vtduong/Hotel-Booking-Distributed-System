@@ -40,11 +40,12 @@ public class RM {
 	 * 
 	 */
 	public RM() throws NumberFormatException, IOException {
+		logger = new Logger("RM");
 		this.hostIP = InetAddress.getLocalHost().toString().split("/")[1];
 		System.out.println(hostIP);
 		otherIPs = new ArrayList<String>();
-		this.addOtherIPs(this.hostIP);
-		this.workingIPs.addAll(this.otherIPs);
+//		this.addOtherIPs(this.hostIP);
+//		this.workingIPs.addAll(this.otherIPs);
 //		logger = new Logger(hostIP);
 //		logger.log(2, hostIP + " started.");
 		new Thread(new ReceiveMessage(hostIP)).start();
