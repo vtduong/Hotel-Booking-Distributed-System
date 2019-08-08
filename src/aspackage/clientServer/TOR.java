@@ -581,9 +581,9 @@ public class TOR extends DEMSOperationsPOA {
 		String canBook = capasity_exist(newEventID, newEventType);
 		if (bookingExist.equalsIgnoreCase("T") && canBook.equalsIgnoreCase("T")) {
 			message1 = cancelEvent(customerID, oldEventID, oldEventType);
-			if (message1.trim().equalsIgnoreCase(Util.Booking_Cancelled)) {
+			if (message1.trim().contains(Util.Success)) {
 				message2 = bookEvent(customerID, newEventID, newEventType);
-				if (!message2.trim().contains(Util.bookingSuccessMsg)) {
+				if (!message2.trim().contains(Util.Success)) {
 					bookEvent(customerID, oldEventID, oldEventType);
 					message2 = "Swap Failure.";
 					requestStatus=Util.Failure;
@@ -603,7 +603,7 @@ public class TOR extends DEMSOperationsPOA {
 		}
 		
 		}catch(Exception e) {
-			requestStatus=Util.Failure;//successfully
+			requestStatus=Util.Failure;
 			message2 = "Swap Failure";
 		}finally {
 			requestParameters = new HashMap<String, String>();
