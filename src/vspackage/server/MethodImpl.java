@@ -1116,7 +1116,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					else if(data.getProtocol() == Protocol.EVENT_AVAILABLITY) {
 						
 						try {
-							result = listEventAvailabilityUPD(data.getEventType());
+							result = getRemoteEventsByEventType(Protocol.EVENT_AVAILABLITY, data.getEventType());
+							result += listEventAvailabilityUPD(data.getEventType());
 						} catch (SecurityException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1126,8 +1127,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					else if(data.getProtocol() == Protocol.GET_SCHEDULE_EVENT) {
 						
-						//result = getRemoteEvents(data.getUserID());
-						result = getBookingScheduleUDP(data.getUserID());
+						result = getRemoteEventsByClientID(Protocol.GET_SCHEDULE_EVENT, data.getUserID());
+						result += getBookingScheduleUDP(data.getUserID());
 						
 					}
 					
@@ -1159,14 +1160,14 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
-					if(sequenceID == 2) {
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("172.20.10.3"))) {
-							continue;//crash = do nothing
-						}
-//						if(ip.equalsIgnoreCase(IPConfig.getProperty("192.168.43.153"))) {
+//					if(sequenceID == 2) {
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
+//							continue;//crash = do nothing
+//						}
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
 //							result = "incorrect result"; //return incorrect result = software failure
 //						}
-					}
+//					}
 					byte[] reply = result.toString().getBytes();
 					
 					System.out.println("Sending result: " + result);
