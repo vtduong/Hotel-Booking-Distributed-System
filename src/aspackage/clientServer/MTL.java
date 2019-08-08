@@ -30,7 +30,6 @@ public class MTL extends DEMSOperationsPOA {
 
 	protected MTL() {
 		super();
-		addEvent("MTLM100100", "Trade Show", 10);
 		addEvent("MTLM100100", "Conference", 10);
 		addEvent("MTLM100100", "Seminar", 10);
 	}
@@ -197,11 +196,11 @@ public class MTL extends DEMSOperationsPOA {
 			case Util.TOR:
 				
 				serverResponse = udpSend(2001, Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 				break;
 			case Util.OTW:
 				serverResponse = udpSend(2003, Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 			}
 
 		} else {
@@ -266,7 +265,7 @@ public class MTL extends DEMSOperationsPOA {
 //					templist.add(tempmap);
 					eventBook.put(eventType, templist);
 					eventCust.put(eventRec.getEventId()+Util.SEMI_COLON+eventRec.getEventType(), customerId);
-					serverResponse = "Event is booked. To check booking schedule later select option '2' from the menu."
+					serverResponse = "Event is booked successfully. To check booking schedule later select option '2' from the menu."
 							+ "Remaining Capasity :" + eventRec.getCapasity();
 					requestStatus = Util.Success;
 				} else {
@@ -291,7 +290,7 @@ public class MTL extends DEMSOperationsPOA {
 				logStatus(Util.BOOK_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return (serverResponse+Util.SEMI_COLON+requestStatus).trim();
 	}
 
 	@Override

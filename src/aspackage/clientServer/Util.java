@@ -38,4 +38,6 @@ public class Util {
 		public static final String Failure = "Failure";
 		public static final String SYNC = "SYNC";
 		public static final String SYNC_REQUEST ="SYNC_REQUEST";
+		public static final String BOOK_EVENT1 = "bookEvent1";
+		public static final String CANCEL_EVENT1 = "CE1";
 }

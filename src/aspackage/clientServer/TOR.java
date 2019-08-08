@@ -140,7 +140,7 @@ public class TOR extends DEMSOperationsPOA {
 			logStatus("addEvent", requestParameters, requestStatus, serverResponse);
 
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return serverResponse+Util.SEMI_COLON+requestStatus.trim();
 
 	}
 	
@@ -202,11 +202,11 @@ public class TOR extends DEMSOperationsPOA {
 				System.out.println(Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON + eventId
 						+ Util.SEMI_COLON + eventType);
 				serverResponse = udpSend(2002, Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 				break;
 			case Util.OTW:
 				serverResponse = udpSend(2003, Util.BOOK_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 			}
 
 		} else {
@@ -274,7 +274,7 @@ public class TOR extends DEMSOperationsPOA {
 //					templist.add(tempmap);
 					eventBook.put(eventType, templist);
 					eventCust.put(eventRec.getEventId()+Util.SEMI_COLON+eventRec.getEventType(), customerId);
-					serverResponse = "Event is booked. To check booking schedule later select option '2' from the menu."
+					serverResponse = "Event is booked successfully. To check booking schedule later select option '2' from the menu."
 							+ "Remaining Capasity :" + eventRec.getCapasity();
 					requestStatus=Util.Success;
 				} else {
@@ -299,7 +299,7 @@ public class TOR extends DEMSOperationsPOA {
 				logStatus(Util.BOOK_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return (serverResponse+Util.SEMI_COLON+requestStatus).trim();
 	}
 
 	@Override
@@ -349,7 +349,7 @@ public class TOR extends DEMSOperationsPOA {
 			requestParameters.put("customerId", String.valueOf(customerId));
 			logStatus(Util.Get_Booking_Schedule, requestParameters, requestStatus, serverResponse);
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return (serverResponse+Util.SEMI_COLON+requestStatus).trim();
 	}
 
 	@Override
@@ -362,11 +362,11 @@ public class TOR extends DEMSOperationsPOA {
 				System.out.println(Util.CANCEL_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON + eventId
 						+ Util.SEMI_COLON + eventType);
 				serverResponse = udpSend(2002, Util.CANCEL_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 				break;
 			case Util.OTW:
 				serverResponse = udpSend(2003, Util.CANCEL_EVENT + Util.SEMI_COLON + customerId + Util.SEMI_COLON
-						+ eventId + Util.SEMI_COLON + eventType);
+						+ eventId + Util.SEMI_COLON + eventType).trim();
 			}
 
 		} else {
@@ -406,7 +406,7 @@ public class TOR extends DEMSOperationsPOA {
 					eventBook.put(eventType, templist);
 					customerBook.put(customerId, from);
 					eventCust.remove(eventId+Util.SEMI_COLON+eventType);
-					serverResponse = "Booking Cancelled.";
+					serverResponse = "Booking Cancelled successfully.";
 					requestStatus = Util.Success;
 				} else {
 					serverResponse = "Booking does not exist";
@@ -423,7 +423,7 @@ public class TOR extends DEMSOperationsPOA {
 				logStatus(Util.CANCEL_EVENT, requestParameters, requestStatus, serverResponse);
 			}
 		}
-		return serverResponse+Util.SEMI_COLON+requestStatus;
+		return (serverResponse+Util.SEMI_COLON+requestStatus).trim();
 	}
 
 	@Override
@@ -593,17 +593,17 @@ public class TOR extends DEMSOperationsPOA {
 				}
 
 			}else{
-				message2 = "Cannot swap events.";
+				message2 = "Swap Failur.";
 				requestStatus=Util.Failure;
 			};
 
 		}else {
-			message2 = "Cannot swap events.";
+			message2 = "Swap Failurs.";
 			requestStatus=Util.Failure;
 		}
 		
 		}catch(Exception e) {
-			requestStatus=Util.Failure;
+			requestStatus=Util.Failure;//successfully
 			message2 = "Swap Failure";
 		}finally {
 			requestParameters = new HashMap<String, String>();
