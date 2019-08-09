@@ -26,7 +26,6 @@ import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
 import aspackage.utility.DataStructureAdapter;
 import aspackage.utility.FileLogger;
-import aspackage.utility.UDPMulticastClient;
 import ipconfig.IPConfig;
 import vspackage.bean.Header;
 import vspackage.bean.Protocol;
