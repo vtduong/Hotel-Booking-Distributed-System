@@ -683,7 +683,7 @@ public class TOR extends DEMSOperationsPOA {
 
 	private synchronized void logStatus(String requestType, Map<String, String> requestParameters, String requestStatus,
 			String serverResonse) {
-		FileLogger log = new FileLogger("src/aspackage/logFiles/TOR", requestType, requestParameters, requestStatus,
+		FileLogger log = new FileLogger("src/aspackage/logFiles/TOR.txt", requestType, requestParameters, requestStatus,
 				serverResonse);
 		log.writeFiles();
 	}

@@ -1171,15 +1171,24 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					if(sequenceID == 1) {
 						if(ip.equalsIgnoreCase(IPConfig.getProperty("host2"))) {
 							System.out.println("CRASH");
+							System.out.println("Syncing data..");
+							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
 							continue;//crash = do nothing
 						}
 						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
 							result = "incorrect result"; //return incorrect result = software failure
+							System.out.println("Sending result: " + result);
+							System.out.println("Syncing data..");
+							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
 						}
+							
 					}
+					System.out.println("Sending result: " + result);
+
 					byte[] reply = result.toString().getBytes();
 					
-					System.out.println("Sending result: " + result);
 //					DatagramPacket replyPacket = new DatagramPacket(
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(

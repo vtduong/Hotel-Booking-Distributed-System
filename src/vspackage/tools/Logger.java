@@ -50,7 +50,7 @@ public class Logger {
 		this.userID = userID;
 		try {	
 			
-			path = Config.getProperty("clientLogPath") + userID;
+			path = Config.getProperty("clientLogPath") + userID +".txt";
 			File file = new File(path);
 			
 			if(!file.exists()) {

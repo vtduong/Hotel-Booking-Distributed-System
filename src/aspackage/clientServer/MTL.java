@@ -663,7 +663,7 @@ public class MTL extends DEMSOperationsPOA {
 
 	private synchronized void logStatus(String requestType, Map<String, String> requestParameters, String requestStatus,
 			String serverResonse) {
-		FileLogger log = new FileLogger("src/aspackage/logFiles/MTL", requestType, requestParameters, requestStatus,
+		FileLogger log = new FileLogger("src/aspackage/logFiles/MTL.txt", requestType, requestParameters, requestStatus,
 				serverResonse);
 		log.writeFiles();
 	}
