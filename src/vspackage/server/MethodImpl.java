@@ -1178,7 +1178,11 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
 							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
+					
+					System.out.println("Reply message: " + result);
+					
 					socket.send(replyPacket);
+					
 					
 					
 					logger.log(2, "Run(" + 
@@ -1313,8 +1317,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		}
 		
 		public String send() throws IOException, ClassNotFoundException, org.json.simple.parser.ParseException{
-			InetAddress addr = InetAddress.getByName("localhost");
-
+			//InetAddress addr = InetAddress.getByName("localhost");
+			InetAddress addr = InetAddress.getByName(InetAddress.getLocalHost().toString().split("/")[1]);
 //			ObjectMapper objToJson = new ObjectMapper();
 			
 			JSONObject jsonData = new JSONObject();

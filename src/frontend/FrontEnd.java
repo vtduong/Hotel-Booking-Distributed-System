@@ -40,13 +40,28 @@ import vspackage.bean.Protocol;
 public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	
 	private static final long serialVersionUID = 1L;
+	public static boolean autoTimeout = false;
+	public static int timeoutLimit = 10000;
 	
 	
-	Map<String, Integer> clock = new HashMap<String, Integer>();
-	
+	private Map<String, Integer> clock = new HashMap<String, Integer>();
 	
 	public FrontEnd() {
+		
 		super();
+			
+		try {
+			
+			String autoTimeoutSetting = IPConfig.getProperty("auto_timeout").toLowerCase();
+			
+			if(autoTimeoutSetting.contains("true"))
+				autoTimeout = true;
+			
+		} catch (IOException e) {
+
+			System.out.println("Unable to check auto timeout setting....");
+		}
+		
 	}
 	
 	
@@ -62,24 +77,24 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_two_host")),  
 				queue, Thread.currentThread());
 		
-		ReceiveFromHost fromHostThree = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
-				queue, Thread.currentThread());
-		
-		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-				queue, Thread.currentThread());
+//		ReceiveFromHost fromHostThree = new ReceiveFromHost(
+//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
+//				queue, Thread.currentThread());
+//		
+//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+//				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
 		Thread two = new Thread(fromHostTwo);
-		Thread three = new Thread(fromHostThree);
-		Thread four = new Thread(fromHostFour);
+//		Thread three = new Thread(fromHostThree);
+//		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
 		service.execute(two);
-		service.execute(three);
-		service.execute(four);
+//		service.execute(three);
+//		service.execute(four);
 		
 		service.shutdown();
 		
@@ -100,14 +115,14 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		
 		String hostOne = IPConfig.getProperty("host1");
 		String hostTwo = IPConfig.getProperty("host2");
-		String hostThree = IPConfig.getProperty("host3");
-		String hostFour = IPConfig.getProperty("host4");
+		//String hostThree = IPConfig.getProperty("host3");
+		//String hostFour = IPConfig.getProperty("host4");
 		
 		List<String> allAddr = new ArrayList<String>();
 		allAddr.add(hostOne.trim());
 		allAddr.add(hostTwo.trim());
-		allAddr.add(hostThree.trim());
-		allAddr.add(hostFour.trim());
+		//allAddr.add(hostThree.trim());
+		//allAddr.add(hostFour.trim());
 		
 		String port = "";
 		
@@ -693,16 +708,14 @@ class ReceiveFromHost implements Runnable {
 	private Queue<String> queue = null;
 	private Thread thread = null;
 	
-	//private String addr = null;
-	//private int from;
+	
 	private int to;
 	
 	public ReceiveFromHost(int to, Queue<String> queue, Thread thread) {
 		this.queue = queue;
 		this.thread = thread;
-		//this.from = from;
 		this.to = to;
-		//this.addr = addr;
+		
 	}
 	
 	private void receive() throws SocketException {
@@ -713,7 +726,11 @@ class ReceiveFromHost implements Runnable {
 		
 		try {
 			
-			socket.setSoTimeout(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			if(!FrontEnd.autoTimeout)
+				socket.setSoTimeout(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+			else
+				socket.setSoTimeout(FrontEnd.timeoutLimit);
 			
 			
 			socket.receive(datagram);
@@ -730,7 +747,12 @@ class ReceiveFromHost implements Runnable {
 		} catch(SocketTimeoutException e) {
 			
 			queue.add("crashed");
+			
+			if(FrontEnd.autoTimeout)
+				FrontEnd.timeoutLimit += 10;
+			
 			System.out.println("Request timeout....");
+			
 		
 		} catch(Exception e) {
 			

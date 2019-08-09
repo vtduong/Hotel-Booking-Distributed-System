@@ -44,7 +44,7 @@ public class RM {
 		System.out.println(hostIP);
 		otherIPs = new ArrayList<String>();
 		this.addOtherIPs(this.hostIP);
-		this.workingIPs.addAll(this.otherIPs);
+//		this.workingIPs.addAll(this.otherIPs);
 //		logger = new Logger(hostIP);
 //		logger.log(2, hostIP + " started.");
 		new Thread(new ReceiveMessage(hostIP)).start();
@@ -98,8 +98,8 @@ class ReceiveMessage implements Runnable {
 			
 			this.socket = new DatagramSocket(port);
 			
-			logger.log(2, "ReceiveMessage(" + ip + 
-					") : returned : " + "None : Init the socket and port " + port);
+//			logger.log(2, "ReceiveMessage(" + ip + 
+//					") : returned : " + "None : Init the socket and port " + port);
 		}
 		
 		public Header unicastTwoWays(String addr, int port, Header header) throws NumberFormatException, IOException{
@@ -137,12 +137,12 @@ class ReceiveMessage implements Runnable {
 		
 		public void run() {
 			
-			try {
-				logger.log(2, "Run(" + 
-						") : returned : " + "None : Thread started");
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+//			try {
+////				logger.log(2, "Run(" + 
+////						") : returned : " + "None : Thread started");
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
 			
 			while(true) {
 				Thread.currentThread().setName(Integer.toString(port));
@@ -155,7 +155,7 @@ class ReceiveMessage implements Runnable {
 					socket.receive(packet);
 					String content = new String(packet.getData());
 					Gson gson = new Gson();
-					Header data = gson.fromJson(content, Header.class);
+					Header data = gson.fromJson(content.trim(), Header.class);
 					
 					List<String> errorList = data.getError();//the string is of IP:port
 					List<String> incorrectList = data.getIncorrect();
@@ -180,22 +180,22 @@ class ReceiveMessage implements Runnable {
 					if(errorList.size() > 0) {
 						this.syncData(errorList);
 					}
-					socket.disconnect();
-					socket.close();
+//					socket.disconnect();
+//					socket.close();
 
-					logger.log(2, "Run(" + 
-							") : returned : " + "None : send data from port " + port);
+//					logger.log(2, "Run(" + 
+//							") : returned : " + "None : send data from port " + port);
 					
 					
 				} catch (IOException e) {
 					
-					try {
-						logger.log(0, "Run(" + 
-								") : returned : " + "None : " + e.getMessage());
-					} catch (IOException e1) {
-						
-						e1.printStackTrace();
-					}
+//					try {
+//						logger.log(0, "Run(" + 
+//								") : returned : " + "None : " + e.getMessage());
+//					} catch (IOException e1) {
+//						
+//						e1.printStackTrace();
+//					}
 					
 					e.printStackTrace();
 				}
@@ -214,9 +214,12 @@ class ReceiveMessage implements Runnable {
 					//send unicast to other hosts
 					for(int i = 1; i < 4; i++) {
 						//skip itself
+						
+						System.out.println("RM host : host" + i );
 						if(this.hostIP.equalsIgnoreCase(IPConfig.getProperty("host"+i))) {
 							continue;
 						}
+						
 						Header responseHead = unicastTwoWays(IPConfig.getProperty("host"+i), 										Integer.parseInt(IPConfig.getProperty(port)), head);
 						eventMapList.add(responseHead.getEventMap());
 						eventCusList.add(responseHead.getEventCus());
