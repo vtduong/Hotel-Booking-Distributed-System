@@ -1134,7 +1134,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						continue;
 					}
 					else if(data.getProtocol() == Protocol.GET_REMOTE_AVAILABILITY) {
-						result = getEventAvailability(data.getUserID());
+						result = listEventAvailability(data.getUserID(), data.getEventType());
 						//send back to the sender, NOT THE FE
 						System.out.println("Sending result: " + result);
 
@@ -1217,7 +1217,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					
 					
-				} catch (IOException | SecurityException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException e) {
+				} catch (IOException | SecurityException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException | vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException e) {
 					
 					try {
 						logger.log(0, "Run(" + 
@@ -1231,10 +1231,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				}
 			}
 		}
-		private Object getEventAvailability(String userID) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+		
 
 
 		public void unicastOneWay(String addr, int port, Header header) throws IOException {
