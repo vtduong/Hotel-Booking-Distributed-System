@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.SocketException;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
@@ -36,7 +39,26 @@ public class MTLServer {
 		try {
 			exportedObj = new MTL();
 			System.out.println("MTL Server ready and waiting ...");
-			listenUDP();
+			ExecutorService executor = Executors.newCachedThreadPool();
+			executor.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					listenUDP();
+				}
+			});
+
+			executor.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					System.setProperty("java.net.preferIPv4Stack", "true");
+					receiveUDPMessageulticast();
+				}
+			});
+			
+			executor.shutdown();
+
 		}
 
 		catch (Exception e) {
@@ -44,14 +66,12 @@ public class MTLServer {
 			e.printStackTrace(System.out);
 		}
 
-		System.out.println("MTLs Exiting ...");
-
 	}
 
 	private static String parseRequest(String input, DatagramPacket request) throws IOException {
 		DataStructureAdapter ds = new DataStructureAdapter();
 		String toReturn = input;
-		if (!input.contains(";"+Util.Success)&&!input.contains(";"+Util.Failure)) {
+		if (!input.contains(";" + Util.Success) && !input.contains(";" + Util.Failure)) {
 			String[] inputArray = input.split(Util.SEMI_COLON);
 			switch (inputArray[0].trim()) {
 			case Util.BOOK_EVENT:
@@ -71,7 +91,7 @@ public class MTLServer {
 				break;
 			case Util.Get_Booking_Schedule1:
 				toReturn = exportedObj.getBookingSchedule(inputArray[1].trim());
-				
+
 				break;
 			case Util.List_Event_Availability:
 				toReturn = getfreeEvents(inputArray[1].trim());
@@ -173,12 +193,10 @@ public class MTLServer {
 				if (requestMsg.contains("protocol_type")) {
 					requestMsg = new String(Adapter.objectToString(request.getData()));
 				}
-
 				String replyStr = parseRequest(requestMsg, request).trim();
 				System.out.println("Reply" + replyStr);
 				buffer = new byte[Util.BUFFER_SIZE];
 				byte[] replyBuff = replyStr.getBytes();
-//				replyBuff = replyStr.getBytes();
 				DatagramPacket reply = null;
 				if (requestMsg.contains(Util.BOOK_EVENT1) || requestMsg.contains(Util.Get_Booking_Schedule1)
 						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT1)
@@ -212,5 +230,49 @@ public class MTLServer {
 		}
 
 	}
+	
+	
+	private static void receiveUDPMessageulticast() {
+		DatagramSocket aSocketTOR = null;
+		String requestMsg = "";
+		try {
+			byte[] buffer = new byte[Util.BUFFER_SIZE];
+			MulticastSocket socket=new MulticastSocket(4321);
+		    InetAddress group=InetAddress.getByName("239.0.0.0");
+		    socket.joinGroup(group);
+			while (true) {
+				System.out.println("Waiting for multicast message...");
+		         DatagramPacket packet=new DatagramPacket(buffer,
+		 	            buffer.length);
+		 	    socket.receive(packet);
+				System.out.println("Request Received On Server: " + new String((packet.getData())));
+				requestMsg = new String((packet.getData()));
 
+				if (requestMsg.contains("protocol_type")) {
+					requestMsg = new String(Adapter.objectToString(packet.getData()));
+				}
+				String replyStr = parseRequest(requestMsg, packet).trim();
+				System.out.println("Reply:" + replyStr);
+				buffer = new byte[Util.BUFFER_SIZE];
+				byte[] replyBuff = replyStr.getBytes();
+				DatagramPacket reply = null; 
+				if (requestMsg.contains(Util.BOOK_EVENT1) || requestMsg.contains(Util.Get_Booking_Schedule1)
+						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT1)
+						|| requestMsg.contains(Util.Swap_event) || requestMsg.contains(Util.REM_EVENT)
+						|| requestMsg.contains(Util.List_Event_Availability1)) {
+
+					reply = new DatagramPacket(replyBuff, replyStr.length(),
+							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61002);
+					socket.send(reply);
+				}
+			}
+
+		} catch (SocketException e) {
+			System.out.println("Socket: " + e.getMessage());
+		} catch (IOException e) {
+			System.out.println("IO: " + e.getMessage());
+		} finally {
+//			socket.close();
+		}
+	}
 }

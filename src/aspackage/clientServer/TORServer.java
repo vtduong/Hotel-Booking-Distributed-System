@@ -234,13 +234,6 @@ public class TORServer {
 	}
 	
 	private static void receiveUDPMessageulticast() {
-		System.setProperty("java.net.preferIPv4Stack", "true");
-		
-		DatagramSocket aSocketTOR = null;
-		try {
-			aSocketTOR = new DatagramSocket(3001);
-		} catch (SocketException e1) {
-		}
 		
 		String requestMsg = "";
 		try {
@@ -280,7 +273,7 @@ public class TORServer {
 		} catch (IOException e) {
 			System.out.println("IO: " + e.getMessage());
 		} finally {
-				aSocketTOR.close();
+//				aSocketTOR.close();
 		}
 	}
 }
