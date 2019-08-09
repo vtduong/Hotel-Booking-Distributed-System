@@ -7,7 +7,6 @@ import java.lang.reflect.Field;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.file.AccessDeniedException;
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -23,16 +22,13 @@ import com.google.gson.Gson;
 
 import extension.AdditionalFunctions;
 import ipconfig.IPConfig;
-//import server.MethodImpl.SendMessage;
-import vspackage.RemoteMethodApp.RemoteMethodPOA;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.ClassNotFoundException;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.IllegalArgumentException;
-import vspackage.RemoteMethodApp.RemoteMethodPackage.SecurityException;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.NoSuchFieldException;
+import vspackage.RemoteMethodApp.RemoteMethodPackage.SecurityException;
 import vspackage.bean.Header;
 import vspackage.bean.Protocol;
 import vspackage.config.Config;
-
 import vspackage.tools.ExtractDate;
 import vspackage.tools.JSONParser;
 import vspackage.tools.Logger;
@@ -1056,12 +1052,15 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					ObjectMapper mapper = new ObjectMapper();
 					System.out.println("waiting for a request");
 					socket.receive(packet);
-					String content = new String(message);
+					String content = new String(message).trim();
 					System.out.println("fucking received it: " + content);
 					
 					if(packet.getPort() == Integer.parseInt(IPConfig.getProperty("port_rm"))) {
+						System.out.println("received packet from RM:");
 						Gson gson = new Gson();
-						data = gson.fromJson(content.trim(), Header.class);
+						data = gson.fromJson(content, Header.class);
+						System.out.println(data.getEventMap());
+						System.out.println(data.getEventCus());
 					}else {
 						//content = content.replaceAll("\\uFEFF", "");
 						//Object json = new JSONParser().parse(content);
@@ -1147,42 +1146,45 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					} else if(data.getProtocol() == Protocol.SWAP_EVENT) {
 						result = swapEventUDP(data.getUserID(), data.getNewEventID(), data.getNewEventType(), data.getEventID(), data.getEventType());
 					} else if(data.getProtocol() == Protocol.SYNC_REQUEST) {
+						System.out.println("Sending data for sync request:");
 						//return a header with 2 hashmap of this server
+						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
 						Map<String, HashMap<String, Integer>> eventMap = MethodImpl.this.getStaticValue("eventMap");
 						Map<String,HashMap<String, List<String>>> eventCus = MethodImpl.this.getStaticValue("eventCus");
 						unicastOneWay(packet.getAddress().getHostAddress(), packet.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
-						return;
+						continue;
 					} else if(data.getProtocol() == Protocol.SYNC) {
 						//get the 2 hashmaps from header and set the 2 hashmaps of this server
+						System.out.println("Syncing data...");
 						Map<String, HashMap<String, Integer>> syncedEventMap = data.getEventMap();
 						Map<String,HashMap<String, List<String>>> syncedEventCus = data.getEventCus();
-						MethodImpl.this.setStaticValue("eventMap", syncedEventMap);
-						MethodImpl.this.setStaticValue("eventCus", syncedEventCus);
-						return;
+//						MethodImpl.this.setStaticValue("eventMap", syncedEventMap);
+//						MethodImpl.this.setStaticValue("eventCus", syncedEventCus);
+						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
+						continue;
 					}
 					
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
-//					if(sequenceID == 2) {
-//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
-//							continue;//crash = do nothing
-//						}
-//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
-//							result = "incorrect result"; //return incorrect result = software failure
-//						}
-//					}
+					if(sequenceID == 1) {
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("host2"))) {
+							System.out.println("CRASH");
+							continue;//crash = do nothing
+						}
+						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
+							result = "incorrect result"; //return incorrect result = software failure
+						}
+					}
 					byte[] reply = result.toString().getBytes();
 					
 					System.out.println("Sending result: " + result);
 //					DatagramPacket replyPacket = new DatagramPacket(
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
-							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
-					
-					System.out.println("Reply message: " + result);
-					
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
 					socket.send(replyPacket);
-					
 					
 					
 					logger.log(2, "Run(" + 
@@ -1317,8 +1319,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		}
 		
 		public String send() throws IOException, ClassNotFoundException, org.json.simple.parser.ParseException{
-			//InetAddress addr = InetAddress.getByName("localhost");
-			InetAddress addr = InetAddress.getByName(InetAddress.getLocalHost().toString().split("/")[1]);
+			InetAddress addr = InetAddress.getByName("localhost");
+
 //			ObjectMapper objToJson = new ObjectMapper();
 			
 			JSONObject jsonData = new JSONObject();
@@ -1413,5 +1415,4 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 	
 	
 }
-
 

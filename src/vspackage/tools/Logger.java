@@ -36,6 +36,9 @@ public class Logger {
 			else if(userID.contains("TOR")) {
 				path = Config.getProperty("toronto_server_log");
 			}
+			else if(userID.contains("RM")) {
+				path = Config.getProperty("rm_log");
+			}
 			
 		} catch(IOException e) {
 			System.out.println("Unable to create a Logger instance");

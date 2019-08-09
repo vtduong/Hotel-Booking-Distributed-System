@@ -27,8 +27,8 @@ public class Util {
 		public static final String Get_Booking_Schedule1 ="getBookingSchedule1";
 		public static final String UDPCALL = "UDP CALL";
 		public static HashMap<String,String> getServer = new HashMap<String,String>();
-		public static final String Booking_Cancelled= "Booking Cancelled.";
-		public static final String bookingSuccessMsg ="Event is booked. To check booking schedule later select option '2' from the menu.";
+		public static final String Booking_Cancelled= Util.Success+" Booking Cancelled.";
+		public static final String bookingSuccessMsg =Util.Success+" Event is booked. To check booking schedule later select option '2' from the menu.";
 		public static final String Swap_event ="swapEvent";
 		public static final String Booking_Exist ="booking_exist";
 		public static final String Capasity_Exist ="capasity_exist";
