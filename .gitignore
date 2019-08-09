@@ -119,9 +119,7 @@ buildNumber.properties
 
 
 #ignore logs & target
-**/logs/
-logs/
-logfiles/
+*.txt
 ipconfig.properties
 **/target/
 pom.xml.tag
