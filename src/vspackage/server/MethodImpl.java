@@ -287,14 +287,14 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			try {
 				return removeEventUDP(eventID, eventType);
 			} catch (IOException e) {
-				String status = "Something went wrong";
+				String status = "Something went wrong. fail";
 				
 				return "From Server " + serverName + status;
 			}
 		}
 		
 		else {
-			String status = "Something went wrong";
+			String status = "Something went wrong. fail";
 			//request remote server
 			Header head = new Header(Protocol.REMOVE_EVENT, null, serverName, cityCode, eventID, eventType, 0);
 			SendMessage sender;
@@ -377,7 +377,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		return "From Server " + serverName +  builder.toString();
 		} catch(Exception e) {
 			e.printStackTrace();
-			return "From Server " + serverName +  "something went wrong.";
+			return "From Server " + serverName +  "something went wrong. failed";
 		}
 	}
 
@@ -398,7 +398,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					") : returned : " + returnVal);
 			
 			
-			return returnVal + " successfully";
+			return returnVal + " success";
 		}catch(Exception e) {
 			e.printStackTrace();
 			
@@ -431,7 +431,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					") : returned : " + returnVal);
 			
 			
-			return returnVal + "successfully";
+			return returnVal + "success";
 			
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -789,7 +789,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			return "From Server " + serverName + results.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "From Server " + serverName + "error....";
+			return "From Server " + serverName + "error.... failed";
 		}
 	}
 
@@ -812,7 +812,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			// Request remote server to cancel event
 			Header head = new Header(Protocol.CANCEL_EVENT, customerID, serverName, cityCode, eventID, eventType, 0);
 			SendMessage sender;
-			String status = "Something went wrong";
+			String status = "Something went wrong. fail";
 			try {
 				sender = new SendMessage(head);
 				status = (String)sender.send();
@@ -965,7 +965,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						bookResult = this.bookEventUPD(customerID, newEventID, newEventType);
 						result = cancelResult + " " + bookResult;
 					}else {
-						result = "cannot swap events";
+						result = "cannot swap events. fail";
 					}
 					
 					logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
