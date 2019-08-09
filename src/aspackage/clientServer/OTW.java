@@ -673,7 +673,7 @@ public class OTW extends DEMSOperationsPOA {
 
 	private synchronized void logStatus(String requestType, Map<String, String> requestParameters, String requestStatus,
 			String serverResonse) {
-		FileLogger log = new FileLogger("src/aspackage/logFiles/OTW", requestType, requestParameters, requestStatus,
+		FileLogger log = new FileLogger("src/aspackage/logFiles/OTW.txt", requestType, requestParameters, requestStatus,
 				serverResonse);
 		log.writeFiles();
 	}
