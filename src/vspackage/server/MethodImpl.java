@@ -329,7 +329,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						") : returned : " + "event does not exist, no action taken");
 				
 				
-				return "event does not exist, no action taken";
+				return "event does not exist, no action taken. fail";
 			}
 			
 			hasCustomer = ((List<String>) ((HashMap) eventCus.get(eventType)).get(eventID)).size() > 0 ? true : false;
