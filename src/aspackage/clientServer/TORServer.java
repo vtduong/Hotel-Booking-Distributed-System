@@ -26,7 +26,6 @@ import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
 import aspackage.utility.DataStructureAdapter;
 import aspackage.utility.FileLogger;
-import aspackage.utility.UDPMulticastClient;
 import ipconfig.IPConfig;
 import vspackage.bean.Header;
 import vspackage.bean.Protocol;
@@ -237,11 +236,11 @@ public class TORServer {
 	private static void receiveUDPMessageulticast() {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 		
-//		DatagramSocket aSocketTOR = null;
-//		try {
-//			aSocketTOR = new DatagramSocket(3001);
-//		} catch (SocketException e1) {
-//		}
+		DatagramSocket aSocketTOR = null;
+		try {
+			aSocketTOR = new DatagramSocket(3001);
+		} catch (SocketException e1) {
+		}
 		
 		String requestMsg = "";
 		try {
@@ -257,7 +256,7 @@ public class TORServer {
 				System.out.println("Request Received On Server: " + new String((packet.getData())));
 				requestMsg = new String((packet.getData()));
 
-				if (requestMsg.contains("PROTOCOL_TYPE")) {
+				if (requestMsg.contains("protocol_type")) {
 					requestMsg = new String(Adapter.objectToString(packet.getData()));
 				}
 				String replyStr = parseRequest(requestMsg, packet).trim();
@@ -281,8 +280,7 @@ public class TORServer {
 		} catch (IOException e) {
 			System.out.println("IO: " + e.getMessage());
 		} finally {
-//			if (aSocketTOR != null)
-//				aSocketTOR.close();
+				aSocketTOR.close();
 		}
 	}
 }
