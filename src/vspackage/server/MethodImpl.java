@@ -1262,15 +1262,15 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			// Choose the port of the server
 			if(header.getToServer().equalsIgnoreCase("MTL")) {
-				port = Integer.parseInt(Config.getProperty("montreal_udp_port_recv"));	
+				port = Integer.parseInt(IPConfig.getProperty("mtl_port_vs"));	
 			}
 			
 			else if(header.getToServer().equalsIgnoreCase("OTW")) {
-				port = Integer.parseInt(Config.getProperty("ottawa_udp_port_recv"));
+				port = Integer.parseInt(IPConfig.getProperty("otw_port_vs"));
 			}
 			
 			else if(header.getToServer().equalsIgnoreCase("TOR")) {
-				port = Integer.parseInt(Config.getProperty("toronto_udp_port_recv"));
+				port = Integer.parseInt(IPConfig.getProperty("tor_port_vs"));
 			}
 			
 			
