@@ -373,7 +373,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		
 		try {
 		StringBuilder builder = new StringBuilder(listEventAvailabilityUPD(userID, eventType));
-	 	builder.append(getRemoteEventsByEventType(Protocol.EVENT_AVAILABLITY, eventType));
+	 	builder.append(getRemoteEventsByEventType(Protocol.GET_REMOTE_AVAILABILITY, eventType));
 		return "From Server " + serverName +  builder.toString();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -1133,6 +1133,20 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						socket.send(replyPacket);
 						continue;
 					}
+					else if(data.getProtocol() == Protocol.GET_REMOTE_AVAILABILITY) {
+						result = getEventAvailability(data.getUserID());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
 					
 					
 					else if(data.getProtocol() == Protocol.REMOVE_EVENT) {
@@ -1193,7 +1207,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //					DatagramPacket replyPacket = new DatagramPacket(
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
-							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
 					socket.send(replyPacket);
 					
 					System.out.println("Sending reply to FE....");
@@ -1217,6 +1231,12 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				}
 			}
 		}
+		private Object getEventAvailability(String userID) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
 		public void unicastOneWay(String addr, int port, Header header) throws IOException {
 			Gson gson = new Gson();
 			
