@@ -1,0 +1,72 @@
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-07-13T18:38:34.122
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-07-13T18:38:34.125
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-07-13T18:38:34.126
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM110100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-07-13T18:38:34.127
+======================================
+
+=============New Session==============
+Request Type:UDP Call: getBookingSchedule
+Request Status:Sucess
+Server Resposnse:You have no event in TOR
+requestParameters:{customerId=MTLC1234}
+Request time:2019-07-13T18:40:52.939
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM100100, eventType=Seminar, bookingCapacity=10}
+Request time:2019-08-05T16:32:00.880
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM100100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T16:32:00.884
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM100100, eventType=Conference, bookingCapacity=10}
+Request time:2019-08-05T16:32:00.884
+======================================
+
+=============New Session==============
+Request Type:addEvent
+Request Status:Success
+Server Resposnse:New event added.
+requestParameters:{eventId=TORM110100, eventType=Trade Show, bookingCapacity=10}
+Request time:2019-08-05T16:32:00.884
+======================================
