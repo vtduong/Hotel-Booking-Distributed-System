@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class Header {
 	
-	private int PROTOCOL_TYPE;
+	private int protocol_type;
 	private String userID;
 	private String fromServer;
 	private String toServer;
@@ -25,10 +25,10 @@ public class Header {
 	
 	
 	
-	public Header(int PROTOCOL_TYPE, String userID, String fromServer, String toServer, String oldEventID,
+	public Header(int protocol_type, String userID, String fromServer, String toServer, String oldEventID,
 			String oldEventType, String newEventID, String newEventType, int capacity) {
 		super();
-		this.PROTOCOL_TYPE = PROTOCOL_TYPE;
+		this.protocol_type = protocol_type;
 		this.userID = userID;
 		this.fromServer = fromServer;
 		this.toServer = toServer;
@@ -38,15 +38,15 @@ public class Header {
 		this.newEventType = newEventType;
 		this.capacity = capacity;
 	}
-	public Header(int PROTOCOL_TYPE, String userID, String fromServer, String toServer, String eventID,
+	public Header(int protocol_type, String userID, String fromServer, String toServer, String eventID,
 			String eventType, int capacity) {
-		this(PROTOCOL_TYPE, userID, fromServer, toServer, eventID, eventType, null, null, capacity);
+		this(protocol_type, userID, fromServer, toServer, eventID, eventType, null, null, capacity);
 	}
 	
-	public Header(int PROTOCOL_TYPE, List<String> error, List<String> incorrect,
+	public Header(int protocol_type, List<String> error, List<String> incorrect,
 			List<String> crash) {
 		super();
-		this.PROTOCOL_TYPE = PROTOCOL_TYPE;
+		this.protocol_type = protocol_type;
 		this.userID = "";
 		this.fromServer = "";
 		this.toServer = "";
@@ -61,9 +61,9 @@ public class Header {
 		this.sequenceId = 0;
 	}
 	
-	public Header(int PROTOCOL_TYPE, Map<String, HashMap<String, Integer>> eventMap, Map<String,HashMap<String, List<String>>> eventCus) {
+	public Header(int protocol_type, Map<String, HashMap<String, Integer>> eventMap, Map<String,HashMap<String, List<String>>> eventCus) {
 		super();
-		this.PROTOCOL_TYPE = PROTOCOL_TYPE;
+		this.protocol_type = protocol_type;
 		this.userID = "";
 		this.fromServer = "";
 		this.toServer = "";
@@ -113,10 +113,10 @@ public class Header {
 	}
 
 	/**
-	 * @param pROTOCOL_TYPE the pROTOCOL_TYPE to set
+	 * @param protocol_type the protocol_type to set
 	 */
-	public void setProtocol(int PROTOCOL_TYPE) {
-		this.PROTOCOL_TYPE = PROTOCOL_TYPE;
+	public void setProtocol(int protocol_type) {
+		this.protocol_type = protocol_type;
 	}
 	
 	/**
@@ -153,10 +153,10 @@ public class Header {
 	}
 
 	/**
-	 * @return the pROTOCOL_TYPE
+	 * @return the protocol_type
 	 */
 	public int getProtocol() {
-		return PROTOCOL_TYPE;
+		return protocol_type;
 	}
 
 	/**

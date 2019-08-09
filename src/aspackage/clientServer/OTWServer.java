@@ -171,7 +171,7 @@ public class OTWServer {
 						"Request received on OTW Server: " + new String((request.getData())));
 				requestMsg = new String((request.getData()));
 				
-				if(requestMsg.contains("PROTOCOL_TYPE")) {
+				if(requestMsg.contains("protocol_type")) {
 					requestMsg = new String(Adapter.objectToString(request.getData()));
 				}
 

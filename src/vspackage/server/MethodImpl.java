@@ -1055,36 +1055,21 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					String content = new String(message).trim();
 					System.out.println("fucking received it: " + content);
 					
-					if(packet.getPort() == Integer.parseInt(IPConfig.getProperty("port_rm"))) {
-						System.out.println("received packet from RM:");
-						Gson gson = new Gson();
-						data = gson.fromJson(content, Header.class);
-						System.out.println(data.getEventMap());
-						System.out.println(data.getEventCus());
-					}else {
+				
 						//content = content.replaceAll("\\uFEFF", "");
 						//Object json = new JSONParser().parse(content);
 						//JSONObject jsonObj = (JSONObject) json;
 						
-						JSONParser parser = new JSONParser(content);
-						Map<String, String> jsonObj = parser.deSerialize();
+//						JSONParser parser = new JSONParser(content);
+//						Map<String, String> jsonObj = parser.deSerialize();
 						
+						Gson gson = new Gson();
+						data = gson.fromJson(content.trim(), Header.class);
 //						Header data = mapper.readValue(new String(message), Header.class);
 						
-						data = new Header();
+//						data = new Header();
 						
-						
-						data.setCapacity(Integer.parseInt(jsonObj.get("capacity").trim()));
-						data.setEventID((String) jsonObj.get("eventID"));
-						data.setEventType((String) jsonObj.get("eventType"));
-						data.setNewEventID((String) jsonObj.get("newEventID"));
-						data.setNewEventType((String) jsonObj.get("newEventType"));
-						data.setFromServer((String) jsonObj.get("fromServer"));
-						data.setToServer((String) jsonObj.get("toServer"));
-						data.setProtocol(Integer.parseInt(jsonObj.get("protocol_type")));
-						data.setUserID((String) jsonObj.get("userID"));
-						data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
-					}
+
 					
 					/*
 					 * The handling message logic here. 
