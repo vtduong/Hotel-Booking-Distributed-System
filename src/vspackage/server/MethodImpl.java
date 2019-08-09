@@ -1104,13 +1104,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					else if(data.getProtocol() == Protocol.EVENT_AVAILABLITY) {
 						
-						try {
-							result = getRemoteEventsByEventType(Protocol.GET_REMOTE_AVAILABILITY, data.getEventType());
-							result +=  " " + listEventAvailabilityUPD(data.getUserID(), data.getEventType());
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						result = listEventAvailability(data.getUserID(), data.getEventType());
 						
 					}
 					
@@ -1134,7 +1128,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						continue;
 					}
 					else if(data.getProtocol() == Protocol.GET_REMOTE_AVAILABILITY) {
-						result = listEventAvailability(data.getUserID(), data.getEventType());
+						result = listEventAvailabilityUPD(data.getUserID(), data.getEventType());
 						//send back to the sender, NOT THE FE
 						System.out.println("Sending result: " + result);
 
