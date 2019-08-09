@@ -584,7 +584,9 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				head = new Header(protocol, null, this.serverName, "OTW", null, eventType, 0);
 				sender = new SendMessage(head);
 //				result.append(event);
+				System.out.println("line number : " + 587);
 				result += "\n" + sender.send();
+				
 				System.out.println("events: " + result);
 
 			} else if(serverName.equalsIgnoreCase("TOR")) {
@@ -778,7 +780,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			//search in remote servers
 			//TODO uncomment this when UPD is working
-			String res = getRemoteEventsByClientID(Protocol.GET_SCHEDULE_EVENT, clientID);
+			String res = getRemoteEventsByClientID(Protocol.GET_REMOTE_SCHEDULE, clientID);
 			results.append(res);
 			
 			logger.log(2, "getBookingSchedule(" + clientID + 
@@ -1103,8 +1105,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					else if(data.getProtocol() == Protocol.EVENT_AVAILABLITY) {
 						
 						try {
-							result = getRemoteEventsByEventType(Protocol.EVENT_AVAILABLITY, data.getEventType());
-							result += listEventAvailabilityUPD(data.getUserID(), data.getEventType());
+							result = getRemoteEventsByEventType(Protocol.GET_REMOTE_AVAILABILITY, data.getEventType());
+							result +=  " " + listEventAvailabilityUPD(data.getUserID(), data.getEventType());
 						} catch (SecurityException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1114,10 +1116,24 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					else if(data.getProtocol() == Protocol.GET_SCHEDULE_EVENT) {
 						
-						result = getRemoteEventsByClientID(Protocol.GET_SCHEDULE_EVENT, data.getUserID());
-						result += getBookingScheduleUDP(data.getUserID());
+						result = getBookingSchedule(data.getUserID());
 						
 					}
+					else if(data.getProtocol() == Protocol.GET_REMOTE_SCHEDULE) {
+						result = getBookingScheduleUDP(data.getUserID());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
+					
 					
 					else if(data.getProtocol() == Protocol.REMOVE_EVENT) {
 						
@@ -1180,13 +1196,14 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
 					socket.send(replyPacket);
 					
+					System.out.println("Sending reply to FE....");
 					
 					logger.log(2, "Run(" + 
 							") : returned : " + "None : send data from port " + port);
 					
 					
 					
-				} catch (IOException | SecurityException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
+				} catch (IOException | SecurityException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException e) {
 					
 					try {
 						logger.log(0, "Run(" + 
@@ -1298,8 +1315,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			byte[] statusCode = new byte[8];
 			
-			DatagramPacket ack = new DatagramPacket(statusCode, statusCode.length);
-			socket.receive(ack);
+//			DatagramPacket ack = new DatagramPacket(statusCode, statusCode.length);
+//			socket.receive(ack);
 			
 			//return Integer.parseInt(new String(statusCode));
 			socket.disconnect();
@@ -1339,7 +1356,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			socket.send(packet);
 			
 			byte[] result = new byte[10000];
-			//System.out.print(new String);
+			System.out.print(new String(result));
 			
 			DatagramPacket ack = new DatagramPacket(result, result.length);
 			socket.receive(ack);
