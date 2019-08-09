@@ -1182,6 +1182,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
 					socket.send(replyPacket);
 					
+					System.out.println("Sending reply to FE....");
 					
 					logger.log(2, "Run(" + 
 							") : returned : " + "None : send data from port " + port);
@@ -1300,8 +1301,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			byte[] statusCode = new byte[8];
 			
-			DatagramPacket ack = new DatagramPacket(statusCode, statusCode.length);
-			socket.receive(ack);
+//			DatagramPacket ack = new DatagramPacket(statusCode, statusCode.length);
+//			socket.receive(ack);
 			
 			//return Integer.parseInt(new String(statusCode));
 			socket.disconnect();

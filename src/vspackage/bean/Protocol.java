@@ -16,5 +16,6 @@ public class Protocol {
 	public static final int FE_TO_HOST_FAULT = 400;
 	public static final int SYNC = 10;
 	public static final int SYNC_REQUEST = 11;
+	public static final int GET_REMOTE_EVENTS = 12; 
 	
 }
