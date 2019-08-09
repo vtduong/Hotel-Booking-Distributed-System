@@ -1081,7 +1081,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						data.setNewEventType((String) jsonObj.get("newEventType"));
 						data.setFromServer((String) jsonObj.get("fromServer"));
 						data.setToServer((String) jsonObj.get("toServer"));
-						data.setProtocol(Integer.parseInt(jsonObj.get("PROTOCOL_TYPE")));
+						data.setProtocol(Integer.parseInt(jsonObj.get("protocol_type")));
 						data.setUserID((String) jsonObj.get("userID"));
 						data.setSequenceId(Integer.parseInt(jsonObj.get("sequenceId").trim()));
 					}
@@ -1168,23 +1168,23 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
-					if(sequenceID == 1) {
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("host2"))) {
-							System.out.println("CRASH");
-							System.out.println("Syncing data..");
-							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
-							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
-							continue;//crash = do nothing
-						}
-						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
-							result = "incorrect result"; //return incorrect result = software failure
-							System.out.println("Sending result: " + result);
-							System.out.println("Syncing data..");
-							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
-							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
-						}
-							
-					}
+//					if(sequenceID == 1) {
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host2"))) {
+//							System.out.println("CRASH");
+//							System.out.println("Syncing data..");
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
+//							continue;//crash = do nothing
+//						}
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
+//							result = "incorrect result"; //return incorrect result = software failure
+//							System.out.println("Sending result: " + result);
+//							System.out.println("Syncing data..");
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
+//						}
+//							
+//					}
 					System.out.println("Sending result: " + result);
 
 					byte[] reply = result.toString().getBytes();
