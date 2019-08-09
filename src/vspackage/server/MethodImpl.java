@@ -584,7 +584,9 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				head = new Header(protocol, null, this.serverName, "OTW", null, eventType, 0);
 				sender = new SendMessage(head);
 //				result.append(event);
+				System.out.println("line number : " + 587);
 				result += "\n" + sender.send();
+				
 				System.out.println("events: " + result);
 
 			} else if(serverName.equalsIgnoreCase("TOR")) {
@@ -1341,8 +1343,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			byte[] result = new byte[10000];
 			//System.out.print(new String);
 			
-			DatagramPacket ack = new DatagramPacket(result, result.length);
-			socket.receive(ack);
+			//DatagramPacket ack = new DatagramPacket(result, result.length);
+			//socket.receive(ack);
 			
 			String temp = new String(result);
 			System.out.println(temp);
