@@ -1268,7 +1268,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				
 				this.socket=new MulticastSocket(this.receivePort);
 
-			    InetAddress group=InetAddress.getByName("multicast_ip_addr");
+			    InetAddress group=InetAddress.getByName(IPConfig.getProperty("multicast_ip_addr"));
 			    socket.joinGroup(group);
 					
 			} catch (NumberFormatException | IOException e) {
