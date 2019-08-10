@@ -7,6 +7,9 @@ import java.lang.reflect.Field;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -70,6 +73,7 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 //		ReceiveMessage recevive = new ReceiveMessage(name);
 		ReceiveMessage recevive = new ReceiveMessage(serverName);
 		Thread thread = new Thread(recevive);
+		new Thread(new UDPMulticast(serverName)).start();
 		thread.start();
 	}
 
@@ -1002,6 +1006,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		
 	}
 	
+	
+	
 
 	class ReceiveMessage implements Runnable {
 		
@@ -1030,6 +1036,18 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 			
 			logger.log(2, "ReceiveMessage(" + serverType + 
 					") : returned : " + "None : Init the socket and port " + port);
+		}
+		
+		public void unicastOneWay( String addr, int port, Header header) throws IOException {
+			Gson gson = new Gson();
+			
+			String data = gson.toJson(header);
+			
+			byte[] msg = data.getBytes();
+			
+			DatagramPacket packet = new DatagramPacket(msg, msg.length, 
+					InetAddress.getByName(addr), port);
+			socket.send(packet);
 		}
 		
 		
@@ -1228,22 +1246,231 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		
 
 
-		public void unicastOneWay(String addr, int port, Header header) throws IOException {
-			Gson gson = new Gson();
-			
-			String data = gson.toJson(header);
-			
-			byte[] msg = data.getBytes();
-			
-			DatagramPacket packet = new DatagramPacket(msg, msg.length, 
-					InetAddress.getByName(addr), port);
-			socket.send(packet);
-		}
+		
 	
 		
 	}
 
+	class UDPMulticast implements Runnable{
+		private String serverName;
+		private int receivePort;
+		private MulticastSocket socket;
+		UDPMulticast(String serverName){
+			this.serverName = serverName;
+			try {
+				if(serverName.equalsIgnoreCase("MTL")) {
+					this.receivePort = Integer.parseInt(IPConfig.getProperty("multicast_mtl_receive_port"));
+				}else if(serverName.equalsIgnoreCase("TOR")) {
+					this.receivePort = Integer.parseInt(IPConfig.getProperty("multicast_tor_receive_port"));
+				}else if(serverName.equalsIgnoreCase("OTW")) {
+					this.receivePort = Integer.parseInt(IPConfig.getProperty("multicast_otw_receive_port"));
+				}
+				
+				this.socket=new MulticastSocket(this.receivePort);
 
+			    InetAddress group=InetAddress.getByName(IPConfig.getProperty("multicast_ip_addr"));
+			    socket.joinGroup(group);
+					
+			} catch (NumberFormatException | IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void run() {
+			String requestMsg = "";
+			try {
+				
+				byte[] buffer = new byte[1000];
+				
+				while (true) {
+					System.out.println("Waiting for multicast message...");
+			         DatagramPacket packet=new DatagramPacket(buffer,
+			 	            buffer.length);
+			 	    socket.receive(packet);
+					System.out.println("Request Received On Server: " + new String((packet.getData())));
+					String content = new String((packet.getData())).trim();
+					Gson gson = new Gson();
+					Header data = gson.fromJson(content.trim(), Header.class);
+					
+					/*
+					 * The handling message logic here. 
+					 */
+					
+					Object result = null;
+					
+					if(data.getProtocol() == Protocol.ADD_EVENT) {
+						
+						try {
+							result = addEventUDP(data.getEventID(), data.getEventType(), data.getCapacity());
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					}
+					
+					else if(data.getProtocol() == Protocol.BOOK_EVENT) {
+						
+						result = bookEventUPD(data.getUserID(), data.getEventID(), data.getEventType());
+						
+					}
+					
+					else if(data.getProtocol() == Protocol.CANCEL_EVENT) {
+						
+						result = cancelEventUDP(data.getUserID(), data.getEventID(), data.getEventType());
+						
+					}
+					
+					else if(data.getProtocol() == Protocol.EVENT_AVAILABLITY) {
+						
+						result = listEventAvailability(data.getUserID(), data.getEventType());
+						
+					}
+					
+					else if(data.getProtocol() == Protocol.GET_SCHEDULE_EVENT) {
+						
+						result = getBookingSchedule(data.getUserID());
+						
+					}
+					else if(data.getProtocol() == Protocol.GET_REMOTE_SCHEDULE) {
+						result = getBookingScheduleUDP(data.getUserID());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
+					else if(data.getProtocol() == Protocol.GET_REMOTE_AVAILABILITY) {
+						result = listEventAvailabilityUPD(data.getUserID(), data.getEventType());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
+					
+					
+					else if(data.getProtocol() == Protocol.REMOVE_EVENT) {
+						
+						try {
+							result = removeEventUDP(data.getEventID(), data.getEventType());
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					} else if(data.getProtocol() == Protocol.SWAP_EVENT) {
+						result = swapEventUDP(data.getUserID(), data.getNewEventID(), data.getNewEventType(), data.getEventID(), data.getEventType());
+					} else if(data.getProtocol() == Protocol.SYNC_REQUEST) {
+						System.out.println("Sending data for sync request:");
+						//return a header with 2 hashmap of this server
+						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
+						Map<String, HashMap<String, Integer>> eventMap = MethodImpl.this.getStaticValue("eventMap");
+						Map<String,HashMap<String, List<String>>> eventCus = MethodImpl.this.getStaticValue("eventCus");
+						unicastOneWay(this.socket, packet.getAddress().getHostAddress(), packet.getPort(), new Header(Protocol.SYNC, eventMap, eventCus));
+						continue;
+					} else if(data.getProtocol() == Protocol.SYNC) {
+						//get the 2 hashmaps from header and set the 2 hashmaps of this server
+						System.out.println("Syncing data...");
+						Map<String, HashMap<String, Integer>> syncedEventMap = data.getEventMap();
+						Map<String,HashMap<String, List<String>>> syncedEventCus = data.getEventCus();
+//						MethodImpl.this.setStaticValue("eventMap", syncedEventMap);
+//						MethodImpl.this.setStaticValue("eventCus", syncedEventCus);
+						try {
+							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+						} catch (SecurityException | NoSuchFieldException | ClassNotFoundException
+								| IllegalArgumentException | IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
+						continue;
+					}
+					
+					int sequenceID = data.getSequenceId();
+					String ip = InetAddress.getLocalHost().toString().split("/")[1];
+//					if(sequenceID == 1) {
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host2"))) {
+//							System.out.println("CRASH");
+//							System.out.println("Syncing data..");
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
+//							continue;//crash = do nothing
+//						}
+//						if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
+//							result = "incorrect result"; //return incorrect result = software failure
+//							System.out.println("Sending result: " + result);
+//							System.out.println("Syncing data..");
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventMap") );
+//							System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
+//						}
+//							
+//					}
+					System.out.println("Sending result: " + result);
+
+					byte[] reply = result.toString().getBytes();
+					
+//					DatagramPacket replyPacket = new DatagramPacket(
+//							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+					DatagramPacket replyPacket = new DatagramPacket(
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
+					socket.send(replyPacket);
+					
+					System.out.println("Sending reply to FE....");
+					
+					logger.log(2, "Run(" + 
+							") : returned : " + "None : send data from port " + receivePort);
+					
+				} 
+				
+
+			} catch (SocketException e) {
+				System.out.println("Socket: " + e.getMessage());
+			} catch (IOException e) {
+				System.out.println("IO: " + e.getMessage());
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (vspackage.RemoteMethodApp.RemoteMethodPackage.IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+			}
+		}
+			
+	}
+		
+	
 	class SendMessage {
 		
 		private DatagramSocket socket = null;
@@ -1417,6 +1644,26 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		return null;
 	}
 	
+	public void unicastOneWay(MulticastSocket socket, String addr, int port, Header header) throws IOException {
+Gson gson = new Gson();
+		
+		String data = gson.toJson(header);
+		
+		byte[] msg = data.getBytes();
+		
+		DatagramPacket packet = new DatagramPacket(msg, msg.length, 
+				InetAddress.getByName(addr), port);
+		socket.send(packet);
+		
+	}
+
+
+	public void unicastOneWay(String hostAddress, int port, Header header) {
+		
+		
+	}
+
+
 	private  void setStaticValue(final String fieldName, final Object newValue) throws SecurityException, NoSuchFieldException,
     ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
 		try {
