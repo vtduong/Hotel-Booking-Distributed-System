@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 
 import extension.AdditionalFunctions;
 import ipconfig.IPConfig;
+import vspackage.RemoteMethodApp.RemoteMethodPackage.AccessDeniedException;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.ClassNotFoundException;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.IllegalArgumentException;
 import vspackage.RemoteMethodApp.RemoteMethodPackage.NoSuchFieldException;
@@ -300,7 +301,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		else {
 			String status = "Something went wrong. fail";
 			//request remote server
-			Header head = new Header(Protocol.REMOVE_EVENT, null, serverName, cityCode, eventID, eventType, 0);
+			Header head = new Header(Protocol.REMOTE_REMOVE_EVENT, null, serverName, cityCode, eventID, eventType, 0);
 			SendMessage sender;
 			try {
 				sender = new SendMessage(head);
@@ -554,7 +555,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					}else {
 						int status = 0;
 						//forward request to dest server
-						Header head = new Header(Protocol.BOOK_EVENT, clientID, serverName, eventCityCode, eventID, eventType, 0);
+						Header head = new Header(Protocol.REMOTE_BOOK_EVENT, clientID, serverName, eventCityCode, eventID, eventType, 0);
 						sender =new SendMessage(head); 
 						return sender.send();
 					}
@@ -679,35 +680,65 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 	
 	private String getRemoteEventsByClientID(int prototype, String clientID) throws ClassNotFoundException, IOException {
 	String result = "";
+	String clientCityCode = clientID.substring(0, 3);
 	SendMessage sender = null;
 	try {
-		if(serverName.equalsIgnoreCase("MTL")) {
+		if(clientCityCode.equalsIgnoreCase("MTL")) {
 			//send request to Toronto
-			Header head = new Header(prototype, clientID, this.serverName, "TOR", null, null, 0);				
-			sender = new SendMessage(head);
-			result += "\n" + sender.send();
+			if(this.serverName.equalsIgnoreCase("TOR")) {
+				result += this.getBookingScheduleUDP(clientID);
+			} else {
+				Header head = new Header(prototype, clientID, this.serverName, "TOR", null, null, 0);				
+				sender = new SendMessage(head);
+				result += "\n" + sender.send();
+			}
 			//send request to Ottawa
-			head = new Header(prototype, clientID, this.serverName, "OTW", null, null, 0);
-			sender = new SendMessage(head);
-			result += "\n" + sender.send();
-		} else if(serverName.equalsIgnoreCase("TOR")) {
-			//send request to Toronto
-			Header head = new Header(prototype, clientID, this.serverName, "MTL", null, null, 0);				
-			sender = new SendMessage(head);
-			result += "\n" + sender.send();
+			if(this.serverName.equalsIgnoreCase("OTW")) {
+				result += this.getBookingScheduleUDP(clientID);
+			}else {
+				Header head = new Header(prototype, clientID, this.serverName, "OTW", null, null, 0);
+				sender = new SendMessage(head);
+				result += "\n" + sender.send();
+			}
+			
+		} else if(clientCityCode.equalsIgnoreCase("TOR")) {
+			//send request to MTL
+			if(this.serverName.equalsIgnoreCase("MTL")) {
+				result += this.getBookingScheduleUDP(clientID);
+			}else {
+				Header head = new Header(prototype, clientID, this.serverName, "MTL", null, null, 0);				
+				sender = new SendMessage(head);
+				result += "\n" + sender.send();
+			}
+			
 			//send request to Ottawa
-			head = new Header(prototype, clientID, this.serverName, "OTW", null, null, 0);
-			sender = new SendMessage(head);
-			result += "\n" + sender.send();
-		} else if(serverName.equalsIgnoreCase("OTW")) {
-			//send request to Toronto
-			Header head = new Header(prototype, clientID, this.serverName, "TOR", null, null, 0);				
-			sender = new SendMessage(head);
-			result += "\n" + sender.send();
+			if(this.serverName.equalsIgnoreCase("OTW")) {
+				result += this.getBookingScheduleUDP(clientID);
+			}else {
+				Header head = new Header(prototype, clientID, this.serverName, "OTW", null, null, 0);
+				sender = new SendMessage(head);
+				result += "\n" + sender.send();
+			}
+			
+		} else if(clientCityCode.equalsIgnoreCase("OTW")) {
+			//send request to OTW
+			if(this.serverName.equalsIgnoreCase("TOR")) {
+				result += this.getBookingScheduleUDP(clientID);
+			}else {
+				Header head = new Header(prototype, clientID, this.serverName, "TOR", null, null, 0);				
+				sender = new SendMessage(head);
+				result += "\n" + sender.send();
+			}
+			
 			//send request to Ottawa
-			head = new Header(prototype, clientID, this.serverName, "MTL", null, null, 0);
-			sender = new SendMessage(head);
-			result += "\n" + sender.send();
+			if(this.serverName.equalsIgnoreCase("MTL")) {
+				result += this.getBookingScheduleUDP(clientID);
+			}else {
+				Header head = new Header(prototype, clientID, this.serverName, "MTL", null, null, 0);
+				sender = new SendMessage(head);
+				result += "\n" + sender.send();
+			}
+			
 		} 
 	} catch (NumberFormatException | IOException e) {
 		
@@ -814,7 +845,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		
 		else {
 			// Request remote server to cancel event
-			Header head = new Header(Protocol.CANCEL_EVENT, customerID, serverName, cityCode, eventID, eventType, 0);
+			Header head = new Header(Protocol.REMOTE_CANCEL_EVENT, customerID, serverName, cityCode, eventID, eventType, 0);
 			SendMessage sender;
 			String status = "Something went wrong. fail";
 			try {
@@ -1110,13 +1141,13 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					else if(data.getProtocol() == Protocol.BOOK_EVENT) {
 						
-						result = bookEventUPD(data.getUserID(), data.getEventID(), data.getEventType());
+						result = bookEvent(data.getUserID(), data.getEventID(), data.getEventType());
 						
 					}
 					
 					else if(data.getProtocol() == Protocol.CANCEL_EVENT) {
 						
-						result = cancelEventUDP(data.getUserID(), data.getEventID(), data.getEventType());
+						result = cancelEvent(data.getUserID(), data.getEventID(), data.getEventType());
 						
 					}
 					
@@ -1159,19 +1190,69 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						socket.send(replyPacket);
 						continue;
 					}
-					
+					else if(data.getProtocol() == Protocol.REMOTE_BOOK_EVENT) {
+						result = bookEventUPD(data.getUserID(), data.getEventID(), data.getEventType());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
+					else if(data.getProtocol() == Protocol.REMOTE_REMOVE_EVENT) {
+						result = removeEventUDP(data.getEventID(), data.getEventType());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
+					else if(data.getProtocol() == Protocol.REMOTE_CANCEL_EVENT) {
+						result = cancelEventUDP(data.getUserID(), data.getEventID(), data.getEventType());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
+					else if(data.getProtocol() == Protocol.REMOTE_SWAP_EVENT) {
+						result = swapEventUDP(data.getUserID(), data.getNewEventID(), data.getNewEventType(), data.getEventID(), data.getEventType());
+						//send back to the sender, NOT THE FE
+						System.out.println("Sending result: " + result);
+
+						byte[] reply = result.toString().getBytes();
+						
+//						DatagramPacket replyPacket = new DatagramPacket(
+//								reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
+						DatagramPacket replyPacket = new DatagramPacket(
+								reply, reply.length, packet.getAddress(), packet.getPort());//change port number at demo
+						socket.send(replyPacket);
+						continue;
+					}
 					
 					else if(data.getProtocol() == Protocol.REMOVE_EVENT) {
 						
-						try {
-							result = removeEventUDP(data.getEventID(), data.getEventType());
-						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						result = removeEvent(data.getEventID(), data.getEventType());
 						
 					} else if(data.getProtocol() == Protocol.SWAP_EVENT) {
-						result = swapEventUDP(data.getUserID(), data.getNewEventID(), data.getNewEventType(), data.getEventID(), data.getEventType());
+						result = swapEvent(data.getUserID(), data.getNewEventID(), data.getNewEventType(), data.getEventID(), data.getEventType());
 					} else if(data.getProtocol() == Protocol.SYNC_REQUEST) {
 						System.out.println("Sending data for sync request:");
 						//return a header with 2 hashmap of this server
@@ -1192,6 +1273,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 						System.out.println(serverName + " " + MethodImpl.this.getStaticValue("eventCus") );
 						continue;
 					}
+					
 					
 					int sequenceID = data.getSequenceId();
 					String ip = InetAddress.getLocalHost().toString().split("/")[1];
@@ -1229,7 +1311,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 					
 					
-				} catch (IOException | SecurityException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException | vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException e) {
+				} catch (IOException | SecurityException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException | vspackage.RemoteMethodApp.RemoteMethodPackage.RemoteException | AccessDeniedException e) {
 					
 					try {
 						logger.log(0, "Run(" + 

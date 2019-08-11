@@ -18,5 +18,9 @@ public class Protocol {
 	public static final int SYNC_REQUEST = 11;
 	public static final int GET_REMOTE_SCHEDULE = 12;
 	public static final int GET_REMOTE_AVAILABILITY = 13;
+	public static final int REMOTE_BOOK_EVENT = 14;
+	public static final int REMOTE_REMOVE_EVENT = 15;
+	public static final int REMOTE_CANCEL_EVENT = 16;
+	public static final int REMOTE_SWAP_EVENT = 17;
 	
 }
