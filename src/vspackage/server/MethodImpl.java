@@ -523,7 +523,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				try {
 					//customer can book at most 3 events in a month
 					//get events from the other 2 servers
-					result = getRemoteEventsByClientID(Protocol.GET_SCHEDULE_EVENT, clientID);
+					result = getRemoteEventsByClientID(Protocol.GET_REMOTE_SCHEDULE, clientID);
 					String [] resultLines = result.split("\n");
 					
 					List<String> events = new ArrayList<String>();
@@ -680,7 +680,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //	}
 	
 	private String getRemoteEventsByClientID(int prototype, String clientID) throws ClassNotFoundException, IOException {
-	String result = "";
+	System.out.println("inside getRemoteEvents " + prototype + " " + clientID );
+		String result = "";
 	String clientCityCode = clientID.substring(0, 3);
 	SendMessage sender = null;
 	try {
@@ -967,7 +968,9 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //							SendMessage sender = new SendMessage(new Header(Protocol.BOOK_EVENT, customerID, oldCityCode, newCityCode, newEventID,
 //									newEventType, -1));
 //							bookResult = sender.send();
-							bookResult = this.bookEvent(customerID, newEventID, newEventType);
+							Header header = new Header(Protocol.BOOK_EVENT, customerID, this.serverName, newEventID.substring(0,3), newEventID, newEventType, 0); 
+							SendMessage sender = new SendMessage(header);
+							bookResult += sender.send();
 						}
 						if(bookResult.contains("successfully")) {//cancel old event
 							cancelResult = this.cancelEventUDP(customerID, oldEventID, oldEventType);
@@ -1020,7 +1023,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				}
 			}
 			
-		} catch (SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException | java.lang.ClassNotFoundException e) {
+		} catch (SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | java.lang.ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
