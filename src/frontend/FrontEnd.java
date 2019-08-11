@@ -54,7 +54,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			String autoTimeoutSetting = IPConfig.getProperty("auto_timeout").toLowerCase();
 			
-			if(autoTimeoutSetting.contains("true"))
+			if(autoTimeoutSetting.trim().contains("true"))
 				autoTimeout = true;
 			
 		} catch (IOException e) {
@@ -100,7 +100,12 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		service.shutdown();
 		
 		try {
-			Thread.sleep(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+			if(!FrontEnd.autoTimeout)
+				Thread.sleep(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+			else
+				Thread.sleep(FrontEnd.timeoutLimit);
 			
 		} catch(InterruptedException e) {
 			
