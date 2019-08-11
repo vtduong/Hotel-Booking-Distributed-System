@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.SocketException;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import aspackage.OperationsApp.*;
 import aspackage.beans.EventInformation;
@@ -36,7 +39,24 @@ public class TORServer {
 		try {
 			exportedObj = new TOR();
 			System.out.println("TOR Server ready and waiting ...");
-			listenUDP();
+			ExecutorService executor = Executors.newCachedThreadPool();
+			executor.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					listenUDP();
+				}
+			});
+
+			executor.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					receiveUDPMessageulticast();
+				}
+			});
+			
+			executor.shutdown();
 		}
 
 		catch (Exception e) {
@@ -44,7 +64,6 @@ public class TORServer {
 			e.printStackTrace(System.out);
 		}
 
-		System.out.println("TOR Exiting ...");
 
 	}
 
@@ -184,9 +203,8 @@ public class TORServer {
 						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT1)
 						|| requestMsg.contains(Util.Swap_event) || requestMsg.contains(Util.REM_EVENT)
 						|| requestMsg.contains(Util.List_Event_Availability1)) {
-
 					reply = new DatagramPacket(replyBuff, replyStr.length(),
-							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61000);
+							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61001);
 					aSocketTOR.send(reply);
 				} else if (requestMsg.contains(Util.Booking_Exist) || requestMsg.contains(Util.Capasity_Exist)
 						|| requestMsg.contains(Util.Can_Book) || requestMsg.contains(Util.RE)
@@ -212,7 +230,49 @@ public class TORServer {
 			if (aSocketTOR != null)
 				aSocketTOR.close();
 		}
-
 	}
+	
+	private static void receiveUDPMessageulticast() {
+		
+		String requestMsg = "";
+		try {
+			byte[] buffer = new byte[Util.BUFFER_SIZE];
+			MulticastSocket socket=new MulticastSocket(4322);
+		    InetAddress group=InetAddress.getByName("239.0.0.0");
+		    socket.joinGroup(group);
+			while (true) {
+				System.out.println("Waiting for multicast message...");
+		         DatagramPacket packet=new DatagramPacket(buffer,
+		 	            buffer.length);
+		 	    socket.receive(packet);
+				System.out.println("Request Received On Server: " + new String((packet.getData())));
+				requestMsg = new String((packet.getData()));
 
+				if (requestMsg.contains("protocol_type")) {
+					requestMsg = new String(Adapter.objectToString(packet.getData()));
+				}
+				String replyStr = parseRequest(requestMsg, packet).trim();
+				System.out.println("Reply:" + replyStr);
+				buffer = new byte[Util.BUFFER_SIZE];
+				byte[] replyBuff = replyStr.getBytes();
+				DatagramPacket reply = null;
+				if (requestMsg.contains(Util.BOOK_EVENT1) || requestMsg.contains(Util.Get_Booking_Schedule1)
+						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT1)
+						|| requestMsg.contains(Util.Swap_event) || requestMsg.contains(Util.REM_EVENT)
+						|| requestMsg.contains(Util.List_Event_Availability1)) {
+
+					reply = new DatagramPacket(replyBuff, replyStr.length(),
+							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61002);
+					socket.send(reply);
+				}
+			}
+
+		} catch (SocketException e) {
+			System.out.println("Socket: " + e.getMessage());
+		} catch (IOException e) {
+			System.out.println("IO: " + e.getMessage());
+		} finally {
+//				aSocketTOR.close();
+		}
+	}
 }
