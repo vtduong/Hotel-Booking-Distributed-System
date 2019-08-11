@@ -54,7 +54,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			
 			String autoTimeoutSetting = IPConfig.getProperty("auto_timeout").toLowerCase();
 			
-			if(autoTimeoutSetting.contains("true"))
+			if(autoTimeoutSetting.trim().contains("true"))
 				autoTimeout = true;
 			
 		} catch (IOException e) {
@@ -77,30 +77,35 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_two_host")),  
 				queue, Thread.currentThread());
 		
-//		ReceiveFromHost fromHostThree = new ReceiveFromHost(
-//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
-//				queue, Thread.currentThread());
-//		
-//		ReceiveFromHost fromHostFour = new ReceiveFromHost(
-//				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
-//				queue, Thread.currentThread());
+		ReceiveFromHost fromHostThree = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_three_host")),  
+				queue, Thread.currentThread());
+		
+		ReceiveFromHost fromHostFour = new ReceiveFromHost(
+				Integer.parseInt(IPConfig.getProperty("fe_waiting_reply_four_host")),  
+				queue, Thread.currentThread());
 		
 		Thread one = new Thread(fromHostOne);
 
 		Thread two = new Thread(fromHostTwo);
-//		Thread three = new Thread(fromHostThree);
-//		Thread four = new Thread(fromHostFour);
+		Thread three = new Thread(fromHostThree);
+		Thread four = new Thread(fromHostFour);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.execute(one);
 		service.execute(two);
-//		service.execute(three);
-//		service.execute(four);
+		service.execute(three);
+		service.execute(four);
 		
 		service.shutdown();
 		
 		try {
-			Thread.sleep(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+			if(!FrontEnd.autoTimeout)
+				Thread.sleep(Integer.parseInt(IPConfig.getProperty("timeout_for_rm")));
+			
+			else
+				Thread.sleep(FrontEnd.timeoutLimit);
 			
 		} catch(InterruptedException e) {
 			
@@ -116,14 +121,14 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		
 		String hostOne = IPConfig.getProperty("host1");
 		String hostTwo = IPConfig.getProperty("host2");
-		//String hostThree = IPConfig.getProperty("host3");
-		//String hostFour = IPConfig.getProperty("host4");
+		String hostThree = IPConfig.getProperty("host3");
+		String hostFour = IPConfig.getProperty("host4");
 		
 		List<String> allAddr = new ArrayList<String>();
 		allAddr.add(hostOne.trim());
 		allAddr.add(hostTwo.trim());
-		//allAddr.add(hostThree.trim());
-		//allAddr.add(hostFour.trim());
+		allAddr.add(hostThree.trim());
+		allAddr.add(hostFour.trim());
 		
 		String port = "";
 		

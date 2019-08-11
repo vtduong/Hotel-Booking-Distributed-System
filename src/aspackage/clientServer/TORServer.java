@@ -203,7 +203,6 @@ public class TORServer {
 						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT1)
 						|| requestMsg.contains(Util.Swap_event) || requestMsg.contains(Util.REM_EVENT)
 						|| requestMsg.contains(Util.List_Event_Availability1)) {
-
 					reply = new DatagramPacket(replyBuff, replyStr.length(),
 							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61001);
 					aSocketTOR.send(reply);
