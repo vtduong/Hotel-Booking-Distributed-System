@@ -508,8 +508,8 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		String clientCityCode = clientID.substring(0, 3);
 		String eventCityCode = eventID.substring(0, 3);
 		String result = "";
-		if(clientCityCode.equalsIgnoreCase(serverName)) {
-			if(eventCityCode.equalsIgnoreCase(serverName)) {
+		if(eventCityCode.equalsIgnoreCase(serverName)) {
+			if(clientCityCode.equalsIgnoreCase(serverName)) {
 				//proceed book event
 				try {
 					return bookEventUPD(clientID, eventID, eventType);
