@@ -187,7 +187,7 @@ public class OTWServer {
 						|| requestMsg.contains(Util.List_Event_Availability1)) {
 
 					reply = new DatagramPacket(replyBuff, replyStr.length(),
-							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61002);
+							InetAddress.getByName(IPConfig.getProperty("fe_addr")), 61000);
 					aSocketTOR.send(reply);
 				} else if (requestMsg.contains(Util.Booking_Exist) || requestMsg.contains(Util.Capasity_Exist)
 						|| requestMsg.contains(Util.Can_Book) || requestMsg.contains(Util.RE)
