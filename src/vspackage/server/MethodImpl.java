@@ -74,8 +74,9 @@ public class MethodImpl extends AdditionalFunctions implements Serializable{
 //		ReceiveMessage recevive = new ReceiveMessage(name);
 		ReceiveMessage recevive = new ReceiveMessage(serverName);
 		Thread thread = new Thread(recevive);
-		new Thread(new UDPMulticast(serverName)).start();
 		thread.start();
+//		new Thread(new UDPMulticast(serverName)).start();
+
 	}
 
 	protected MethodImpl(String name) throws IOException, RemoteException, SecurityException, NoSuchFieldException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
