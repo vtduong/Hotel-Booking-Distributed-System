@@ -1029,7 +1029,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					return result.trim().replaceAll("[\\000]*", "");
 				}else if(!this.serverName.equalsIgnoreCase(oldCityCode) &&
 						!this.serverName.equalsIgnoreCase(newCityCode)) {//both events are remote
-					SendMessage sender = new SendMessage(new Header(Protocol.SWAP_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
+					SendMessage sender = new SendMessage(new Header(Protocol.REMOTE_SWAP_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
 							 oldEventType, newEventID, newEventType, -1));
 					String message = sender.send();
 					logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
