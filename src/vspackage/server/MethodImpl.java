@@ -1120,7 +1120,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				
 				try {
 					Header data = null;
-					ObjectMapper mapper = new ObjectMapper();
+					//ObjectMapper mapper = new ObjectMapper();
 					System.out.println("waiting for a request");
 					socket.receive(packet);
 					String content = new String(message).trim();
