@@ -502,14 +502,70 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 	}
 
 
+	private String checkAndBookRemoteEvent(String clientID, String eventID, String eventType ) {
+		String result ="";
+		SendMessage sender = null;
+		try {
+			//customer can book at most 3 events in a month
+			//get events from the other 2 servers
+			result = getRemoteEventsByClientID(Protocol.GET_REMOTE_SCHEDULE, clientID);
+			String [] resultLines = result.split("\n");
+			
+			List<String> events = new ArrayList<String>();
+			List<String> idList = new ArrayList<String>();
+			int count = 0;
+			for(String e : resultLines) {
+				String line = e.trim();
+				if(line.length() > 0) {
+					String code = line.substring(0, 3);
+					if(code.equalsIgnoreCase("MTL") || code.equalsIgnoreCase("TOR") || 
+							code.equalsIgnoreCase("OTW")) {
+						count++;
+						idList.add(e);
+					}
+				}	
+			}
+			idList.add(eventID);
+			int days = 0;
+			if(!idList.isEmpty()) {
+				ExtractDate tool = new ExtractDate(idList);
+				try {
+					days = tool.dateDiff();
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if(count == 3 && days <= 30) {
+				return "Maximum number of remote event has been booked, no booking done. fail";
+			}else {
+				if(eventID.substring(0,3).equalsIgnoreCase(this.serverName)) {
+					result = this.bookEventUPD(clientID, eventID, eventType);
+				}else {
+					//forward request to dest server
+					Header head = new Header(Protocol.REMOTE_BOOK_EVENT, clientID, serverName, eventID.substring(0,3), eventID, eventType, 0);
+					sender =new SendMessage(head); 
+					return sender.send();
+				}
+				
+			}
+			
+		} catch (NumberFormatException | IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (org.json.simple.parser.ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
 	
 	public synchronized String bookEvent(String clientID, String eventID, String eventType) throws IllegalArgumentException, vspackage.RemoteMethodApp.RemoteMethodPackage.IOException{
 		//compare client city code with server code
 		String clientCityCode = clientID.substring(0, 3);
 		String eventCityCode = eventID.substring(0, 3);
 		String result = "";
-		if(eventCityCode.equalsIgnoreCase(serverName)) {
-			if(clientCityCode.equalsIgnoreCase(serverName)) {
+		if(clientCityCode.equalsIgnoreCase(serverName)) {
+			if(eventCityCode.equalsIgnoreCase(serverName)) {
 				//proceed book event
 				try {
 					return bookEventUPD(clientID, eventID, eventType);
@@ -519,57 +575,17 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					
 				}
 			} else {
-				SendMessage sender = null;
-				try {
-					//customer can book at most 3 events in a month
-					//get events from the other 2 servers
-					result = getRemoteEventsByClientID(Protocol.GET_REMOTE_SCHEDULE, clientID);
-					String [] resultLines = result.split("\n");
-					
-					List<String> events = new ArrayList<String>();
-					List<String> idList = new ArrayList<String>();
-					int count = 0;
-					for(String e : resultLines) {
-						String line = e.trim();
-						if(line.length() > 0) {
-							String code = line.substring(0, 3);
-							if(code.equalsIgnoreCase("MTL") || code.equalsIgnoreCase("TOR") || 
-									code.equalsIgnoreCase("OTW")) {
-								count++;
-								idList.add(e);
-							}
-						}	
-					}
-					idList.add(eventID);
-					int days = 0;
-					if(!idList.isEmpty()) {
-						ExtractDate tool = new ExtractDate(idList);
-						try {
-							days = tool.dateDiff();
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-					}
-					
-					if(count == 3 && days <= 30) {
-						return "Maximum number of remote event has been booked, no booking done. fail";
-					}else {
-						int status = 0;
-						//forward request to dest server
-						Header head = new Header(Protocol.REMOTE_BOOK_EVENT, clientID, serverName, eventCityCode, eventID, eventType, 0);
-						sender =new SendMessage(head); 
-						return sender.send();
-					}
-					
-				} catch (NumberFormatException | IOException | ClassNotFoundException e) {
-					e.printStackTrace();
-				} catch (org.json.simple.parser.ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				return checkAndBookRemoteEvent(clientID, eventID, eventType);
 			}
 	
 			
+		}else {
+			if(eventCityCode.equalsIgnoreCase(serverName)) {
+				//proceed book event
+				return checkAndBookRemoteEvent(clientID, eventID, eventType);
+			}else {
+				return "event does not belong to this server";
+			}
 		}
 		return "From Server " + serverName + " Something went wrong. fail";
 	}
@@ -968,9 +984,9 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //							SendMessage sender = new SendMessage(new Header(Protocol.BOOK_EVENT, customerID, oldCityCode, newCityCode, newEventID,
 //									newEventType, -1));
 //							bookResult = sender.send();
-							Header header = new Header(Protocol.BOOK_EVENT, customerID, this.serverName, newEventID.substring(0,3), newEventID, newEventType, 0); 
-							SendMessage sender = new SendMessage(header);
-							bookResult += sender.send();
+//							Header header = new Header(Protocol.BOOK_EVENT, customerID, this.serverName, newEventID.substring(0,3), newEventID, newEventType, 0); 
+//							SendMessage sender = new SendMessage(header);
+							bookResult = this.bookEvent(customerID, newEventID, newEventType);
 						}
 						if(bookResult.contains("successfully")) {//cancel old event
 							cancelResult = this.cancelEventUDP(customerID, oldEventID, oldEventType);
@@ -995,7 +1011,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					}
 					if(availability > 0) {
 						//check and cancel old event remotely
-						SendMessage sender = new SendMessage(new Header(Protocol.CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
+						SendMessage sender = new SendMessage(new Header(Protocol.REMOTE_CANCEL_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
 								oldEventType, -1));
 						cancelResult = sender.send();
 					}
@@ -1023,7 +1039,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				}
 			}
 			
-		} catch (SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | java.lang.ClassNotFoundException e) {
+		} catch (SecurityException | IllegalAccessException | IOException | org.json.simple.parser.ParseException | NoSuchFieldException | ClassNotFoundException | IllegalArgumentException | java.lang.ClassNotFoundException | vspackage.RemoteMethodApp.RemoteMethodPackage.IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
