@@ -1,6 +1,6 @@
 package vspackage.tools;
 
-import java.util.Map;
+import com.google.gson.Gson;
 
 import aspackage.clientServer.Util;
 import vspackage.bean.Header;
@@ -10,52 +10,43 @@ public class Adapter {
 	
 	public static String objectToString(byte[] message) {
 		String content = new String(message);
-		JSONParser parser = new JSONParser(content);
-		Map<String, String> jsonObj = parser.deSerialize();
 		
+		Gson gson = new Gson();
 		Header data = new Header();
-	
+
+		data = gson.fromJson(content.trim(), Header.class);
 		
-		String capacity = jsonObj.get("capacity").trim();
-		String eventID = (String) jsonObj.get("eventID");
-		String eventType = (String) jsonObj.get("eventType");
-		String newEventID = (String) jsonObj.get("newEventID");
-		String newEventType = (String) jsonObj.get("newEventType");
-		String fromServer = (String) jsonObj.get("fromServer");
-		String toServer = (String) jsonObj.get("toServer");
-		int protocol = Integer.parseInt(jsonObj.get("protocol_type"));
-		String userID = (String) jsonObj.get("userID");
 		
 		String output = "";
 		
-		switch(protocol) {
+		switch(data.getProtocol()) {
 			
 		case Protocol.BOOK_EVENT:
-			output = "bookEvent1" + ";" + userID + ";" + eventID + ";" + eventType;
+			output = "bookEvent1" + ";" + data.getUserID() + ";" + data.getEventID() + ";" + data.getEventType();
 			break;
 		
 		case Protocol.ADD_EVENT:
-			output = Util.ADD_EVENT + ";" + eventID + ";" + eventType + ";" + capacity;
+			output = Util.ADD_EVENT + ";" + data.getEventID() + ";" + data.getEventType() + ";" + data.getCapacity();
 			break;
 			
 		case Protocol.CANCEL_EVENT:
-			output = Util.CANCEL_EVENT1 + ";" + userID + ";" + eventID + ";" + eventType;
+			output = Util.CANCEL_EVENT1 + ";" + data.getUserID() + ";" + data.getEventID() + ";" + data.getEventType();
 			break;
 		
 		case Protocol.EVENT_AVAILABLITY:
-			output = "listEventAvailability1" + ";" + eventType;
+			output = "listEventAvailability1" + ";" + data.getEventType();
 			break;
 			
 		case Protocol.GET_SCHEDULE_EVENT:
-			output = "getBookingSchedule1" + ";" + userID;
+			output = "getBookingSchedule1" + ";" + data.getUserID();
 			break;
 			
 		case Protocol.REMOVE_EVENT:
-			output = Util.REM_EVENT + ";" + eventID + ";" + eventType;
+			output = Util.REM_EVENT + ";" + data.getEventID() + ";" + data.getEventType();
 			break;
 		
 		case Protocol.SWAP_EVENT:
-			output = "swapEvent" + ";" + userID + ";" + newEventID + ";" + newEventType + ";" + eventID + ";" + eventType;
+			output = "swapEvent" + ";" + data.getUserID() + ";" + data.getEventID() + ";" + data.getEventType() + ";" + data.getNewEventID() + ";" + data.getNewEventType();
 			break;
 			
 		case Protocol.SYNC:
