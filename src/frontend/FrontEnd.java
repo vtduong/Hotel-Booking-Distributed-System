@@ -149,7 +149,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			queue.add("crashed:" + str + ":" + port);
 		}
 		
-		System.out.println("queue "+queue.toString());
+	
 		return queue;
 		
 	}
@@ -488,7 +488,18 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 			// Grabbing replies from all the servers.
 			queue = getMessages();
 			
+//			
+//			System.out.print("--------------------------------------------------------------------");
+//			System.out.println("After fill : " + queue);
+//			System.out.print("--------------------------------------------------------------------");
+			
+			
 			Map<String, List<String>> map = verify(queue);
+			
+//			System.out.print("--------------------------------------------------------------------");
+//			System.out.println("After verify : " + queue);
+//			System.out.print("--------------------------------------------------------------------");
+//			
 
 			
 			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
@@ -501,8 +512,11 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				multicast.multicast();
 			}
 			
+//			System.out.print("--------------------------------------------------------------------");
+//			System.out.println("final : " + queue);
+//			System.out.print("--------------------------------------------------------------------");
 			
-			return queue.peek();
+			return queue.toString();
 			
 		} catch(Exception e) {
 			
@@ -727,7 +741,7 @@ class ReceiveFromHost implements Runnable {
 	private void receive() throws SocketException {
 		
 		DatagramSocket socket = new DatagramSocket(this.to);
-		byte[] packet = new byte[101];
+		byte[] packet = new byte[100000];
 		DatagramPacket datagram = new DatagramPacket(packet, packet.length);
 		
 		try {
@@ -743,7 +757,9 @@ class ReceiveFromHost implements Runnable {
 			
 			queue.add(new String(packet) + ":" + datagram.getSocketAddress() + ":" + datagram.getPort());
 			
-			System.out.println("Received data : " + datagram.getSocketAddress() + ":" + datagram.getPort());
+			System.out.println("***********************************************************************************************");
+			System.out.println("Received data : " + datagram.getSocketAddress() + ":" + datagram.getPort()  + "\n" + new String(packet));
+			System.out.println("***********************************************************************************************");
 			
 			if(queue.size() == Integer.parseInt(IPConfig.getProperty("total_rm"))) {
 				thread.interrupt();
