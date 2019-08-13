@@ -1332,7 +1332,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //					DatagramPacket replyPacket = new DatagramPacket(
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
-							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
 					socket.send(replyPacket);
 					
 					System.out.println("Sending reply to FE....");
