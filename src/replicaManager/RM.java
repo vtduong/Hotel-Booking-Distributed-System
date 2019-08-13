@@ -246,7 +246,7 @@ class ReceiveMessage implements Runnable {
 					}
 					Map<String, HashMap<String, Integer>> eventMap = getCorrectEventMap(eventMapList);
 					Map<String,HashMap<String, List<String>>> eventCus = getCorrectEventCus(eventCusList);
-					if(eventCus != null && eventMap != null) {
+					if(eventCus != null || eventMap != null) {
 						//send sync message to the right server based on port given by the FE
 						System.out.println("Sending sync data from RM to server");
 						unicastOneWay(this.hostIP, Integer.parseInt(port), new Header(Protocol.SYNC, eventMap, eventCus));

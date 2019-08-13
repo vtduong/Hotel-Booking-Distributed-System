@@ -239,7 +239,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 	
 	
-	public String addEvent (String eventID, String eventType, int bookingCapacity) {
+	public synchronized String addEvent (String eventID, String eventType, int bookingCapacity) {
 		
 		Header header = new Header();
 		header.setCapacity(bookingCapacity);
@@ -293,7 +293,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String removeEvent (String eventID, String eventType) {
+	public synchronized String removeEvent (String eventID, String eventType) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -351,7 +351,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String listEventAvailability (String userID, String eventType) {
+	public synchronized String listEventAvailability (String userID, String eventType) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -408,7 +408,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String bookEvent (String customerID, String eventID, String eventType) {
+	public synchronized String bookEvent (String customerID, String eventID, String eventType) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -465,7 +465,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String getBookingSchedule (String customerID) {
+	public synchronized String getBookingSchedule (String customerID) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -528,7 +528,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String cancelEvent (String customerID, String eventID, String eventType) {
+	public synchronized String cancelEvent (String customerID, String eventID, String eventType) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
@@ -582,7 +582,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	}
 
 
-	public String swapEvent (String customerID, String newEventID, String newEventType, String oldEventID, String oldEventType) {
+	public synchronized String swapEvent (String customerID, String newEventID, String newEventType, String oldEventID, String oldEventType) {
 		
 		Header header = new Header();
 		header.setCapacity(0);
