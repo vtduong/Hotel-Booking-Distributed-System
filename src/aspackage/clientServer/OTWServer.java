@@ -151,6 +151,7 @@ public class OTWServer {
 
 			}
 		}
+		
 		return toReturn;
 
 	}
@@ -196,10 +197,38 @@ public class OTWServer {
 				}
 
 				String replyStr = parseRequest(requestMsg, request);
+				Header data = new Header();
+				Gson gson = new Gson();
+				data= gson.fromJson( new String((request.getData())).trim(), Header.class);
+				
+				int sequenceID = data.getSequenceId();
+				String ip = InetAddress.getLocalHost().toString().split("/")[1];
+				String serverName="MTL";
+				if(sequenceID == 1) {
+					if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
+						System.out.println("CRASH");
+						System.out.println("Syncing data..");
+						System.out.println(serverName + " " +   exportedObj.customerBook.toString());
+						System.out.println(serverName + " " + exportedObj.eventBook.toString());
+						continue;//crash = do nothing
+					}
+				}
+				else if(sequenceID == 2) {
+					if(ip.equalsIgnoreCase(IPConfig.getProperty("host1"))) {
+						replyStr = "incorrect result"; //return incorrect result = software failure
+						System.out.println("Sending result: " + replyStr);
+						System.out.println("Syncing data..");
+						System.out.println(serverName + " " +   exportedObj.customerBook.toString());
+						System.out.println(serverName + " " + exportedObj.eventBook.toString());
+					}
+				}
+						
+				
 
 				buffer = new byte[Util.BUFFER_SIZE];
 				byte[] replyBuff = new byte[Util.BUFFER_SIZE];
 				replyBuff = replyStr.getBytes();
+				
 				DatagramPacket reply = null;
 				if (requestMsg.contains(Util.BOOK_EVENT1) || requestMsg.contains(Util.Get_Booking_Schedule1)
 						|| requestMsg.contains(Util.ADD_EVENT) || requestMsg.contains(Util.CANCEL_EVENT1)

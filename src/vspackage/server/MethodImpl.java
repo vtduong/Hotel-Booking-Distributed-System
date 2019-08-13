@@ -564,29 +564,40 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 		String clientCityCode = clientID.substring(0, 3);
 		String eventCityCode = eventID.substring(0, 3);
 		String result = "";
-		if(clientCityCode.equalsIgnoreCase(serverName)) {
-			if(eventCityCode.equalsIgnoreCase(serverName)) {
-				//proceed book event
-				try {
-					return bookEventUPD(clientID, eventID, eventType);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					
-				}
-			} else {
-				return checkAndBookRemoteEvent(clientID, eventID, eventType);
+		if(eventCityCode.equalsIgnoreCase(this.serverName)) {
+			try {
+				return bookEventUPD(clientID, eventID, eventType);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-	
-			
 		}else {
-			if(eventCityCode.equalsIgnoreCase(serverName)) {
-				//proceed book event
-				return checkAndBookRemoteEvent(clientID, eventID, eventType);
-			}else {
-				return "event does not belong to this server";
-			}
+			return checkAndBookRemoteEvent(clientID, eventID, eventType);
 		}
+//		if(clientCityCode.equalsIgnoreCase(serverName)) {
+//			if(eventCityCode.equalsIgnoreCase(serverName)) {
+//				//proceed book event
+//				try {
+//					return bookEventUPD(clientID, eventID, eventType);
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//					
+//				}
+//			} else {
+//				return checkAndBookRemoteEvent(clientID, eventID, eventType);
+//			}
+//	
+//			
+//		}else {
+//			if(eventCityCode.equalsIgnoreCase(serverName)) {
+//				//proceed book event
+//				return checkAndBookRemoteEvent(clientID, eventID, eventType);
+//			}else {
+//				checkAndBookRemoteEvent(clientID, eventID, eventType);
+//				return "event does not belong to this server. fail";
+//			}
+//		}
 		return "From Server " + serverName + " Something went wrong. fail";
 	}
 	
@@ -992,7 +1003,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 							cancelResult = this.cancelEventUDP(customerID, oldEventID, oldEventType);
 							result = cancelResult + " " + bookResult;
 						}else {
-							result = "cannot swap events";
+							result = "cannot swap events. fail";
 						}
 						logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
 								oldEventID + oldEventType +
@@ -1029,7 +1040,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					return result.trim().replaceAll("[\\000]*", "");
 				}else if(!this.serverName.equalsIgnoreCase(oldCityCode) &&
 						!this.serverName.equalsIgnoreCase(newCityCode)) {//both events are remote
-					SendMessage sender = new SendMessage(new Header(Protocol.SWAP_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
+					SendMessage sender = new SendMessage(new Header(Protocol.REMOTE_SWAP_EVENT, customerID, this.serverName, oldCityCode, oldEventID,
 							 oldEventType, newEventID, newEventType, -1));
 					String message = sender.send();
 					logger.log(2, "swapEventUDP(" + customerID + newEventID + "," + newEventType + "," +
@@ -1120,7 +1131,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 				
 				try {
 					Header data = null;
-					ObjectMapper mapper = new ObjectMapper();
+					//ObjectMapper mapper = new ObjectMapper();
 					System.out.println("waiting for a request");
 					socket.receive(packet);
 					String content = new String(message).trim();
@@ -1321,7 +1332,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //					DatagramPacket replyPacket = new DatagramPacket(
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
-							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
 					socket.send(replyPacket);
 					
 					System.out.println("Sending reply to FE....");

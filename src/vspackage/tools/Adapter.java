@@ -46,7 +46,7 @@ public class Adapter {
 			break;
 		
 		case Protocol.SWAP_EVENT:
-			output = "swapEvent" + ";" + data.getUserID() + ";" + data.getEventID() + ";" + data.getEventType() + ";" + data.getNewEventID() + ";" + data.getNewEventType();
+			output = "swapEvent" + ";" + data.getUserID() + ";" + data.getNewEventID() + ";" + data.getNewEventType() + ";" +  data.getEventID() + ";" + data.getEventType();
 			break;
 			
 		case Protocol.SYNC:

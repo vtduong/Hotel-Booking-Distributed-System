@@ -161,7 +161,7 @@ class ReceiveMessage implements Runnable {
 				DatagramPacket packet = new DatagramPacket(message, message.length);
 				
 				try {
-					ObjectMapper mapper = new ObjectMapper();
+					//ObjectMapper mapper = new ObjectMapper();
 					socket.receive(packet);
 					String content = new String(message).trim();
 					System.out.println("content: " + content);
