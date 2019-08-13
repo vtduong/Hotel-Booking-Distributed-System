@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 import org.json.simple.JSONObject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.google.gson.Gson;
 
 import extension.AdditionalFunctions;
@@ -987,7 +987,10 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					synchronized(Class.forName(fullName)) {
 						//check isBooked condition
 						Map eventCus = this.getStaticValue("eventCus");
-						boolean hasCustomer = ((List<String>) ((HashMap) eventCus.get(oldEventType)).get(oldEventID)).contains(customerID);
+						boolean hasCustomer = false;
+						if(eventCus.getOrDefault(oldEventType, null) != null && ((HashMap) eventCus.get(oldEventType)).getOrDefault(oldEventID, null) != null) {
+							 hasCustomer = ((List<String>) ((HashMap) eventCus.get(oldEventType)).get(oldEventID)).contains(customerID);
+						}
 						String cancelResult = "";
 						String bookResult = "";
 						if(hasCustomer == true) {
@@ -1332,7 +1335,7 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 //					DatagramPacket replyPacket = new DatagramPacket(
 //							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), packet.getPort());//change port number at demo
 					DatagramPacket replyPacket = new DatagramPacket(
-							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61001"));//change port number at demo
+							reply, reply.length, InetAddress.getByName(IPConfig.getProperty("fe_addr")), Integer.parseInt("61000"));//change port number at demo
 					socket.send(replyPacket);
 					
 					System.out.println("Sending reply to FE....");

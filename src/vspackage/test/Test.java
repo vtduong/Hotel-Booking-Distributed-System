@@ -78,6 +78,21 @@ public class Test {
 		cancelThreadFour.start();
 		swapThreadFour.start();
 		
+		try {
+			
+			bookThreadOne.sleep(1000);
+			bookThreadTwo.sleep(3500);
+			bookThreadThree.sleep(5500);
+			bookThreadFour.sleep(6500);
+			cancelThreadFour.sleep(7500);
+			swapThreadFour.sleep(8500);
+			
+			
+		} catch(Exception e) {
+			
+		}
+		
+		
 	}
 }
 

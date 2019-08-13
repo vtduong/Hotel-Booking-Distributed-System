@@ -98,62 +98,62 @@ public class MultiThreading extends Thread {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					msgs.add("Swap for TORC1001 2 "+fe.swapEvent("TORC1001", "TORM100100", "Seminar", "MTLM100102", "Trade Show"));
+					//msgs.add("Swap for TORC1001 2 "+fe.swapEvent("TORC1001", "TORM100100", "Seminar", "MTLM100102", "Trade Show"));
 					
 				}
 
 			});
 			
-			executor1.execute(new Runnable() {
-
-				@Override
-				public void run() {
-					int millis = rand.nextInt((100 - 0) + 1) + 0;
-					try {
-						Thread.sleep(millis);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					msgs.add("Swap for TORC1002 1 "+fe.swapEvent("TORC1002", "MTLM100100", "Trade Show", "TORM100100", "Trade Show"));
-					
-				}
-
-			});
-			
-			executor1.execute(new Runnable() {
-
-				@Override
-				public void run() {
-					int millis = rand.nextInt((100 - 0) + 1) + 0;
-					try {
-						Thread.sleep(millis);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					msgs.add("Swap for TORC1001 3 "+fe.swapEvent("TORC1001", "MTLM100100", "Trade Show", "OTWM100100", "Trade Show"));
-					
-				}
-
-			});
-			
-			executor1.execute(new Runnable() {
-
-				@Override
-				public void run() {
-					int millis = rand.nextInt((100 - 0) + 1) + 0;
-					try {
-						Thread.sleep(millis);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					msgs.add("Swap for TORC1002 2 "+fe.swapEvent("OTWM100102", "TORM100100", "Trade Show", "MTLM100100", "Trade Show"));
-					
-				}
-
-			});
+//			executor1.execute(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					int millis = rand.nextInt((100 - 0) + 1) + 0;
+//					try {
+//						Thread.sleep(millis);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//					msgs.add("Swap for TORC1002 1 "+fe.swapEvent("TORC1002", "MTLM100100", "Trade Show", "TORM100100", "Trade Show"));
+//					
+//				}
+//
+//			});
+//			
+//			executor1.execute(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					int millis = rand.nextInt((100 - 0) + 1) + 0;
+//					try {
+//						Thread.sleep(millis);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//					msgs.add("Swap for TORC1001 3 "+fe.swapEvent("TORC1001", "MTLM100100", "Trade Show", "OTWM100100", "Trade Show"));
+//					
+//				}
+//
+//			});
+//			
+//			executor1.execute(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					int millis = rand.nextInt((100 - 0) + 1) + 0;
+//					try {
+//						Thread.sleep(millis);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//					msgs.add("Swap for TORC1002 2 "+fe.swapEvent("OTWM100102", "TORM100100", "Trade Show", "MTLM100100", "Trade Show"));
+//					
+//				}
+//
+//			});
 		 
 			executor1.shutdown();
 			executor1.awaitTermination(1, TimeUnit.HOURS);
