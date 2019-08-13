@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 import org.json.simple.JSONObject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.google.gson.Gson;
 
 import extension.AdditionalFunctions;
@@ -987,7 +987,10 @@ public synchronized String removeEvent(String eventID, String eventType) throws 
 					synchronized(Class.forName(fullName)) {
 						//check isBooked condition
 						Map eventCus = this.getStaticValue("eventCus");
-						boolean hasCustomer = ((List<String>) ((HashMap) eventCus.get(oldEventType)).get(oldEventID)).contains(customerID);
+						boolean hasCustomer = false;
+						if(eventCus.getOrDefault(oldEventType, null) != null && ((HashMap) eventCus.get(oldEventType)).getOrDefault(oldEventID, null) != null) {
+							 hasCustomer = ((List<String>) ((HashMap) eventCus.get(oldEventType)).get(oldEventID)).contains(customerID);
+						}
 						String cancelResult = "";
 						String bookResult = "";
 						if(hasCustomer == true) {
