@@ -45,10 +45,12 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 	
 	
 	private Map<String, Integer> clock = new HashMap<String, Integer>();
+	private Map<String, Integer> incorrectCount;
 	
 	public FrontEnd() {
 		
 		super();
+		incorrectCount = new HashMap<String, Integer>();
 			
 		try {
 			
@@ -171,7 +173,8 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 		Map<String,String> msgs = new HashMap<String, String>();
 		String msg="";
 		for(String str : queue) {
-			
+			System.out.
+			println(str);
 			if(str.toLowerCase().contains("success")) {
 				//successCount++;
 				count.put("success", count.getOrDefault("success", 0) + 1);
@@ -180,7 +183,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 				successServerNames.add(temp[1].replace("/","").trim() + ":" + temp[2].trim());		
 				
 			} else if(str.toLowerCase().contains("incorrect")) { 
-				//incorrectCount++;
+//				incorrectCount++;
 				count.put("incorrect", count.getOrDefault("incorrect", 0) + 1);
 				String[] temp = str.split(":");
 				msgs.put("incorrect",temp[0].trim());
@@ -327,7 +330,17 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 //				multicast.multicast();
 //				
 //			}
-			
+//			List<String> inCorrectServers = new ArrayList<String>();
+//			keep count of incorrect results of each host/server
+//			List<String> incorrectList = map.get("incorrect");
+//			for(String s : incorrectList) {
+//				incorrectCount.put(s, incorrectCount.getOrDefault(s, 0) + 1);
+//				if(incorrectCount.get(s) >= 3) {
+//					incorrectList.add(s);
+//					//reset count
+//					incorrectCount.put(s, 0);
+//				}
+//			}
 			if(map.get("fail").size() > 0 || map.get("success").size() > 0 ||
 					map.get("incorrect").size() > 0) {
 				
