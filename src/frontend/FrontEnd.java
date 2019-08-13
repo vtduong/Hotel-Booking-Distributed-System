@@ -516,7 +516,7 @@ public class FrontEnd extends FEMethodPOA implements Serializable, Clock{
 //			System.out.println("final : " + queue);
 //			System.out.print("--------------------------------------------------------------------");
 			
-			return queue.toString();
+			return queue.peek();
 			
 		} catch(Exception e) {
 			
@@ -741,7 +741,7 @@ class ReceiveFromHost implements Runnable {
 	private void receive() throws SocketException {
 		
 		DatagramSocket socket = new DatagramSocket(this.to);
-		byte[] packet = new byte[100000];
+		byte[] packet = new byte[20000];
 		DatagramPacket datagram = new DatagramPacket(packet, packet.length);
 		
 		try {
